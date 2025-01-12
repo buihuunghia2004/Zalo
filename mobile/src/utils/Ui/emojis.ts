@@ -1,0 +1,41 @@
+export type Icon = {
+    id: number,
+    image: string
+}
+
+export const emojiObjects : Icon[] = [
+    { id: 1, image: '😀' },{ id: 2, image: '😁' },{ id: 3, image: '😂' },{ id: 4, image: '🤣' },
+    { id: 5, image: '😃' },{ id: 6, image: '😄' },{ id: 7, image: '😅' },{ id: 8, image: '😆' },
+    { id: 9, image: '😉' },{ id: 10, image: '😊' },{ id: 11, image: '😋' },{ id: 12, image: '😎' },
+    { id: 13, image: '😍' },{ id: 14, image: '😘' },{ id: 15, image: '😗' },{ id: 16, image: '😙' },
+    { id: 17, image: '😚' },{ id: 18, image: '🙂' },{ id: 19, image: '🤗' },{ id: 20, image: '🤩' },
+    { id: 21, image: '🤔' },{ id: 22, image: '🤨' },{ id: 23, image: '😐' },{ id: 24, image: '😑' },
+    { id: 25, image: '😶' },{ id: 26, image: '😏' },{ id: 27, image: '😣' },{ id: 28, image: '😥' },
+    { id: 29, image: '😮' },{ id: 30, image: '🤐' },{ id: 31, image: '😯' },{ id: 32, image: '😪' },
+    { id: 33, image: '😫' },{ id: 34, image: '😴' },{ id: 35, image: '😌' },{ id: 36, image: '😛' },
+    { id: 37, image: '😜' },{ id: 38, image: '😝' },{ id: 39, image: '🤤' },{ id: 40, image: '😒' },
+    { id: 41, image: '😓' },{ id: 42, image: '😔' },{ id: 43, image: '😕' },{ id: 44, image: '🙃' },
+    { id: 45, image: '😲' },{ id: 46, image: '☹️' },{ id: 47, image: '🙁' },{ id: 48, image: '😖' },
+    { id: 49, image: '😞' },{ id: 50, image: '😟' },{ id: 51, image: '😤' },{ id: 52, image: '😢' },
+    { id: 53, image: '😭' },{ id: 54, image: '😦' },{ id: 55, image: '😧' },{ id: 56, image: '😨' },
+    { id: 57, image: '😩' },{ id: 58, image: '🤯' },{ id: 59, image: '😬' },{ id: 60, image: '😰' },
+    { id: 61, image: '😱' },{ id: 62, image: '😳' },{ id: 63, image: '🤪' },{ id: 64, image: '😵' },
+    { id: 65, image: '😡' },{ id: 66, image: '😠' },{ id: 67, image: '🤬' },{ id: 68, image: '😷' },
+    { id: 69, image: '🤒' },{ id: 70, image: '🤕' },{ id: 71, image: '🤑' },{ id: 72, image: '😇' },
+    { id: 73, image: '🤠' },{ id: 74, image: '🤡' },{ id: 75, image: '🤥' },{ id: 76, image: '🤫' },
+    { id: 77, image: '🤭' },{ id: 78, image: '🧐' },{ id: 79, image: '🤓' },{ id: 80, image: '😈' },
+    { id: 81, image: '👿' },{ id: 82, image: '👹' },{ id: 83, image: '👺' },{ id: 84, image: '💩' },
+    { id: 85, image: '👻' },{ id: 86, image: '💀' },{ id: 87, image: '☠️' },{ id: 88, image: '👽' },
+    { id: 89, image: '👾' },{ id: 90, image: '🤖' },{ id: 91, image: '🎃' },{ id: 92, image: '😺' },
+    { id: 93, image: '😸' },{ id: 94, image: '😹' },{ id: 95, image: '😻' },{ id: 96, image: '😼' },
+    { id: 97, image: '😽' },{ id: 98, image: '🙀' },{ id: 99, image: '😿' },{ id: 100, image: '😾' },
+    { id: 101, image: '🙈' },{ id: 102, image: '🙉' },{ id: 103, image: '🙊' },{ id: 104, image: '😆' },
+    { id: 105, image: '😅' },{ id: 106, image: '😂' },{ id: 107, image: '🤣' },{ id: 108, image: '😊' },
+    { id: 109, image: '😉' },{ id: 110, image: '😋' },{ id: 111, image: '😎' },{ id: 112, image: '🥰' },
+    { id: 113, image: '🥲' },{ id: 114, image: '😜' },{ id: 115, image: '😝' },{ id: 116, image: '😛' },
+    { id: 117, image: '😠' },{ id: 118, image: '😡' },{ id: 119, image: '😳' },{ id: 120, image: '🤪' },
+    { id: 121, image: '🤗' },{ id: 122, image: '🤭' },{ id: 123, image: '🤫' },{ id: 124, image: '🥴' },
+    { id: 125, image: '🤥' },{ id: 126, image: '🤠' },{ id: 127, image: '🥰' },{ id: 128, image: '😇' },
+    { id: 129, image: '😈' },{ id: 130, image: '🥲' },{ id: 131, image: '🤡' },{ id: 132, image: '😖' },
+    { id: 133, image: '😞' }
+];

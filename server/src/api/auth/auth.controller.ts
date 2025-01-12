@@ -14,6 +14,9 @@ import { ChangePasswordReqDto } from './dto/change-password.req.dto';
 import { Uuid } from '@/common/types/common.type';
 import { JwtPayloadType } from './types/jwt-payload.type';
 import { RefreshResDto } from './dto/refresh.res.dto';
+import { OAuth2Client } from 'google-auth-library';
+import { LoginWithGoogleReqDto } from './dto/login-google.req.dto';
+import { LoginWithGoogleReqMobileDto } from './dto/login-google.req.dto.mobile';
 import { RefreshReqDto } from './dto/refresh.req.dto';
 
 @ApiTags('auth')
@@ -25,39 +28,36 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @ApiPublic()
+@Post('google-mobile')
+async googleLoginMobile(@Body() dto: LoginWithGoogleReqMobileDto) {
+  const {idToken} = dto
+  
+  const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+  const ticket = await client.verifyIdToken({
+    idToken,
+    audience: process.env.GOOGLE_CLIENT_ID,
+  });
+
+  const payload = ticket.getPayload();
+
+  const user: LoginWithGoogleReqDto = {
+    email: payload.email,
+    providerId: payload.sub, 
+    firstName: payload.given_name, 
+    lastName: payload.family_name, 
+    imageUrl: payload.picture, 
+  };
+
+  return this.authService.signInWithGoogle(user);
+}
+
+
+  @ApiPublic()
   @Get('google')
   @UseGuards(AuthGuard('google'))
-  async googleAuth(@Req() req ) {
+  async googleAuth() {
   }
-
-  @Post('google')
-  async googleLoginMobile(@Body('tokenId') tokenId: string) {
-    // Xác minh tokenId bằng Google API
-    const response = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${tokenId}`);
-    const payload = await response.json();
-
-    if (payload.aud !== process.env.GOOGLE_CLIENT_ID) {
-      throw new Error('Invalid Google ID Token');
-    }
-
-    const data = await this.authService.signInWithGoogle({
-      email: payload.email,
-      firstName:'',
-      lastName:'',
-      imageUrl:'',
-      providerId:''
-    })
-    // Trả về thông tin người dùng hoặc tạo tài khoản mới
-    return {
-      message: 'Google login successful',
-      user: {
-        email: payload.email,
-        name: payload.name,
-        picture: payload.picture,
-      },
-    };
-  }
-
 
   @Get('google/callback')
   @ApiPublic()
@@ -105,7 +105,9 @@ export class AuthController {
   async changePassword(
     @CurrentUser('id') id: Uuid,
     @Body() dto: ChangePasswordReqDto
-  ): Promise<any> {        
+  ): Promise<any> {  
+    console.log('id',id);
+      
     return this.authService.changePassword(id, dto)
   }
 
