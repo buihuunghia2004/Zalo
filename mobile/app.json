@@ -1,0 +1,22 @@
+{
+  "name": "zalo_client",
+  "displayName": "zalo_client",
+
+
+
+  "editor.tokenColorCustomizations": {
+    "textMateRules": [
+      {
+        "scope": [
+          "comment.line",
+          "comment.block",
+          "comment.block.documentation"
+        ],
+        "settings": {
+           "foreground": "#FFA500"
+        }
+      }
+    ]
+  } 
+}
+
