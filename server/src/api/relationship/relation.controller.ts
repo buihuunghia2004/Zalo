@@ -28,8 +28,6 @@ export class RelationController {
     return this.relationService.handleRequest(dto);
   }
 
-  
-
   @Get()
   findAll(
     @CurrentUser('id') userId: Uuid,

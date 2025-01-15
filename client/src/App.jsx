@@ -73,12 +73,10 @@ export default function App() {
       <Route
         path="/"
         element={
-          <PrivateRoute>
+          <PrivateRoute><SocketProvider namespace={"message"}>
             <HomeLayout>
-              {/* <SocketProvider namespace={"notifications"}> */}
                 <ChatPage/>
-              {/* </SocketProvider> */}
-            </HomeLayout>
+            </HomeLayout></SocketProvider>
           </PrivateRoute>
         }
       />

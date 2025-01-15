@@ -55,10 +55,16 @@ export class MessageGateway
   async handleJoinRoom(
     @MessageBody() data: { roomId: string },
     @ConnectedSocket() client: Socket,
-  ) {
+  ) {    
     client.join(data.roomId);
-    // Gửi thông báo đến tất cả các client khác trong room
-    client.to(data.roomId).emit('user-joined', { clientId: client.id });
+  }
+
+  @SubscribeMessage('out-room')
+  async handleOutRoom(
+    @MessageBody() data: { roomId: string },
+    @ConnectedSocket() client: Socket,
+  ) {    
+    client.leave(data.roomId);
   }
 
   @SubscribeMessage('writing-message')
@@ -74,17 +80,21 @@ export class MessageGateway
 
   @OnEvent(EventEmitterKey.NEW_MESSAGE)
   async newMessage(data: any) {
-    const { members } = data;
+    const { members, roomId } = data;
 
-    //gửi tin nhắn tới tất cả user (chưa sử dụng room)
-    await Promise.all(
-      await members.map(async (member) => {
-        this.server.emit(
-          createEventKey(EventKey.NEW_MESSAGE, member.userId),
-          data,
-        );
-      }),
+    //cho những user đang trong room
+    this.server.to(roomId).emit(
+      'new_message_to_room',
+      data
     );
+
+    //cho all user
+    members.forEach(member => {
+      this.server.emit(
+        createEventKey(EventKey.NEW_MESSAGE, member.userId),
+        data,
+      );
+    });
 
     //check clients online or offline
     // let onlineClients = []

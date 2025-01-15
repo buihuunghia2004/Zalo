@@ -1,7 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import userAPI from '../../service/userAPI';
 import authAPI from '../../service/authAPI';
-import App from '../../App';
 import { AppConstant } from '../../constants/appConstant';
 
 const updateMe = createAsyncThunk(

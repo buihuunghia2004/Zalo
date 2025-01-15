@@ -32,6 +32,10 @@ export class MessageResDto {
   @StringField()
   @Expose()
   senderId: Uuid;
+  
+  @StringField()
+  @Expose()
+  roomId: Uuid;
 
   @BooleanField()
   @Expose()

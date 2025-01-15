@@ -14,13 +14,7 @@ const loadMoreMessage = async (data) => {
 }
 
 const sentMessage = async ({receiverId, roomId, content, contentType}) => {
-  // const {receiverId, roomId, content, contentType} = data  
   try {
-    // const {roomId} = data
-    // let query = `roomId=${roomId}`
-    // if (roomId) {
-    //   query += 'roomId='
-    // }
     return await AxiosInstant.post('messages',{
       receiverId,
       roomId,

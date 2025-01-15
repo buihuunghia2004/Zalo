@@ -25,6 +25,12 @@ export class MemberEntity extends AbstractEntity{
   @Column({name: 'room_id'})
   roomId!: Uuid
 
+  @Column({name: 'received_msg_id', nullable:true})
+  receivedMsgId: Uuid
+
+  @Column({name: 'viewed_msg_id', nullable: true})
+  viewedMsgId: Uuid
+
   @OneToMany(()=>MessageEntity,(message)=>message.sender)
   messages: MessageEntity[]
 

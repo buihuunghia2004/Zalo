@@ -106,9 +106,7 @@ export class RelationService {
     return plainToInstance(RelationResDto, relation)
   }
 
-  async getAllRelations(currentUserId: Uuid, status: RelationStatus) : Promise<any[]>{    
-    console.log(currentUserId);
-    
+  async getAllRelations(currentUserId: Uuid, status: RelationStatus) : Promise<any[]>{        
     const query = this.relationRepository
       .createQueryBuilder('relation')
       .leftJoinAndSelect('relation.requester', 'requester')
@@ -136,9 +134,7 @@ export class RelationService {
       'handler.avatarUrl',
     ])
 
-    const relations = await query.getMany()    
-    console.log('realtions',relations);
-    
+    const relations = await query.getMany()        
 
     const result = relations.map(item => {
       return {

@@ -213,7 +213,7 @@ export class UserService {
         status: RelationStatus.NOTTHING,
         user: user
       }
-    }  
+    } 
       
     const inviter = myId == relation.requester.id ? InviterType.SELF : InviterType.OTHER
 

@@ -30,16 +30,6 @@ export class ChatRoomService {
   }
 
   async findAll(reqDto: ListRoomReqDto, meId: Uuid): Promise<OffsetPaginatedDto<RoomResDto>> {
-    // const roomIds = await this.memberRepository
-    //   .createQueryBuilder('m')
-    //   .select('m.roomId')
-    //   .leftJoinAndSelect('m.room','r')
-    //   .leftJoinAndSelect('r.members','m2')
-    //   .where('m.userId = :meId',{meId})
-    //   .getMany()
-
-    // console.log("roomIds",roomIds);
-
     const roomIds = this.roomRepository
       .createQueryBuilder('r')
       .select(['r.id','r.type'])
@@ -53,19 +43,11 @@ export class ChatRoomService {
       ])
       .where('m.userId = :meId',{meId})
 
-
-    // const query = this.roomRepository
-    //   .createQueryBuilder('r')
-    //   .leftJoin('r.members','m')
-    //   .where('m.userId = :meId',{meId})
-
     let [rooms, metaDto] = await paginate<ChatRoomEntity>(roomIds, reqDto, {
       skipCount: false,
       takeAll: false,
-    });
+    });    
     
-    
-
     const data = rooms.map(room => {
       let roomAvatarUrl: string
       let roomName: string
@@ -73,7 +55,6 @@ export class ChatRoomService {
 
       if (room.type == RoomType.PERSONAL) {
         const user = room.members.find(member => member.user.id !=  meId)?.user
-        console.log('user',user);
         
         if (user) {
           roomAvatarUrl = user.avatarUrl

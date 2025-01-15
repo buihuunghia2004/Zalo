@@ -2,14 +2,17 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage'; // Sử dụng localStorage
 import userSlice from './slices/userSlice'
+import roomSlice from './slices/roomSlice'
 // Cấu hình redux-persist
 const persistConfig = {
   key: 'root', // Tên key trong localStorage
   storage,     // Lưu trữ state trong localStorage
+  whitelist: ['me'],
 };
 
 const rootReducer = combineReducers({
-  me: userSlice
+  me: userSlice,
+  rooms: roomSlice
 });
 
 // Tạo persistedReducer
