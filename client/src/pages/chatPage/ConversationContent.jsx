@@ -13,6 +13,7 @@ const ConversationContent = ({
   name,
   type,
   partnerId,
+  currentMember,
   roomId,
   newMsg
 }) => {
@@ -21,17 +22,12 @@ const ConversationContent = ({
   const [textContent, setTextContent] = useState('')
   const [messages, setMessages] = useState([])
   const [isPartnerWrite, setIsPartnerWrite] = useState(false)
+  const [lastReceiveMsgIds, setLastReceiveMsgIds] = useState([])
   const [room, setRoom] = useState({ id: roomId })
   const messagesEndRef = useRef(null)
   const { emit } = useSocket()
   const meId = useSelector((state) => state.me.user?.id)
 
-
-  // useSocketEvent(
-  //   `event:notify:${meId}:new_message`,(data) => {
-  //     setMessages((prevMessages) => [data, ...prevMessages])
-  //   }
-  // )
   useEffect(() => {
     if (newMsg) {
       setMessages((prevMessages) => [newMsg,...prevMessages]); // Thêm tin nhắn mới vào danh sách
@@ -41,17 +37,27 @@ const ConversationContent = ({
   useSocketEvent(`event:${roomId}:writing_message`, (data) => {
     setIsPartnerWrite(data.status)
   })
+  useSocketEvent(`a:${meId}:b`, (data) => {
+    setLastReceiveMsgIds(data)
+  })
   useSocketEvent(`user-joined`, (data) => {
     console.log('đã vào', data.clientId)
   })
   useSocketEvent(`user-outed`, (data) => {
     console.log('đã thoát', data.clientId)
-  })
+  })  
 
   //component
-  const MessageItem = ({ data }) => {
-    const { content, type, status, sender, isSelfSent, createdAt, isLastest } =
-      data
+  const MessageItem = ({ data,lastReceiveMsgIds }) => {
+    const {
+      content,
+      type,
+      status,
+      sender, 
+      isSelfSent,
+      createdAt,
+      isLastest
+    } = data
     return (
       <div className={`flex flex-col`}>
         <div className={`my-2 flex ${isSelfSent && 'flex-row-reverse'}`}>
@@ -72,7 +78,7 @@ const ConversationContent = ({
         <div className={`flex ${isSelfSent && 'flex-row-reverse'}`}>
           {isSelfSent && isLastest && (
             <p className={`rounded-md bg-dark-5 p-1 text-xs text-white`}>
-              Đã gửi
+              {lastReceiveMsgIds.length > 0 ? 'Đã nhận' :'Đã gửi'}
             </p>
           )}
         </div>
@@ -117,7 +123,7 @@ const ConversationContent = ({
     if (!roomId && partnerId) {
       fetchRoomId()
     }
-    emit('join-room', { roomId: roomId })
+    emit('join-room', { roomId: roomId, userId: meId })
     dispatch(deleteAllReceivedMsg({ roomId: roomId }))
     
     return () => {
@@ -176,6 +182,7 @@ const ConversationContent = ({
           <MessageItem
             key={index.toString()}
             data={{ ...item, isLastest: index == messages.length - 1 }}
+            lastReceiveMsgIds={lastReceiveMsgIds}
           />
         ))}
         <div ref={messagesEndRef} className="h-5 w-full" />{' '}

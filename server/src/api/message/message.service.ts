@@ -78,6 +78,7 @@ export class MessageService {
         .leftJoinAndSelect('member.user', 'user')
         .select([
           'member.id',
+          'user.id',
           'user.username',
           'user.avatarUrl',
         ])
@@ -105,12 +106,14 @@ export class MessageService {
   
     // Gửi thông báo sự kiện
     this.eventEmitter.emit(EventEmitterKey.NEW_MESSAGE, {
+      id:newMessage.id,
       status: 'ok',
       content,
       contentType,
       roomId: room.id,
       memberSentId: memberSent.id,
       sender: memberSent,
+      createdAt: newMessage.createdAt,
       members: room.members.filter(member => member.userId != senderId),
     });
 
@@ -150,6 +153,9 @@ export class MessageService {
         beforeCursor: reqDto.beforeCursor,
       },
     });
+    const members = await this.findAllMemberByRoomId(reqDto.roomId)
+    console.log('memvberm',members);
+    
 
     const { data, cursor } = await paginator.paginate(queryBuilder);
     const result = data.map(item => {
@@ -168,6 +174,15 @@ export class MessageService {
     );
 
     return new CursorPaginatedDto(plainToInstance(MessageResDto, result), metaDto);
+  }
+
+
+  async findAllMemberByRoomId(roomId: Uuid){
+    const queryBuilder = await this.memberRepository
+      .createQueryBuilder('members')
+      .where('members.roomId = :roomId',{roomId})
+      .getMany()
+    return queryBuilder  
   }
 
   findAll() {

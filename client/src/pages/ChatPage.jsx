@@ -12,23 +12,55 @@ const ChatPage = () => {
   const distpatch = useDispatch()
   const [currentRoom, setCurrentRoom] = useState()
   const [newMessage, setNewMessage] = useState(null);
-  // const { emit } = useSocket();
+  const { emit } = useSocket();
 
   const meId = useSelector((state) => state.me.user?.id)
   
+  
   useSocketEvent(
-    `event:notify:${meId}:new_message`,(data) => {
-      console.log('data',data);
+    `event:notify:${meId}:new_message`,(data) => {     
+      console.log('new_emssage',data);
+      
       if (!currentRoom || (data.roomId != currentRoom.id)) {
         distpatch(addNewMsgToRoom(data))
       }else{
         setNewMessage(data)
       }
+
+      //đã nhận tin nhắn
+      emit('received-message',{
+        msgId:data.id,
+        senderId:data.sender.user.id,
+        memberId: currentRoom.members.find(member => member.user.id == meId).id
+      })
+    }
+  )
+  useSocketEvent(
+    `aaa`,(data) => {     
+      console.log('new_emssage',data);
     }
   )
 
+  // useSocketEvent(
+  //   `event:notify:${meId}:receivedMsg`,(data) => {            
+  //     if (!currentRoom || (data.roomId != currentRoom.id)) {
+  //       distpatch(addNewMsgToRoom(data))
+  //     }else{
+  //       setNewMessage(data)
+  //     }
+
+  //     //đã nhận tin nhắn
+  //     emit('received-message',{
+  //       msgId:data.id,
+  //       senderId:'',
+  //       memberId: currentRoom.members.find(member => member.user.id == meId).id
+  //     })
+  //   }
+  // )
+
   useEffect(() => {
     distpatch(getAllRooms())
+    emit('load-when-online',{userId: meId})
   }, [])
   
   
@@ -51,6 +83,7 @@ const ChatPage = () => {
                 type={currentRoom?.type}
                 roomId={currentRoom?.id}
                 newMsg={newMessage}
+                currentMember={currentRoom.members.find(member => member.user.id == meId)}
               />
           }
           {/* thông tin hội thoại*/}

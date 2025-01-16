@@ -91,7 +91,7 @@ export class ChatRoomService {
       .andWhere('r.type = :type', { type: RoomType.PERSONAL })
       .groupBy('m.roomId') 
       .having('COUNT(DISTINCT m.userId) = :count', { count: 2 })
-      .getRawOne();      
+      .getRawOne();
 
     if (!room) {
       throw new NotFoundException('Not found room')

@@ -9,6 +9,7 @@ import { useEffect } from 'react'
 import { getMe } from './redux/slices/userSlice'
 import HomeLayout from './layouts/HomeLayout'
 import { SocketProvider, useSocket } from './socket/SocketProvider'
+import useSocketEvent from './hooks/useSocket'
 
 export default function App() {
   const dispatch = useDispatch()
@@ -16,9 +17,6 @@ export default function App() {
   const email = useSelector((state) => state.me.user?.email)
   const meId = useSelector((state) => state.me.user?.id)
   const { emit } = useSocket();
-
-  console.log('cccccccccccccc');
-  
 
   // useEffect(() => {
   //   // Kết nối đến server
