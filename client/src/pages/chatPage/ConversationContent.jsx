@@ -123,6 +123,7 @@ const ConversationContent = ({
         lastMsg:{
           content: newMessage.content,
           type: newMessage.type,
+          createdAt: newMessage.createdAt,
           isSelfSent: newMessage.isSelfSent
         }
       }))

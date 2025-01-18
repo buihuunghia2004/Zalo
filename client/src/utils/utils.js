@@ -9,10 +9,12 @@ function getTimeDifferenceFromNow(isoTime) {
   const diffInMilliseconds = currentTime - targetTime;
 
   // Chuyển đổi sang phút, giờ, ngày
+  const diffInSeconds = Math.floor(diffInMilliseconds / (1000));
   const diffInMinutes = Math.floor(diffInMilliseconds / (1000 * 60));
   const diffInHours = Math.floor(diffInMilliseconds / (1000 * 60 * 60));
   const diffInDays = Math.floor(diffInMilliseconds / (1000 * 60 * 60 * 24));
 
+  if (diffInSeconds < 60) return `vài giây trước`;
   if (diffInMinutes < 60) return `${diffInMinutes} phút`;
   if (diffInHours < 24) return `${diffInHours} giờ`;
   if (diffInDays < 7) return `${diffInDays} ngày`;

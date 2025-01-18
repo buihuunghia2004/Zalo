@@ -31,6 +31,7 @@ const ChatPage = () => {
         lastMsg:{
           content: data.content,
           type: data.type,
+          createdAt: data.createdAt,
           isSelfSent: false
         }
       }))
