@@ -7,20 +7,18 @@ const loadMoreMessage = async (data) => {
     // if (roomId) {
     //   query += 'roomId='
     // }
-    return await AxiosInstant.get(`messages?`+query)
+    const result = await AxiosInstant.get(`messages?`+query)
+    console.log('mess',result);
+    return result
+    
   } catch (error) {
     
   }
 }
 
-const sentMessage = async ({receiverId, roomId, content, contentType}) => {
+const sentMessage = async (data) => {
   try {
-    return await AxiosInstant.post('messages',{
-      receiverId,
-      roomId,
-      content,
-      contentType
-    })
+    return await AxiosInstant.post('messages',data)
   } catch (error) {
     console.log('lỗi',error);
     

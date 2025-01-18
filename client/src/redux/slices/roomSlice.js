@@ -76,9 +76,7 @@ const roomSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(getAllRooms.fulfilled, (state, action) => {
-      console.log('rốm',action.payload);
-      
+    builder.addCase(getAllRooms.fulfilled, (state, action) => {      
       state.rooms = action.payload.data
     }),
     builder.addCase(sendMessage.pending, (state, action) => {      

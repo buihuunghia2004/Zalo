@@ -1,7 +1,7 @@
 import { Uuid } from "@/common/types/common.type";
 import { MessageContentType, MessageViewStatus } from "@/constants/entity.enum";
 import { AbstractEntity } from "@/database/entities/abstract.entity";
-import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { ChatRoomEntity } from "./chat-room.entity";
 import { MemberEntity } from "./member.entity";
 
@@ -58,11 +58,22 @@ export class MessageEntity extends AbstractEntity{
   })
   room?: ChatRoomEntity
 
-  @OneToOne(()=>MessageEntity)
+  @ManyToOne(() => MessageEntity, (message) => message.replies, { nullable: true })
   @JoinColumn({
     name:'reply_message_id',
     referencedColumnName:'id',
     foreignKeyConstraintName:'FK_replymessage_message'
   })
-  messageReply?: MessageEntity
+  parentMessage: MessageEntity;
+
+  @OneToMany(() => MessageEntity, (message) => message.parentMessage)
+  replies: MessageEntity[];
+
+  // @OneToOne(()=>MessageEntity, )
+  // @JoinColumn({
+  //   name:'reply_message_id',
+  //   referencedColumnName:'id',
+  //   foreignKeyConstraintName:'FK_replymessage_message'
+  // })
+  // messageReply?: MessageEntity
 }

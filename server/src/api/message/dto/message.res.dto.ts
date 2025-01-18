@@ -57,6 +57,10 @@ export class MessageResDto {
   @Expose()
   messageReply?: WrapperType<MessageResDto>;
 
+  @ClassField(()=> MessageResDto)
+  @Expose()
+  parentMessage?: WrapperType<MessageResDto>;
+
   @DateField()
   @Expose()
   createdAt?: Date;

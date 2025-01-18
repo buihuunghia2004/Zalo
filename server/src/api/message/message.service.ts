@@ -88,6 +88,7 @@ export class MessageService {
       roomId: room.id,
       content,
       type: contentType,
+      replyMessageId: dto.replyMessageId,
       status: MessageViewStatus.SENT,
       createdBy: senderId,
       updatedBy: senderId,
@@ -121,6 +122,14 @@ export class MessageService {
         'message.content',
         'message.status',
         'message.createdAt',
+      ])
+      .leftJoin('message.parentMessage','replyMsg')
+      .addSelect([
+        'replyMsg.id',
+        'replyMsg.type',
+        'replyMsg.content',
+        'replyMsg.status',
+        'replyMsg.createdAt',
       ])
       .leftJoin('message.sender','sender')
       .addSelect([
