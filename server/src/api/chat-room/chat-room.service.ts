@@ -6,14 +6,13 @@ import { RoomResDto } from './dto/room.res.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatRoomEntity } from '../message/entities/chat-room.entity';
 import { Brackets, Repository } from 'typeorm';
-import { SortEnum } from '@/constants/sort.enum';
 import { paginate } from '@/utils/offset-pagination';
 import { plainToInstance } from 'class-transformer';
 import { OffsetPaginatedDto } from '@/common/dto/offset-pagination/paginated.dto';
 import { RoomType } from '@/constants/entity.enum';
 import { Uuid } from '@/common/types/common.type';
 import { MemberEntity } from '../message/entities/member.entity';
-import { NotFoundError } from 'rxjs';
+import { MessageEntity } from '../message/entities/message.entity';
 
 @Injectable()
 export class ChatRoomService {
@@ -23,6 +22,8 @@ export class ChatRoomService {
     private readonly roomRepository: Repository<ChatRoomEntity>,
     @InjectRepository(MemberEntity)
     private readonly memberRepository: Repository<MemberEntity>,
+    @InjectRepository(MessageEntity)
+    private readonly messageRepository: Repository<MessageEntity>,
   ){}
 
   create(createChatRoomDto: CreateChatRoomDto) {
@@ -46,33 +47,52 @@ export class ChatRoomService {
     let [rooms, metaDto] = await paginate<ChatRoomEntity>(roomIds, reqDto, {
       skipCount: false,
       takeAll: false,
-    });    
+    });
     
-    const data = rooms.map(room => {
-      let roomAvatarUrl: string
-      let roomName: string
-      
-
-      if (room.type == RoomType.PERSONAL) {
-        const user = room.members.find(member => member.user.id !=  meId)?.user
-        
-        if (user) {
-          roomAvatarUrl = user.avatarUrl
-          roomName = user.username
+    const data = await Promise.all(
+      rooms.map(async room => {
+        let roomAvatarUrl: string
+        let roomName: string
+  
+        if (room.type == RoomType.PERSONAL) {
+          const user = room.members.find(member => member.user.id !=  meId)?.user
+          
+          if (user) {
+            roomAvatarUrl = user.avatarUrl
+            roomName = user.username
+          }
+        }else{
+          roomAvatarUrl = room.groupAvatar
+          roomName = room.groupName
         }
-      }else{
-        roomAvatarUrl = room.groupAvatar
-        roomName = room.groupName
-      }
-
-      return {
-        id: room.id,
-        type: room.type,
-        members:room.members,
-        roomAvatarUrl,
-        roomName
-      }
-    })    
+  
+        const lastMsg = await this.messageRepository
+        .createQueryBuilder('msg')
+        .select([
+          'msg.content',
+          'msg.type',
+          'msg.senderId',
+          'msg.createdAt',
+        ])
+        .leftJoin('msg.sender','sender')
+        .addSelect([
+          'sender.id',
+          'sender.userId',
+        ])
+        .where('msg.roomId = :roomId',{roomId: room.id})
+        .orderBy({'msg.createdAt':'DESC'})
+        .getOne()
+  
+        return {
+          id: room.id,
+          type: room.type,
+          members:room.members,
+          roomAvatarUrl,
+          roomName,
+          lastMsg:{...lastMsg, isSelfSent:meId == lastMsg.sender.userId}
+        }
+      })
+    )
     return new OffsetPaginatedDto(plainToInstance(RoomResDto, data), metaDto);    
   }
 

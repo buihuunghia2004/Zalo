@@ -2,14 +2,12 @@ import { useEffect, useState } from 'react'
 import SquareIcon from '../../components/icon/squareIcon'
 import { AddFriendModal } from '../../components/modal/AddFriendModal'
 import { Assets } from '../../assets'
+import { useSelector } from 'react-redux'
+import Utils from '../../utils/utils'
 
 export default function ConversationList({ rooms, setCurrentConversation }) {
-  const [isModalOpen, setIsModelOpen] = useState(false)
-
-  useEffect(() => {
-    console.log('ccccccccccc',rooms);
-  }, [])
-  
+  const [isModalOpen, setIsModelOpen] = useState(false)  
+  const meId = useSelector((state) => state.me.user?.id)
 
   return (
     <div className="flex w-[28rem] flex-col">
@@ -33,9 +31,10 @@ export default function ConversationList({ rooms, setCurrentConversation }) {
           <ConversationItem
             key={index.toString()}
             data={item}
-            lastText={'hello'}
-            messLasted={'1h'}
+            lastMsg={item.lastMsg?.content}
+            messLasted={item.lastMsg.createdAt}
             msgReceived={item.receivedMsgs}
+            isSelfSent={item.lastMsg?.isSelfSent}
             onClick={() => setCurrentConversation(item)}
           />
         ))}
@@ -84,8 +83,23 @@ const SelectedTab = () => {
     </div>
   )
 }
-const ConversationItem = ({ id, data, lastText, messLasted, msgReceived, onClick }) => {  
+const ConversationItem = ({ id, data, isSelfSent, lastMsg, messLasted, msgReceived, onClick }) => {  
   const [isHover, setIsHover] = useState(false)
+  const [timeDifference, setTimeDifference] = useState('');
+
+  useEffect(() => {
+    // Cập nhật ngay lập tức
+    setTimeDifference(Utils.getTimeDifferenceFromNow(messLasted));
+
+    // Thiết lập cập nhật mỗi phút
+    const intervalId = setInterval(() => {
+      setTimeDifference(Utils.getTimeDifferenceFromNow(messLasted));
+    }, 60 * 1000);
+
+    // Dọn dẹp interval khi component bị unmount
+    return () => clearInterval(intervalId);
+  }, [messLasted]);
+
   return (
     <div
       className="flex h-20 w-full flex-row items-center p-2 pr-4 hover:bg-dark-4"
@@ -104,14 +118,14 @@ const ConversationItem = ({ id, data, lastText, messLasted, msgReceived, onClick
           {isHover ? (
             <SquareIcon className={'size-6'} src={Assets.icons.more} />
           ) : (
-            <p className="text-sm text-slate-400">{messLasted}</p>
+            <p className="text-sm text-slate-400">{timeDifference}</p>
           )}
         </div>
         <div className="flex flex-row mx-2 w-full gap-1 py-1">
+          <p className="text-sm text-slate-400 flex-1">{(isSelfSent ? 'Bạn: ' : '') + lastMsg}</p>
           {
            msgReceived && Array.isArray(msgReceived) && msgReceived.length > 0 &&
            <>
-            <p className="text-sm text-slate-400 flex-1">{msgReceived[msgReceived.length-1]?.content}</p>
             <p className="text-sm size-5 text-center text-white rounded-full bg-red-600">{msgReceived.length}</p>
            </>
           }

@@ -6,16 +6,9 @@ export const connectSocket = (namespace) => {
   if (!sockets[namespace]) {
     sockets[namespace] = io(`http://localhost:7777/${namespace}`, {
       transports: ["websocket"],
-      // extraHeaders: {
-      //   "Custom-Header": "YourHeaderValue",
-      //   Authorization: `Bearer ${localStorage.getItem("accessToken")}`, // Example of adding Authorization header
-      // },
       auth: {
         token: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-      // headers:{
-      //   authorization:`Bearer ${localStorage.getItem('accessToken')}`
-      // }
+      }
     });
 
     sockets[namespace].on("connect", () => {

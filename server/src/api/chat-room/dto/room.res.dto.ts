@@ -34,6 +34,10 @@ export class RoomResDto {
 
   @ClassField(()=> MessageResDto)
   @Expose()
+  lastMsg: WrapperType<MessageResDto[]>;
+
+  @ClassField(()=> MessageResDto)
+  @Expose()
   messages: WrapperType<MessageResDto[]>;
 
   @ClassField(()=> UserResDto)

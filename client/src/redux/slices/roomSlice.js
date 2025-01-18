@@ -61,15 +61,27 @@ const roomSlice = createSlice({
         }
         return room;
       });
-    }
+    },
+    updateLastMsgForRoom: (state, action) => {
+      const {roomId, lastMsg} = action.payload
+      state.rooms = state.rooms.map((room) => {
+        if (room.id === roomId) {
+          return {
+            ...room,
+            lastMsg: lastMsg,
+          };
+        }
+        return room;
+      });
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(getAllRooms.fulfilled, (state, action) => {
+      console.log('rốm',action.payload);
+      
       state.rooms = action.payload.data
     }),
-    builder.addCase(sendMessage.pending, (state, action) => {
-      console.log('sending',action.payload);
-      
+    builder.addCase(sendMessage.pending, (state, action) => {      
       state.rooms = action.payload.data
     }),
     builder.addCase(sendMessage.fulfilled, (state, action) => {
@@ -80,7 +92,8 @@ const roomSlice = createSlice({
 
 export const { 
   addNewMsgToRoom,
-  deleteAllReceivedMsg
+  deleteAllReceivedMsg,
+  updateLastMsgForRoom
 } = roomSlice.actions;
 
 export default roomSlice.reducer;

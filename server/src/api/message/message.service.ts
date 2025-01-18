@@ -64,15 +64,6 @@ export class MessageService {
     }
   
     if (!memberSent) {
-      // memberSent = await this.memberRepository.findOne({
-      //   where: { roomId, userId: senderId },
-      //   relations:['user'],
-      //   select:[
-      //     'id',
-      //     "user.username",
-      //     'user.avatarUrl'
-      //   ]
-      // });
       memberSent = await this.memberRepository
         .createQueryBuilder('member')
         .leftJoinAndSelect('member.user', 'user')
@@ -153,9 +144,6 @@ export class MessageService {
         beforeCursor: reqDto.beforeCursor,
       },
     });
-    const members = await this.findAllMemberByRoomId(reqDto.roomId)
-    console.log('memvberm',members);
-    
 
     const { data, cursor } = await paginator.paginate(queryBuilder);
     const result = data.map(item => {

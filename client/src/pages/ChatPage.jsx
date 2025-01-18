@@ -4,7 +4,7 @@ import ConversationList from './chatPage/ConversationList'
 import ConversationContent from './chatPage/ConversationContent'
 import { SocketProvider, useSocket } from '../socket/SocketProvider'
 import { useDispatch, useSelector } from 'react-redux'
-import { addNewMsgToRoom, getAllRooms } from '../redux/slices/roomSlice'
+import { addNewMsgToRoom, getAllRooms, updateLastMsgForRoom } from '../redux/slices/roomSlice'
 import useSocketEvent from '../hooks/useSocket'
 
 const ChatPage = () => {
@@ -19,7 +19,6 @@ const ChatPage = () => {
   
   useSocketEvent(
     `event:notify:${meId}:new_message`,(data) => {     
-      console.log('new_emssage',data);
       
       if (!currentRoom || (data.roomId != currentRoom.id)) {
         distpatch(addNewMsgToRoom(data))
@@ -27,17 +26,21 @@ const ChatPage = () => {
         setNewMessage(data)
       }
 
+      distpatch(updateLastMsgForRoom({
+        roomId: data.roomId,
+        lastMsg:{
+          content: data.content,
+          type: data.type,
+          isSelfSent: false
+        }
+      }))
+
       //đã nhận tin nhắn
       emit('received-message',{
         msgId:data.id,
         senderId:data.sender.user.id,
-        memberId: currentRoom.members.find(member => member.user.id == meId).id
+        memberId: rooms.find(room => room.id == data.roomId).members.find(member => member.user.id == meId).id
       })
-    }
-  )
-  useSocketEvent(
-    `aaa`,(data) => {     
-      console.log('new_emssage',data);
     }
   )
 
@@ -58,9 +61,8 @@ const ChatPage = () => {
   //   }
   // )
 
-  useEffect(() => {
+  useEffect(() => {    
     distpatch(getAllRooms())
-    emit('load-when-online',{userId: meId})
   }, [])
   
   
@@ -77,14 +79,14 @@ const ChatPage = () => {
           {/* hội thoại */}
           {
             currentRoom &&
-              <ConversationContent
-                avatarUrl={currentRoom?.roomAvatarUrl}
-                name={currentRoom?.roomName}
-                type={currentRoom?.type}
-                roomId={currentRoom?.id}
-                newMsg={newMessage}
-                currentMember={currentRoom.members.find(member => member.user.id == meId)}
-              />
+            <ConversationContent
+              avatarUrl={currentRoom?.roomAvatarUrl}
+              name={currentRoom?.roomName}
+              type={currentRoom?.type}
+              roomId={currentRoom?.id}
+              newMsg={newMessage}
+              currentMember={currentRoom.members.find(member => member.user.id == meId)}
+            />
           }
           {/* thông tin hội thoại*/}
           <ConversationInfo/>

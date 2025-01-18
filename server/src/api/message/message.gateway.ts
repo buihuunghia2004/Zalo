@@ -65,9 +65,7 @@ export class MessageGateway
     @MessageBody() data: { roomId: string, userId: string },
     @ConnectedSocket() client: Socket,
   ) {    
-    client.join(data.roomId);
-    console.log('cc',data.userId);
-    
+    client.join(data.roomId);    
     await this.cacheManager.del(`unrcv_message:${data.userId}`);
   }
 
@@ -95,20 +93,12 @@ export class MessageGateway
     @MessageBody() data: any,
     @ConnectedSocket() client: Socket,
   ) {
-    const {msgId, memberId, senderId} = data
-    //update received_msg_id = msgId cho member có roomId và userId
-    await this.memberRepository.update(memberId, {receivedMsgId: msgId})
+    await this.receivedMessage(data)
+  }
 
-    // if (true) {
-      const receivedMemberList = await this.memberRepository.find({
-        where:{
-          receivedMsgId: msgId
-        },
-        select:['id','createdAt','receivedMsgId','viewedMsgId']
-      })      
-      
-      this.server.emit(`a:${senderId}:b`,receivedMemberList)
-    // }
+  @OnEvent('received-message')
+  async handleReceivedMessageAfterOnline(data: any){    
+    await this.receivedMessage(data)
   }
 
   @OnEvent(EventEmitterKey.NEW_MESSAGE)
@@ -125,10 +115,6 @@ export class MessageGateway
         offineClientIds.push(member.userId)
       }
     }))
-
-    console.log('on',onlineClientIds);
-    console.log('of',offineClientIds);
-    
 
     //gửi đến các user đang online
     onlineClientIds.forEach(id => {
@@ -162,25 +148,50 @@ export class MessageGateway
         const messages = await this.messageRepository
           .createQueryBuilder('m')
           .where('m.roomId = :roomId', { roomId })
-          .andWhere('m.createdAt > :createdAt', {
+          .andWhere('m.createdAt >= :createdAt', {
             createdAt: rawRooms[roomId],
           })
           .getMany();
-
-        console.log('mmm',messages.length);
           
         for (const message of messages) {
+          const sender = await this.messageRepository
+            .createQueryBuilder('msg')
+            .leftJoin('msg.sender','sender')
+            .addSelect('sender.id')
+            .leftJoin('sender.user','user')
+            .addSelect('user.id')
+            .where('msg.id = :msgId',{msgId: message.id})
+            .getOne()            
           this.server.emit(
             createEventKey(EventKey.NEW_MESSAGE, userId),
-            message,
+            {
+              ...message,
+              sender:sender.sender
+            },
           );
         }
       }
     }
   }
-  private extractTokenFromHeader(request: Socket): string | undefined {
+
+  private  extractTokenFromHeader(request: Socket): string | undefined {
     const accessToken = request.handshake.auth.token || request.handshake.headers.authorization
     const [type, token] = accessToken.trim()?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
   }
-}
+
+  private async receivedMessage({msgId, memberId, senderId}){
+    await this.memberRepository.update(memberId, {receivedMsgId: msgId})
+
+    const receivedMemberList = await this.memberRepository
+      .createQueryBuilder('mem')
+      .select([
+        'mem.id','mem.receivedMsgId','mem.viewedMsgId'
+      ])
+      .where('mem.receivedMsgId = :receivedMsgId',{receivedMsgId: msgId})
+      .getMany()
+      
+    this.server.emit(`a:${senderId}:b`,receivedMemberList)
+  }
+}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+ 

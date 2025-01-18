@@ -51,6 +51,8 @@ export class NotificationGateway
       await this.authService.verifyAccessToken(accessToken);
       await this.cacheManager.set(`connected:${user.id}`, user.id);
       this.eventEmitter.emit('aaa',{userId: user.id})
+      // this.eventEmitter.emit('xxx',{userId: user.id})
+
     } catch (error) {
       this.server.emit('error', 'hihi');
     }
@@ -84,38 +86,6 @@ export class NotificationGateway
     client.emit('notification', {
       message: 'Your notification request is processed.',
     });
-  }
-
-  @SubscribeMessage('load-when-online')
-  async loadMsgWhenOnline(client: any, payload: any) {
-    const {userId} = payload
-    
-    //lưu userId với socket:clientId
-
-    // const rawRooms = await this.cacheManager.get(`unrcv_message:${user.id}`);
-      // if (rawRooms) {
-      //   const roomIds = Object.keys(rawRooms)
-      //   roomIds.forEach(async roomId => {
-      //     const messages = await this.messageRepository.createQueryBuilder('m')
-      //       .where('m.roomId =:roomId',{roomId: roomId})
-      //       .andWhere('m.createdAt > :createdAt', {createdAt: rawRooms[`${roomId}`]})
-      //       .getMany()
-
-      //   console.log('mmm',messages.length);
-      //   messages.forEach(element => {
-      //     this.server.emit(
-      //       createEventKey(EventKey.NEW_MESSAGE, user.id),
-      //       element,
-      //     );
-      //   });
-
-      //   });
-      //   console.log('ccc',roomIds);
-      // }
-      console.log('lllllll',userId);
-      
-
-      
   }
 
   private extractTokenFromHeader(request: Socket): string | undefined {

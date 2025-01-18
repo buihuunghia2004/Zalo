@@ -6,7 +6,8 @@ import SquareIcon from '../../components/icon/squareIcon'
 import roomAPI from '../../service/roomAPI'
 import useSocketEvent from '../../hooks/useSocket'
 import { useSocket } from '../../socket/SocketProvider'
-import { deleteAllReceivedMsg } from '../../redux/slices/roomSlice'
+import { deleteAllReceivedMsg, updateLastMsgForRoom } from '../../redux/slices/roomSlice'
+import Utils from '../../utils/utils'
 
 const ConversationContent = ({
   avatarUrl,
@@ -24,20 +25,25 @@ const ConversationContent = ({
   const [isPartnerWrite, setIsPartnerWrite] = useState(false)
   const [lastReceiveMsgIds, setLastReceiveMsgIds] = useState([])
   const [room, setRoom] = useState({ id: roomId })
+  const [lastRCV, setLastRCV] = useState(null)
+  const [lastViewed, setLastViewed] = useState(null)
   const messagesEndRef = useRef(null)
   const { emit } = useSocket()
   const meId = useSelector((state) => state.me.user?.id)
 
-  useEffect(() => {
+  useEffect(() => {    
     if (newMsg) {
-      setMessages((prevMessages) => [newMsg,...prevMessages]); // Thêm tin nhắn mới vào danh sách
+      setMessages((prevMessages) => [...prevMessages,newMsg]);
     }
   }, [newMsg]);
 
   useSocketEvent(`event:${roomId}:writing_message`, (data) => {
     setIsPartnerWrite(data.status)
   })
-  useSocketEvent(`a:${meId}:b`, (data) => {
+  useSocketEvent(`a:${meId}:b`, (data) => {        
+    const [rcv, viewed ] = getLastRCVAndViewd(data,messages)
+    setLastRCV(rcv)
+    setLastViewed(viewed)
     setLastReceiveMsgIds(data)
   })
   useSocketEvent(`user-joined`, (data) => {
@@ -48,9 +54,10 @@ const ConversationContent = ({
   })  
 
   //component
-  const MessageItem = ({ data,lastReceiveMsgIds }) => {
+  const MessageItem = ({ data, lastReceiveMsgIds, isShowTime }) => {
     const {
       content,
+      id,
       type,
       status,
       sender, 
@@ -72,13 +79,17 @@ const ConversationContent = ({
           <div
             className={`rounded bg-slate-500 p-2 ${!isSelfSent ? 'ml-2' : 'mr-2'}`}
           >
-            <p className="max-w-80 break-words">{content}</p>
+            <p className="min-w-12 max-w-80 break-words text-white ">{content}</p>
+            {
+              isShowTime &&
+              <p className="text-xs text-white font-mono">{Utils.timeToMmSs(createdAt)}</p>
+            }
           </div>
         </div>
         <div className={`flex ${isSelfSent && 'flex-row-reverse'}`}>
-          {isSelfSent && isLastest && (
+          {isSelfSent && isLastest &&  (
             <p className={`rounded-md bg-dark-5 p-1 text-xs text-white`}>
-              {lastReceiveMsgIds.length > 0 ? 'Đã nhận' :'Đã gửi'}
+              {lastRCV >= createdAt ? 'Đã nhận' :'Đã gửi'}
             </p>
           )}
         </div>
@@ -102,17 +113,26 @@ const ConversationContent = ({
         content: message,
         contentType: 'text',
       })
+      
       newMessage.isSelfSent = true
-      setMessages((prevMessages) => [newMessage, ...prevMessages])
+      setMessages((prevMessages) => [...prevMessages, newMessage])
       scrollToBottom()
       setTextContent('')
+      dispatch(updateLastMsgForRoom({
+        roomId: roomId,
+        lastMsg:{
+          content: newMessage.content,
+          type: newMessage.type,
+          isSelfSent: newMessage.isSelfSent
+        }
+      }))
     } catch (error) {}
   }
   const fetchLoadMoreMessages = async () => {
     const data = await messageAPI.loadMoreMessage({
       roomId: roomId || room.id,
     })
-    setMessages(data.data)
+    setMessages(data.data.reverse())
   }
   const fetchRoomId = async () => {
     const room = await roomAPI.getRoomIdByUserIdAPI(partnerId)
@@ -178,10 +198,11 @@ const ConversationContent = ({
       </div>
       {/* nội dung hội thoại */}
       <div className="h-full overflow-auto p-8 scrollbar-hide">
-        {[...messages].reverse().map((item, index) => (
+        {messages.map((item, index) => (
           <MessageItem
             key={index.toString()}
             data={{ ...item, isLastest: index == messages.length - 1 }}
+            isShowTime={!messages[index+1] || messages[index].isSelfSent != messages[index+1]?.isSelfSent}
             lastReceiveMsgIds={lastReceiveMsgIds}
           />
         ))}
@@ -206,6 +227,11 @@ const ConversationContent = ({
             onChange={(e) => setTextContent(e.target.value)}
             onFocus={() => setIsInputFocus(true)}
             onBlur={() => setIsInputFocus(false)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                SendMessage(2, textContent)
+              }
+            }}
           />
           <img
             className="size-6"
@@ -220,6 +246,26 @@ const ConversationContent = ({
       </div>
     </div>
   )
+}
+
+const getLastRCVAndViewd = (data, messages) => {
+  let rcv
+  let viewed
+
+  if (data && Array.isArray(data)) {
+    data.forEach(element => {
+      const rcvCreatedAt = messages.find(message => message.id == element.receivedMsgId).createdAt
+      const viewedCreatedAt = messages.find(message => message.id == element.receivedMsgId).createdAt      
+      if (!rcv || rcv < rcvCreatedAt) {
+        rcv = rcvCreatedAt
+      }
+      if (!viewed || viewed < viewedCreatedAt) {
+        viewed = viewedCreatedAt
+      }
+    });
+  }
+
+  return [rcv, viewed]
 }
 
 export default ConversationContent
