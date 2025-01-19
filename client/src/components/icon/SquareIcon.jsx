@@ -5,7 +5,7 @@ export default function SquareIcon({
 }) {
   return (
     <div 
-      className={`${className} size-10 p-2 rounded-lg hover:bg-zinc-950 `}
+      className={`size-10 p-2 rounded-lg hover:bg-zinc-950 ${className} `}
       onClick={onClick}
     >
       <img src={src}/>

@@ -27,11 +27,33 @@ function autoUpdateTimeDifference(isoTime, callback) {
   update(); // Gọi lần đầu tiên để cập nhật ngay
   return setInterval(update, 60 * 1000); // Cập nhật mỗi phút
 }
+function escapeRegex(string) {
+  return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+}
+function convertMsgContent(text) {
+  if (!text) {
+    return ''
+  }
+  const regex = new RegExp(Object.keys(emojiMap).map(escapeRegex).join('|'), 'g');
+  return text.replace(regex, (match) => emojiMap[match] || match);
+}
+
+var emojiMap = {
+  ':D': '😄',
+  'B-)': '😎',
+  ':(': '☹️',
+  ':)': '🙂',
+  ';)': '😉',
+  ':P': '😛',
+  'XD': '😂',
+  ':\'(': '😢',
+};
 
 const Utils = {
   timeToMmSs,
   getTimeDifferenceFromNow,
-  autoUpdateTimeDifference
+  autoUpdateTimeDifference,
+  convertMsgContent
 }
 
 export default Utils

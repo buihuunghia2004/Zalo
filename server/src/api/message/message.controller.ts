@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UploadedFiles, UseInterceptors, BadRequestException, UploadedFile } from '@nestjs/common';
 import { MessageService } from './message.service';
 import { ApiTags } from '@nestjs/swagger';
 import { SendMessageReqDto } from './dto/send-message.req.dto';
@@ -8,6 +8,9 @@ import { CursorPaginationDto } from '@/common/dto/cursor-pagination/cursor-pagin
 import { CursorPaginatedDto } from '@/common/dto/cursor-pagination/paginated.dto';
 import { LoadMoreMessagesReqDto } from './dto/load-more-messages.req.dto';
 import { MessageResDto } from './dto/message.res.dto';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 // import { UpdateMessageDto } from './dto/update-message.dto';
 
 @ApiTags('messages')
@@ -19,11 +22,44 @@ export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
   @Post()
+  @UseInterceptors(
+    // FileInterceptor('file', {
+    //   storage: diskStorage({
+    //     destination: './uploads', // Thư mục lưu trữ file
+    //     filename: (req, file, callback) => {
+    //       const uniqueSuffix = `${Date.now()}-${Math.round(
+    //         Math.random() * 1e9,
+    //       )}${extname(file.originalname)}`;
+    //       callback(null, uniqueSuffix);
+    //     },
+    //   }),
+    //   limits: { fileSize: 500 * 1024 }, // Dung lượng tối đa: 500KB
+    //   fileFilter: (req, file, callback) => {
+    //     const allowedMimeTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+    //     if (!allowedMimeTypes.includes(file.mimetype)) {
+    //       return callback(new BadRequestException('Invalid file type'), false);
+    //     }
+    //     callback(null, true);
+    //   },
+    // }),
+    FileInterceptor('file',{
+      limits: { fileSize: 500 * 1024 },
+      fileFilter: (req, file, callback) => {
+        const allowedMimeTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+        if (!allowedMimeTypes.includes(file.mimetype)) {
+          return callback(new BadRequestException('Invalid file type'), false);
+        }
+        callback(null, true);
+      },
+    })
+  )
   sendMessage(
+    @UploadedFile() file: Express.Multer.File,
     @Body() dto: SendMessageReqDto,
     @CurrentUser('id') id: Uuid
   ) {
-    return this.messageService.sendMessage(dto,id);
+    console.log('file',file);
+    return this.messageService.sendMessage(dto, file, id);
   }
 
   @Get()

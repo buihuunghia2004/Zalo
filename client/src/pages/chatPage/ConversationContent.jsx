@@ -6,7 +6,11 @@ import SquareIcon from '../../components/icon/squareIcon'
 import roomAPI from '../../service/roomAPI'
 import useSocketEvent from '../../hooks/useSocket'
 import { useSocket } from '../../socket/SocketProvider'
-import { deleteAllReceivedMsg, updateLastMsgForRoom } from '../../redux/slices/roomSlice'
+import {
+  deleteAllReceivedMsg,
+  sendMessage,
+  updateLastMsgForRoom,
+} from '../../redux/slices/roomSlice'
 import Utils from '../../utils/utils'
 
 const ConversationContent = ({
@@ -16,7 +20,7 @@ const ConversationContent = ({
   partnerId,
   currentMember,
   roomId,
-  newMsg
+  newMsg,
 }) => {
   const dispatch = useDispatch()
   const [isInputFocus, setIsInputFocus] = useState(false)
@@ -28,6 +32,8 @@ const ConversationContent = ({
   const [lastRCV, setLastRCV] = useState(null)
   const [msgRep, setMsgRep] = useState(null)
   const [lastViewed, setLastViewed] = useState(null)
+  const [images, setImages] = useState([])
+  const [files, setFiles] = useState([])
   const messagesEndRef = useRef(null)
   const { emit } = useSocket()
   const meId = useSelector((state) => state.me.user?.id)
@@ -35,8 +41,8 @@ const ConversationContent = ({
   useSocketEvent(`event:${roomId}:writing_message`, (data) => {
     setIsPartnerWrite(data.status)
   })
-  useSocketEvent(`a:${meId}:b`, (data) => {        
-    const [rcv, viewed ] = getLastRCVAndViewd(data,messages)
+  useSocketEvent(`a:${meId}:b`, (data) => {
+    const [rcv, viewed] = getLastRCVAndViewd(data, messages)
     setLastRCV(rcv)
     setLastViewed(viewed)
     setLastReceiveMsgIds(data)
@@ -46,7 +52,7 @@ const ConversationContent = ({
   })
   useSocketEvent(`user-outed`, (data) => {
     console.log('đã thoát', data.clientId)
-  })  
+  })
 
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
@@ -55,45 +61,68 @@ const ConversationContent = ({
       })
     }
   }
-  const SendMessage = async ({content, parentMessage}) => {
+  const SendMessage = async ({ content, parentMessage, files }) => {
     try {
-      const data = {
-        receiverId: partnerId,
-        roomId: room.id,
-        content: content,
-        contentType: 'text',
+      const send = async (formData) => {
+        const newMessage = await messageAPI.sentMessage(formData)
+        newMessage.isSelfSent = true
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            ...newMessage,
+            parentMessage,
+          },
+        ])
       }
-      
-      if (msgRep) {
-        data.replyMessageId = msgRep.id
+      const formData = new FormData()
+      if (partnerId) {
+        formData.append('receiverId', partnerId)
       }
-      const newMessage = await messageAPI.sentMessage(
-        data
-      )
-      
-      newMessage.isSelfSent = true
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        {
-          ...newMessage,
-          parentMessage
+      formData.append('roomId', room.id)
+
+      if (files && files.length > 0) {
+        formData.append('contentType', 'file')
+        for (const file of files) {
+          console.log('kkkkkk', file)
+
+          formData.append('file', file)
+          await send(formData)
         }
-      ])
+      } else {
+        console.log('text')
+
+        formData.append('contentType', 'text')
+        formData.append('content', content)
+        if (msgRep) {
+          formData.append('replyMessageId', msgRep.id)
+        }
+        await send(formData)
+      }
+
       scrollToBottom()
       setTextContent('')
-      dispatch(updateLastMsgForRoom({
-        roomId: roomId,
-        lastMsg:{
-          content: newMessage.content,
-          type: newMessage.type,
-          createdAt: newMessage.createdAt,
-          isSelfSent: newMessage.isSelfSent,
-        }
-      }))
+      dispatch(
+        updateLastMsgForRoom({
+          roomId: roomId,
+          lastMsg: {
+            content: newMessage.content,
+            type: newMessage.type,
+            createdAt: newMessage.createdAt,
+            isSelfSent: newMessage.isSelfSent,
+          },
+        })
+      )
       setMsgRep(null)
     } catch (error) {}
   }
-  
+  const handleFileChange = async (event) => {
+    setFiles(event.target.files)
+    console.log('cccc', event.target.files)
+    SendMessage({ files: event.target.files })
+    // const files = Array.from(event.target.files)
+    // const imageUrls = files.map((file) => URL.createObjectURL(file))
+  }
+
   useEffect(() => {
     const fetchRoomId = async () => {
       const room = await roomAPI.getRoomIdByUserIdAPI(partnerId)
@@ -105,18 +134,17 @@ const ConversationContent = ({
     }
     emit('join-room', { roomId: roomId, userId: meId })
     dispatch(deleteAllReceivedMsg({ roomId: roomId }))
-    
+
     return () => {
       emit('out-room', { roomId: roomId })
     }
-    
   }, [])
 
-  useEffect(() => {    
+  useEffect(() => {
     if (newMsg) {
-      setMessages((prevMessages) => [...prevMessages,newMsg]);
+      setMessages((prevMessages) => [...prevMessages, newMsg])
     }
-  }, [newMsg]);
+  }, [newMsg])
 
   useEffect(() => {
     const fetchLoadMoreMessages = async () => {
@@ -174,7 +202,10 @@ const ConversationContent = ({
           <MessageItem
             key={index.toString()}
             data={{ ...item, isLastest: index == messages.length - 1 }}
-            isShowTime={!messages[index+1] || messages[index].isSelfSent != messages[index+1]?.isSelfSent}
+            isShowTime={
+              !messages[index + 1] ||
+              messages[index].isSelfSent != messages[index + 1]?.isSelfSent
+            }
             lastReceiveMsgIds={lastReceiveMsgIds}
             setMsgRep={setMsgRep}
             msgRep={item.parentMessage}
@@ -193,31 +224,51 @@ const ConversationContent = ({
       <div
         className={`${isInputFocus ? 'bg-blue-600' : 'bg-dark-2'} mt-0.5 flex flex-col gap-0.5`}
       >
-        <div className="h-8 w-full bg-dark-3 px-2"></div>
-        {
-          msgRep &&
-          <div className='flex flex-row justify-between px-2'>
-            <p className='text-white'>{msgRep.content}</p>
-            <p onClick={()=>setMsgRep(null)} className='text-red-600 font-medium'>Hủy</p>
+        <div
+          className="relative w-full bg-dark-3 p-1"
+          onClick={() => document.getElementById('fileInput').click()} // Kích hoạt input
+        >
+          <input
+            id="fileInput"
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleFileChange}
+            style={{ display: 'none' }} // Ẩn input
+          />
+          <SquareIcon
+            src={Assets.icons.image}
+            className="size-8 cursor-pointer"
+          />
+        </div>
+        {msgRep && (
+          <div className="flex flex-row justify-between px-2">
+            <p className="text-white">{msgRep.content}</p>
+            <p
+              onClick={() => setMsgRep(null)}
+              className="font-medium text-red-600"
+            >
+              Hủy
+            </p>
           </div>
-        }
+        )}
         <div className="flex h-12 flex-row items-center justify-center bg-dark-3 px-4">
           <input
             className="w-full bg-dark-3 text-base text-cyan-50 focus:outline-none"
             placeholder="Nhập @, tin nhắn..."
-            value={textContent}
+            value={Utils.convertMsgContent(textContent)}
             onChange={(e) => setTextContent(e.target.value)}
             onFocus={() => setIsInputFocus(true)}
             onBlur={() => setIsInputFocus(false)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 const data = {
-                  content: textContent
+                  content: textContent,
                 }
                 if (msgRep) {
                   data.parentMessage = {
                     id: msgRep.id,
-                    content: msgRep.content
+                    content: msgRep.content,
                   }
                 }
                 SendMessage(data)
@@ -230,12 +281,12 @@ const ConversationContent = ({
             onClick={() => {
               if (textContent.length > 0) {
                 const data = {
-                  content: textContent
+                  content: textContent,
                 }
                 if (msgRep) {
                   data.parentMessage = {
                     id: msgRep.id,
-                    content: msgRep.content
+                    content: msgRep.content,
                   }
                 }
                 SendMessage(data)
@@ -248,49 +299,40 @@ const ConversationContent = ({
   )
 }
 
-const MessageItem = ({
-  data,
-  msgRep,
-  isShowTime,
-  setMsgRep,
-  lastRCV
- }) => {
+const MessageItem = ({ data, msgRep, isShowTime, setMsgRep, lastRCV }) => {
   const {
     content,
     id,
     type,
     status,
-    sender, 
+    sender,
     isSelfSent,
     createdAt,
-    isLastest
+    isLastest,
   } = data
 
-  const [isHovered, setIsHovered] = useState(false); // Trạng thái hover
-  const ref = useRef(null);
-  
-  useEffect(() => {
-    const element = ref.current;
+  const [isHovered, setIsHovered] = useState(false) // Trạng thái hover
+  const ref = useRef(null)
 
-    const handleMouseEnter = () => setIsHovered(true); // Đang hover
-    const handleMouseLeave = () => setIsHovered(false); // Không hover
+  useEffect(() => {
+    const element = ref.current
+
+    const handleMouseEnter = () => setIsHovered(true) // Đang hover
+    const handleMouseLeave = () => setIsHovered(false) // Không hover
 
     // Gắn sự kiện
-    element.addEventListener('mouseenter', handleMouseEnter);
-    element.addEventListener('mouseleave', handleMouseLeave);
+    element.addEventListener('mouseenter', handleMouseEnter)
+    element.addEventListener('mouseleave', handleMouseLeave)
 
     // Dọn dẹp sự kiện khi component bị unmount
     return () => {
-      element.removeEventListener('mouseenter', handleMouseEnter);
-      element.removeEventListener('mouseleave', handleMouseLeave);
-    };
-  }, []);
+      element.removeEventListener('mouseenter', handleMouseEnter)
+      element.removeEventListener('mouseleave', handleMouseLeave)
+    }
+  }, [])
 
   return (
-    <div 
-      ref={ref}
-      className={`flex flex-col`}
-    >
+    <div ref={ref} className={`flex flex-col`}>
       <div className={`my-2 flex ${isSelfSent && 'flex-row-reverse'}`}>
         {!isSelfSent && (
           <img
@@ -303,33 +345,60 @@ const MessageItem = ({
         <div
           className={`rounded bg-slate-500 p-2 ${!isSelfSent ? 'ml-2' : 'mr-2'}`}
         >
-          { msgRep &&
-            <div className='bg-dark-5 rounded-md p-2'>
-              <p className='text-white font-bold'>Nghĩa</p>
-              <p className='text-white'>{msgRep?.content || ''}</p>
+          {msgRep && (
+            <div className="rounded-md bg-dark-5 p-2">
+              <p className="font-bold text-white">Nghĩa</p>
+              {msgRep.type == 'text' ? (
+                <p className="text-white">{msgRep?.content || ''}</p>
+              ) : (
+                <div class="max-w-lg p-4">
+                  <div class="relative overflow-hidden">
+                    <img
+                      src={msgRep.content}
+                      alt="Dynamic Image"
+                      class="max-h-[300px] max-w-full rounded-md border object-contain shadow-lg"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
-          }
-          <p className="min-w-12 max-w-80 break-words text-white ">{content}</p>
-          {
-            isShowTime &&
-            <p className="text-xs text-white font-mono">{Utils.timeToMmSs(createdAt)}</p>
-          }
+          )}
+          {type == 'text' ? (
+            <p className="min-w-12 max-w-80 break-words text-white">
+              {content}
+            </p>
+          ) : (
+            <div class="max-w-lg p-4">
+              <div class="relative overflow-hidden">
+                <img
+                  src={content}
+                  alt="Dynamic Image"
+                  class="max-h-[300px] max-w-full rounded-md border object-contain shadow-lg"
+                />
+              </div>
+            </div>
+          )}
+
+          {isShowTime && (
+            <p className="font-mono text-xs text-white">
+              {Utils.timeToMmSs(createdAt)}
+            </p>
+          )}
         </div>
-        {
-          isHovered &&
-          <div onClick={()=>setMsgRep(data)}>
+        {isHovered && (
+          <div onClick={() => setMsgRep(data)}>
             <img
               className="size-4 rounded-full"
               src={sender.user.avatarUrl}
               alt="Placeholder"
             />
           </div>
-        }
+        )}
       </div>
       <div className={`flex ${isSelfSent && 'flex-row-reverse'}`}>
-        {isSelfSent && isLastest &&  (
+        {isSelfSent && isLastest && (
           <p className={`rounded-md bg-dark-5 p-1 text-xs text-white`}>
-            {lastRCV >= createdAt ? 'Đã nhận' :'Đã gửi'}
+            {lastRCV >= createdAt ? 'Đã nhận' : 'Đã gửi'}
           </p>
         )}
       </div>
@@ -341,16 +410,20 @@ const getLastRCVAndViewd = (data, messages) => {
   let viewed
 
   if (data && Array.isArray(data)) {
-    data.forEach(element => {
-      const rcvCreatedAt = messages.find(message => message.id == element.receivedMsgId).createdAt
-      const viewedCreatedAt = messages.find(message => message.id == element.receivedMsgId).createdAt      
+    data.forEach((element) => {
+      const rcvCreatedAt = messages.find(
+        (message) => message.id == element.receivedMsgId
+      ).createdAt
+      const viewedCreatedAt = messages.find(
+        (message) => message.id == element.receivedMsgId
+      ).createdAt
       if (!rcv || rcv < rcvCreatedAt) {
         rcv = rcvCreatedAt
       }
       if (!viewed || viewed < viewedCreatedAt) {
         viewed = viewedCreatedAt
       }
-    });
+    })
   }
 
   return [rcv, viewed]

@@ -8,6 +8,7 @@ import { ChatRoomEntity } from './entities/chat-room.entity';
 import { MessageEntity } from './entities/message.entity';
 import {
   MemberRole,
+  MessageContentType,
   MessageViewStatus,
   RoomType,
 } from '@/constants/entity.enum';
@@ -24,6 +25,8 @@ import { SYSTEM_USER_ID } from '@/constants/app.constant';
 import { LoadMoreMessagesReqDto } from './dto/load-more-messages.req.dto';
 import { MessageResDto } from './dto/message.res.dto';
 import { SortEnum } from '@/constants/sort.enum';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { CloudinaryResponse } from 'src/cloudinary/cloudinary/cloudinary-response';
 
 @Injectable()
 export class MessageService {
@@ -37,12 +40,24 @@ export class MessageService {
     @InjectRepository(MessageEntity)
     private readonly messageRepository: Repository<MessageEntity>,
     private eventEmitter: EventEmitter2,
+    private cloundService: CloudinaryService,
   ) {}
 
-  async sendMessage(dto: SendMessageReqDto, senderId: Uuid): Promise<MessageResDto> {
+  async sendMessage(
+    dto: SendMessageReqDto,
+    file:Express.Multer.File,
+    senderId: Uuid
+  ): Promise<MessageResDto> {
     const { roomId, receiverId, content, contentType } = dto;
     
     let room = null
+    let resultFile: CloudinaryResponse = null
+    let memberSent: MemberEntity;
+
+    if (contentType != MessageContentType.TEXT) {
+      resultFile = await this.cloundService.uploadFile(file)
+    }
+    
     if (roomId) {
       room = await this.chatRoomRepository
         .createQueryBuilder('chatRoom')
@@ -55,8 +70,6 @@ export class MessageService {
         .getOne();
     }
     
-    let memberSent: MemberEntity;
-  
     if (!room) {
       // Nếu không tồn tại room, tạo mới      
       room = await this.createChatRoom(senderId, receiverId);
@@ -86,7 +99,7 @@ export class MessageService {
       senderId: memberSent.id,
       sender: memberSent,
       roomId: room.id,
-      content,
+      content: contentType == MessageContentType.TEXT ? content : resultFile.secure_url,
       type: contentType,
       replyMessageId: dto.replyMessageId,
       status: MessageViewStatus.SENT,

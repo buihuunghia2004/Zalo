@@ -1,6 +1,6 @@
 import { Uuid } from "@/common/types/common.type";
 import { MessageContentType } from "@/constants/entity.enum";
-import { EnumField, StringField, StringFieldOptional, UUIDField, UUIDFieldOptional } from "@/decorators/field.decorators";
+import { EnumFieldOptional, StringFieldOptional, UUIDFieldOptional } from "@/decorators/field.decorators";
 
 export class SendMessageReqDto {
   @UUIDFieldOptional()
@@ -9,12 +9,12 @@ export class SendMessageReqDto {
   @UUIDFieldOptional()
   roomId?: Uuid
 
-  @StringField()
-  content: string
+  @StringFieldOptional()
+  content?: string
 
   @UUIDFieldOptional()
   replyMessageId: Uuid
 
-  @EnumField(()=>MessageContentType)
+  @EnumFieldOptional(()=>MessageContentType)
   contentType: MessageContentType
 }
