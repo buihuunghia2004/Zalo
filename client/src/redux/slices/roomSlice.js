@@ -41,6 +41,8 @@ const roomSlice = createSlice({
   },
   reducers: {
     addNewMsgToRoom: (state, action) => {
+      console.log('aaa',action.payload);
+      
       state.rooms = state.rooms.map((room) => {
         if (room.id === action.payload.roomId) {
           return {

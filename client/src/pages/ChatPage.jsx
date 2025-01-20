@@ -18,7 +18,8 @@ const ChatPage = () => {
   
   
   useSocketEvent(
-    `event:notify:${meId}:new_message`,(data) => {     
+    `event:notify:${meId}:new_message`,(data) => {           
+      console.log('fff',data);
       
       if (!currentRoom || (data.roomId != currentRoom.id)) {
         distpatch(addNewMsgToRoom(data))

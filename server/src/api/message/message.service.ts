@@ -113,8 +113,8 @@ export class MessageService {
     this.eventEmitter.emit(EventEmitterKey.NEW_MESSAGE, {
       id:newMessage.id,
       status: 'ok',
-      content,
-      contentType,
+      content: contentType == MessageContentType.TEXT ? content : resultFile.secure_url,
+      type: contentType,
       roomId: room.id,
       memberSentId: memberSent.id,
       sender: memberSent,
@@ -165,7 +165,7 @@ export class MessageService {
         afterCursor: reqDto.afterCursor,
         beforeCursor: reqDto.beforeCursor,
       },
-    });
+    });         
 
     const { data, cursor } = await paginator.paginate(queryBuilder);
     const result = data.map(item => {
@@ -175,7 +175,6 @@ export class MessageService {
       }
     })
     
-
     const metaDto = new CursorPaginationDto(
       result.length,
       cursor.afterCursor,

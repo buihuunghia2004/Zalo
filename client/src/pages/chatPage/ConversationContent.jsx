@@ -34,7 +34,9 @@ const ConversationContent = ({
   const [lastViewed, setLastViewed] = useState(null)
   const [images, setImages] = useState([])
   const [files, setFiles] = useState([])
+  const [pagination, setPagination] = useState([])
   const messagesEndRef = useRef(null)
+  const messagesContainerRef = useRef(null);
   const { emit } = useSocket()
   const meId = useSelector((state) => state.me.user?.id)
 
@@ -61,10 +63,11 @@ const ConversationContent = ({
       })
     }
   }
-  const SendMessage = async ({ content, parentMessage, files }) => {
+  const SendMessage = async ({ content, parentMessage, files, type }) => {
     try {
+      let newMessage
       const send = async (formData) => {
-        const newMessage = await messageAPI.sentMessage(formData)
+        newMessage = await messageAPI.sentMessage(formData)
         newMessage.isSelfSent = true
         setMessages((prevMessages) => [
           ...prevMessages,
@@ -74,23 +77,37 @@ const ConversationContent = ({
           },
         ])
       }
-      const formData = new FormData()
-      if (partnerId) {
-        formData.append('receiverId', partnerId)
+
+      switch (type) {
+        case 'text':
+          break
+        case 'file':
+          break
+        case 'image':
+          break
+        case 'video':
+          break
+        default:
+          break
       }
-      formData.append('roomId', room.id)
 
       if (files && files.length > 0) {
-        formData.append('contentType', 'file')
         for (const file of files) {
-          console.log('kkkkkk', file)
-
-          formData.append('file', file)
-          await send(formData)
+          const form = new FormData()
+          if (partnerId) {
+            form.append('receiverId', partnerId)
+          }
+          form.append('roomId', room.id)
+          form.append('contentType', 'image')
+          form.append('file', file)
+          await send(form)
         }
       } else {
-        console.log('text')
-
+        const formData = new FormData()
+        if (partnerId) {
+          formData.append('receiverId', partnerId)
+        }
+        formData.append('roomId', room.id)
         formData.append('contentType', 'text')
         formData.append('content', content)
         if (msgRep) {
@@ -117,11 +134,27 @@ const ConversationContent = ({
   }
   const handleFileChange = async (event) => {
     setFiles(event.target.files)
-    console.log('cccc', event.target.files)
     SendMessage({ files: event.target.files })
     // const files = Array.from(event.target.files)
     // const imageUrls = files.map((file) => URL.createObjectURL(file))
   }
+  const handleScroll = async () => {
+    const container = messagesContainerRef.current;
+    if (container.scrollTop === 0) {
+      const data = await messageAPI.loadMoreMessage({
+        roomId: roomId || room.id,
+        afterCursor: pagination.afterCursor,
+      })      
+      setMessages((prev)=>[...data?.data.reverse(),...prev,])
+      setPagination(data.pagination)
+    }
+  };
+
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+    container.addEventListener("scroll",handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, [pagination]);
 
   useEffect(() => {
     const fetchRoomId = async () => {
@@ -150,8 +183,11 @@ const ConversationContent = ({
     const fetchLoadMoreMessages = async () => {
       const data = await messageAPI.loadMoreMessage({
         roomId: roomId || room.id,
-      })
-      setMessages(data.data.reverse())
+      })      
+      setMessages([...messages,...data.data.reverse()])//beforeCursor
+      console.log('f',data.pagination);
+      
+      setPagination(data.pagination)//beforeCursor
     }
     if (room) {
       fetchLoadMoreMessages()
@@ -197,8 +233,11 @@ const ConversationContent = ({
         <SquareIcon src={Assets.icons.addGroup} />
       </div>
       {/* nội dung hội thoại */}
-      <div className="h-full overflow-auto p-8 scrollbar-hide">
-        {messages.map((item, index) => (
+      <div
+        ref={messagesContainerRef}
+        className="h-full overflow-auto p-2 "
+      >
+        {messages.map((item, index) => (          
           <MessageItem
             key={index.toString()}
             data={{ ...item, isLastest: index == messages.length - 1 }}
@@ -334,14 +373,15 @@ const MessageItem = ({ data, msgRep, isShowTime, setMsgRep, lastRCV }) => {
   return (
     <div ref={ref} className={`flex flex-col`}>
       <div className={`my-2 flex ${isSelfSent && 'flex-row-reverse'}`}>
-        {!isSelfSent && (
-          <img
-            className="size-8 rounded-full"
-            src={sender.user.avatarUrl}
-            alt="Placeholder"
-          />
-        )}
-        <p className="max-w-80 break-words text-white">{isSelfSent}</p>
+        <div className='w-10'>
+          {!isSelfSent && isShowTime && (
+            <img
+              className="size-10 rounded-full"
+              src={sender.user.avatarUrl}
+              alt="Placeholder"
+            />
+          )}
+        </div>
         <div
           className={`rounded bg-slate-500 p-2 ${!isSelfSent ? 'ml-2' : 'mr-2'}`}
         >

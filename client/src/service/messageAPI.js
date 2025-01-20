@@ -2,13 +2,12 @@ import AxiosInstant from '../config/axiosInstant'
 
 const loadMoreMessage = async (data) => {
   try {
-    const {roomId} = data
-    let query = `roomId=${roomId}`
-    // if (roomId) {
-    //   query += 'roomId='
-    // }
+    const {roomId, afterCursor} = data
+    let query = `roomId=${roomId}`    
+    if (afterCursor) {
+      query += `&afterCursor=${afterCursor}`
+    }    
     const result = await AxiosInstant.get(`messages?`+query)
-    console.log('mess',result);
     return result
     
   } catch (error) {

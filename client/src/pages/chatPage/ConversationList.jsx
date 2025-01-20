@@ -31,7 +31,7 @@ export default function ConversationList({ rooms, setCurrentConversation }) {
           <ConversationItem
             key={index.toString()}
             data={item}
-            lastMsg={item.lastMsg?.content}
+            lastMsg={item.lastMsg}
             messLasted={item.lastMsg.createdAt}
             msgReceived={item.receivedMsgs}
             isSelfSent={item.lastMsg?.isSelfSent}
@@ -122,7 +122,10 @@ const ConversationItem = ({ id, data, isSelfSent, lastMsg, messLasted, msgReceiv
           )}
         </div>
         <div className="flex flex-row mx-2 w-full gap-1 py-1">
-          <p className="text-sm text-slate-400 flex-1">{(isSelfSent ? 'Bạn: ' : '') + lastMsg}</p>
+          <p className="text-sm text-slate-400 flex-1">{
+          (isSelfSent ? 'Bạn: ' : '' ) +
+          (lastMsg?.type == 'text' ? lastMsg?.content : 'Hình ảnh')
+          }</p>
           {
            msgReceived && Array.isArray(msgReceived) && msgReceived.length > 0 &&
            <>

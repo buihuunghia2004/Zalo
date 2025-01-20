@@ -23,25 +23,6 @@ export class MessageController {
 
   @Post()
   @UseInterceptors(
-    // FileInterceptor('file', {
-    //   storage: diskStorage({
-    //     destination: './uploads', // Thư mục lưu trữ file
-    //     filename: (req, file, callback) => {
-    //       const uniqueSuffix = `${Date.now()}-${Math.round(
-    //         Math.random() * 1e9,
-    //       )}${extname(file.originalname)}`;
-    //       callback(null, uniqueSuffix);
-    //     },
-    //   }),
-    //   limits: { fileSize: 500 * 1024 }, // Dung lượng tối đa: 500KB
-    //   fileFilter: (req, file, callback) => {
-    //     const allowedMimeTypes = ['image/png', 'image/jpeg', 'image/jpg'];
-    //     if (!allowedMimeTypes.includes(file.mimetype)) {
-    //       return callback(new BadRequestException('Invalid file type'), false);
-    //     }
-    //     callback(null, true);
-    //   },
-    // }),
     FileInterceptor('file',{
       limits: { fileSize: 500 * 1024 },
       fileFilter: (req, file, callback) => {
@@ -58,7 +39,6 @@ export class MessageController {
     @Body() dto: SendMessageReqDto,
     @CurrentUser('id') id: Uuid
   ) {
-    console.log('file',file);
     return this.messageService.sendMessage(dto, file, id);
   }
 
