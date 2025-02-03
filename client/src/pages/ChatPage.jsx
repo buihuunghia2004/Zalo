@@ -6,11 +6,13 @@ import { SocketProvider, useSocket } from '../socket/SocketProvider'
 import { useDispatch, useSelector } from 'react-redux'
 import { addNewMsgToRoom, getAllRooms, updateLastMsgForRoom } from '../redux/slices/roomSlice'
 import useSocketEvent from '../hooks/useSocket'
+import GroupAvatar from '../components/GroupAvatar'
 
 const ChatPage = () => {
   const rooms = useSelector((state) => state.rooms.rooms)
   const distpatch = useDispatch()
   const [currentRoom, setCurrentRoom] = useState()
+  const [sortedRooms, setSortedRooms] = useState(rooms)
   const [newMessage, setNewMessage] = useState(null);
   const { emit } = useSocket();
 
@@ -46,26 +48,14 @@ const ChatPage = () => {
     }
   )
 
-  // useSocketEvent(
-  //   `event:notify:${meId}:receivedMsg`,(data) => {            
-  //     if (!currentRoom || (data.roomId != currentRoom.id)) {
-  //       distpatch(addNewMsgToRoom(data))
-  //     }else{
-  //       setNewMessage(data)
-  //     }
-
-  //     //đã nhận tin nhắn
-  //     emit('received-message',{
-  //       msgId:data.id,
-  //       senderId:'',
-  //       memberId: currentRoom.members.find(member => member.user.id == meId).id
-  //     })
-  //   }
-  // )
-
   useEffect(() => {    
     distpatch(getAllRooms())
   }, [])
+
+  useEffect(() => {    
+    const s = [...rooms].sort((a, b) => new Date(b.lastMsg.createdAt) - new Date(a.lastMsg.createdAt));
+    setSortedRooms(s)
+  }, [rooms])
   
   
   return (
@@ -73,9 +63,10 @@ const ChatPage = () => {
       <div className="flex size-full flex-row bg-dark-2">
         {/* danh sách hội thoại */}
         <ConversationList
-          rooms={rooms}
+          rooms={sortedRooms}
           setCurrentConversation={(it)=>setCurrentRoom(it)}
         />
+        {/* <p>{currentRoom?.id}</p> */}
         {/* nội dung */}
         <div className="flex w-full flex-row">
           {/* hội thoại */}
@@ -87,6 +78,7 @@ const ChatPage = () => {
               type={currentRoom?.type}
               roomId={currentRoom?.id}
               newMsg={newMessage}
+              members={currentRoom.members}
               currentMember={currentRoom.members.find(member => member.user.id == meId)}
             />
           }

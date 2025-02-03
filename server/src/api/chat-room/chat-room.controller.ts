@@ -1,11 +1,11 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Req } from '@nestjs/common';
 import { ChatRoomService } from './chat-room.service';
-import { CreateChatRoomDto } from './dto/create-chat-room.dto';
 import { UpdateChatRoomDto } from './dto/update-chat-room.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { ListRoomReqDto } from './dto/list-room.req.dto';
 import { CurrentUser } from '@/decorators/current-user.decorator';
 import { Uuid } from '@/common/types/common.type';
+import { CreateGroupReqDto } from './dto/create-group.req.dto';
 
 @ApiTags('rooms')
 @Controller({
@@ -15,9 +15,12 @@ import { Uuid } from '@/common/types/common.type';
 export class ChatRoomController {
   constructor(private readonly chatRoomService: ChatRoomService) {}
 
-  @Post()
-  create(@Body() createChatRoomDto: CreateChatRoomDto) {
-    return this.chatRoomService.create(createChatRoomDto);
+  @Post('/groups')
+  create(
+    @Body() dto: CreateGroupReqDto,
+    @CurrentUser('id') id: Uuid,
+  ) {
+    return this.chatRoomService.createGroup(dto, id);
   }
 
   @Get()
@@ -37,8 +40,8 @@ export class ChatRoomController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.chatRoomService.findOne(+id);
+  findOne(@Param('id') id: Uuid) {
+    return this.chatRoomService.findOne(id);
   }
 
   @Patch(':id')

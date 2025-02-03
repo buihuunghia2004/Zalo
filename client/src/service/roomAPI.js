@@ -16,6 +16,14 @@ const getRoomIdByUserIdAPI = async (partnerId) => {
   }
 }
 
+const createNewGroupdAPI = async (data) => {
+  try {
+    return await AxiosInstant.post(`rooms/groups`,data)
+  } catch (error) {
+    
+  }
+}
+
 const sendRequestAddFriendAPI = async (data) => {
   try {
     return await AxiosInstant.post('relations/sent-request', data)
@@ -34,7 +42,8 @@ const handleRequestAddFriendAPI = async (data) => {
 
 const roomAPI = {
   getAllRoomAPI,
-  getRoomIdByUserIdAPI
+  getRoomIdByUserIdAPI,
+  createNewGroupdAPI
 }
 
 export default roomAPI

@@ -19,7 +19,7 @@ function getTimeDifferenceFromNow(isoTime) {
   if (diffInHours < 24) return `${diffInHours} giờ`;
   if (diffInDays < 7) return `${diffInDays} ngày`;
   const date = new Date(isoTime)
-  return date.getDay() + ' / ' + date.getMonth();
+  return date.getDate() + ' / ' + (date.getMonth() + 1)
 }
 
 function autoUpdateTimeDifference(isoTime, callback) {

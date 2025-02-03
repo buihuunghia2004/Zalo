@@ -4,9 +4,12 @@ import { AddFriendModal } from '../../components/modal/AddFriendModal'
 import { Assets } from '../../assets'
 import { useSelector } from 'react-redux'
 import Utils from '../../utils/utils'
+import { AddGroupModal } from '../../components/modal/AddGroupModal'
+import GroupAvatar from '../../components/GroupAvatar'
 
 export default function ConversationList({ rooms, setCurrentConversation }) {
-  const [isModalOpen, setIsModelOpen] = useState(false)  
+  const [isAFModalOpen, setIsAFModelOpen] = useState(false)
+  const [isAGModalOpen, setIsAGModalOpen] = useState(false)
   const meId = useSelector((state) => state.me.user?.id)
 
   return (
@@ -16,12 +19,16 @@ export default function ConversationList({ rooms, setCurrentConversation }) {
         <div className="flex flex-row">
           <Search />
           <SquareIcon
-            onClick={() => setIsModelOpen(true)}
+            onClick={() => setIsAFModelOpen(true)}
             src={Assets.icons.addFriend}
             className={'mx-1'}
           />
-          <SquareIcon src={Assets.icons.addGroup} />
-          <AddFriendModal isOpen={isModalOpen} setIsOpen={setIsModelOpen} />
+          <SquareIcon
+            onClick={() => setIsAGModalOpen(true)}
+            src={Assets.icons.addGroup}
+          />
+          <AddFriendModal isOpen={isAFModalOpen} setIsOpen={setIsAFModelOpen} />
+          <AddGroupModal isOpen={isAGModalOpen} setIsOpen={setIsAGModalOpen} />
         </div>
         <SelectedTab />
       </div>
@@ -31,10 +38,10 @@ export default function ConversationList({ rooms, setCurrentConversation }) {
           <ConversationItem
             key={index.toString()}
             data={item}
-            lastMsg={item.lastMsg}
-            messLasted={item.lastMsg.createdAt}
+            lastMsg={item?.lastMsg}
+            messLasted={item?.lastMsg?.createdAt}
             msgReceived={item.receivedMsgs}
-            isSelfSent={item.lastMsg?.isSelfSent}
+            isSelfSent={item?.lastMsg?.isSelfSent}
             onClick={() => setCurrentConversation(item)}
           />
         ))}
@@ -83,22 +90,30 @@ const SelectedTab = () => {
     </div>
   )
 }
-const ConversationItem = ({ id, data, isSelfSent, lastMsg, messLasted, msgReceived, onClick }) => {  
+const ConversationItem = ({
+  id,
+  data,
+  isSelfSent,
+  lastMsg,
+  messLasted,
+  msgReceived,
+  onClick,
+}) => {
   const [isHover, setIsHover] = useState(false)
-  const [timeDifference, setTimeDifference] = useState('');
+  const [timeDifference, setTimeDifference] = useState('')
 
   useEffect(() => {
     // Cập nhật ngay lập tức
-    setTimeDifference(Utils.getTimeDifferenceFromNow(messLasted));
+    setTimeDifference(Utils.getTimeDifferenceFromNow(messLasted))
 
     // Thiết lập cập nhật mỗi phút
     const intervalId = setInterval(() => {
-      setTimeDifference(Utils.getTimeDifferenceFromNow(messLasted));
-    }, 60 * 1000);
+      setTimeDifference(Utils.getTimeDifferenceFromNow(messLasted))
+    }, 60 * 1000)
 
     // Dọn dẹp interval khi component bị unmount
-    return () => clearInterval(intervalId);
-  }, [messLasted]);
+    return () => clearInterval(intervalId)
+  }, [messLasted])
 
   return (
     <div
@@ -107,31 +122,41 @@ const ConversationItem = ({ id, data, isSelfSent, lastMsg, messLasted, msgReceiv
       onMouseLeave={() => setIsHover(false)}
       onClick={onClick}
     >
-      <img
-        className="size-12 rounded-full"
-        src={data.roomAvatarUrl}
-        alt="Placeholder"
-      />
-      <div className='w-full'>
+      {data.roomAvatarUrl ? (
+        <img
+          className="size-12 rounded-full"
+          src={data.roomAvatarUrl}
+          alt="Placeholder"
+        />
+      ) : (
+        <GroupAvatar
+          members={data.members.map(member=>member.user)}
+        />
+      )}
+
+      <div className="w-full">
         <div className="mx-2 flex w-full flex-row gap-1 py-1">
-          <p className="text-base text-white w-full">{data.roomName}</p>
+          <p className="w-full text-base text-white">{data.roomName}</p>
           {isHover ? (
             <SquareIcon className={'size-6'} src={Assets.icons.more} />
           ) : (
-            <p className="text-sm text-slate-400">{timeDifference}</p>
+            <p className="text-sm text-slate-400 w-20 ">{timeDifference}</p>
           )}
         </div>
-        <div className="flex flex-row mx-2 w-full gap-1 py-1">
-          <p className="text-sm text-slate-400 flex-1">{
-          (isSelfSent ? 'Bạn: ' : '' ) +
-          (lastMsg?.type == 'text' ? lastMsg?.content : 'Hình ảnh')
-          }</p>
-          {
-           msgReceived && Array.isArray(msgReceived) && msgReceived.length > 0 &&
-           <>
-            <p className="text-sm size-5 text-center text-white rounded-full bg-red-600">{msgReceived.length}</p>
-           </>
-          }
+        <div className="mx-2 flex w-full flex-row gap-1 py-1">
+          <p className="flex-1 text-sm text-slate-400">
+            {(isSelfSent ? 'Bạn: ' : '') +
+              (lastMsg?.type == 'text' ? lastMsg?.content : 'Hình ảnh')}
+          </p>
+          {msgReceived &&
+            Array.isArray(msgReceived) &&
+            msgReceived.length > 0 && (
+              <>
+                <p className="size-5 rounded-full bg-red-600 text-center text-sm text-white">
+                  {msgReceived.length}
+                </p>
+              </>
+            )}
         </div>
       </div>
     </div>

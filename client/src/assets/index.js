@@ -18,6 +18,8 @@ export const Assets = {
     image: uriIcons + 'image.png',
     setting: uriIcons + 'settings.png',
     settingOutLine: uriIcons + 'settings-out-line.png',
+    roomLeaderKey: uriIcons + 'room-leader-key.png',
+    roomVicerKey: uriIcons + 'room-vicer-key.png',
   },
   images:{
     avatarDefault: uriImages + 'avatar-default.png'

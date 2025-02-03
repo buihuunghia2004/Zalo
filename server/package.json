@@ -47,6 +47,7 @@
     "@nestjs/typeorm": "^10.0.2",
     "@nestjs/websockets": "^10.4.12",
     "@types/passport-google-oauth20": "^2.0.16",
+    "@nestjs-modules/mailer": "^2.0.2",
     "argon2": "^0.41.1",
     "bullmq": "^5.29.1",
     "cache-manager": "^5.7.6",

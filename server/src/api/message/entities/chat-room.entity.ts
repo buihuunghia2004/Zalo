@@ -17,13 +17,6 @@ export class ChatRoomEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid', { primaryKeyConstraintName: 'PK_chat_room_id' })
   id!: Uuid;
 
-  // @Column({type:'uuid', name:'sender_id'})
-  // senderId!: Uuid
-
-  // //personal
-  // @Column({type:'uuid', name:'receiver_id'})
-  // receiverId: Uuid
-
   @Column({type:'enum', enum:RoomType})
   type!: RoomType
 

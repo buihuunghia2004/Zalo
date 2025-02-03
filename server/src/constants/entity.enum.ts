@@ -35,6 +35,12 @@ export enum RoomType{
   GROUP = 'group'
 }
 
+export enum RoomLimit{
+  PERSONAL = 2,
+  GROUP = 100,
+  COMMUNITY = 1000
+}
+
 export enum MemberRole{
   LEADER = 'leader',
   VICER = 'vicer',

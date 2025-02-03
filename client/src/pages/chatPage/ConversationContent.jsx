@@ -8,10 +8,10 @@ import useSocketEvent from '../../hooks/useSocket'
 import { useSocket } from '../../socket/SocketProvider'
 import {
   deleteAllReceivedMsg,
-  sendMessage,
   updateLastMsgForRoom,
 } from '../../redux/slices/roomSlice'
 import Utils from '../../utils/utils'
+import { RoomRoleEnum, RoomTypeEnum } from '../../utils/enum'
 
 const ConversationContent = ({
   avatarUrl,
@@ -19,6 +19,7 @@ const ConversationContent = ({
   type,
   partnerId,
   currentMember,
+  members,
   roomId,
   newMsg,
 }) => {
@@ -32,11 +33,11 @@ const ConversationContent = ({
   const [lastRCV, setLastRCV] = useState(null)
   const [msgRep, setMsgRep] = useState(null)
   const [lastViewed, setLastViewed] = useState(null)
-  const [images, setImages] = useState([])
   const [files, setFiles] = useState([])
+  const [leader, setLeader] = useState()
   const [pagination, setPagination] = useState([])
   const messagesEndRef = useRef(null)
-  const messagesContainerRef = useRef(null);
+  const messagesContainerRef = useRef(null)
   const { emit } = useSocket()
   const meId = useSelector((state) => state.me.user?.id)
 
@@ -106,8 +107,9 @@ const ConversationContent = ({
         const formData = new FormData()
         if (partnerId) {
           formData.append('receiverId', partnerId)
+        } else {
+          formData.append('roomId', room.id)
         }
-        formData.append('roomId', room.id)
         formData.append('contentType', 'text')
         formData.append('content', content)
         if (msgRep) {
@@ -139,24 +141,32 @@ const ConversationContent = ({
     // const imageUrls = files.map((file) => URL.createObjectURL(file))
   }
   const handleScroll = async () => {
-    const container = messagesContainerRef.current;
+    const container = messagesContainerRef.current
     if (container.scrollTop === 0) {
       const data = await messageAPI.loadMoreMessage({
         roomId: roomId || room.id,
         afterCursor: pagination.afterCursor,
-      })      
-      setMessages((prev)=>[...data?.data.reverse(),...prev,])
+      })
+      setMessages((prev) => [...data?.data.reverse(), ...prev])
       setPagination(data.pagination)
     }
-  };
+  }
 
   useEffect(() => {
-    const container = messagesContainerRef.current;
-    container.addEventListener("scroll",handleScroll);
-    return () => container.removeEventListener("scroll", handleScroll);
-  }, [pagination]);
+    const container = messagesContainerRef.current
+    container.addEventListener('scroll', handleScroll)
+    return () => container.removeEventListener('scroll', handleScroll)
+  }, [pagination])
 
   useEffect(() => {
+    if (newMsg) {
+      setMessages((prevMessages) => [...prevMessages, newMsg])
+    }
+  }, [newMsg])
+
+  useEffect(() => {
+    setRoom({ id: roomId })
+
     const fetchRoomId = async () => {
       const room = await roomAPI.getRoomIdByUserIdAPI(partnerId)
       setRoom({ ...room, id: room.roomId })
@@ -168,31 +178,24 @@ const ConversationContent = ({
     emit('join-room', { roomId: roomId, userId: meId })
     dispatch(deleteAllReceivedMsg({ roomId: roomId }))
 
-    return () => {
-      emit('out-room', { roomId: roomId })
-    }
-  }, [])
+   
 
-  useEffect(() => {
-    if (newMsg) {
-      setMessages((prevMessages) => [...prevMessages, newMsg])
-    }
-  }, [newMsg])
-
-  useEffect(() => {
     const fetchLoadMoreMessages = async () => {
       const data = await messageAPI.loadMoreMessage({
         roomId: roomId || room.id,
-      })      
-      setMessages([...messages,...data.data.reverse()])//beforeCursor
-      console.log('f',data.pagination);
-      
-      setPagination(data.pagination)//beforeCursor
+      })
+
+      setMessages(data.data.reverse()) //beforeCursor
+      setPagination(data.pagination) //beforeCursor
     }
     if (room) {
       fetchLoadMoreMessages()
     }
-  }, [room, roomId])
+
+    return () => {
+      emit('out-room', { roomId: roomId })
+    }
+  }, [roomId])
 
   useEffect(() => {
     const i = setTimeout(() => {
@@ -212,6 +215,14 @@ const ConversationContent = ({
       clearTimeout(i)
     }
   }, [textContent])
+  useEffect(() => {
+    if (type == RoomTypeEnum.GROUP) {
+      const leader = members.filter(m => m.role == RoomRoleEnum.LEADER)[0]
+      if (leader) {        
+        setLeader(leader)
+      }
+    }
+  }, [])
 
   return (
     <div className="mx-0.5 flex w-full flex-col">
@@ -233,11 +244,8 @@ const ConversationContent = ({
         <SquareIcon src={Assets.icons.addGroup} />
       </div>
       {/* nội dung hội thoại */}
-      <div
-        ref={messagesContainerRef}
-        className="h-full overflow-auto p-2 "
-      >
-        {messages.map((item, index) => (          
+      <div ref={messagesContainerRef} className="h-full overflow-auto p-2">
+        {messages.map((item, index) => (
           <MessageItem
             key={index.toString()}
             data={{ ...item, isLastest: index == messages.length - 1 }}
@@ -245,6 +253,7 @@ const ConversationContent = ({
               !messages[index + 1] ||
               messages[index].isSelfSent != messages[index + 1]?.isSelfSent
             }
+            isLeader={item.sender?.id == leader?.id}
             lastReceiveMsgIds={lastReceiveMsgIds}
             setMsgRep={setMsgRep}
             msgRep={item.parentMessage}
@@ -338,7 +347,15 @@ const ConversationContent = ({
   )
 }
 
-const MessageItem = ({ data, msgRep, isShowTime, setMsgRep, lastRCV }) => {
+const MessageItem = ({
+  data,
+  isLeader,
+  msgRep,
+  isShowTime,
+  setMsgRep,
+  lastRCV,
+  role,
+}) => {
   const {
     content,
     id,
@@ -353,8 +370,8 @@ const MessageItem = ({ data, msgRep, isShowTime, setMsgRep, lastRCV }) => {
   const [isHovered, setIsHovered] = useState(false) // Trạng thái hover
   const ref = useRef(null)
 
-  useEffect(() => {
-    const element = ref.current
+  useEffect(() => {    
+    const element = ref.current    
 
     const handleMouseEnter = () => setIsHovered(true) // Đang hover
     const handleMouseLeave = () => setIsHovered(false) // Không hover
@@ -373,13 +390,22 @@ const MessageItem = ({ data, msgRep, isShowTime, setMsgRep, lastRCV }) => {
   return (
     <div ref={ref} className={`flex flex-col`}>
       <div className={`my-2 flex ${isSelfSent && 'flex-row-reverse'}`}>
-        <div className='w-10'>
+        <div className="w-10">
           {!isSelfSent && isShowTime && (
-            <img
-              className="size-10 rounded-full"
-              src={sender.user.avatarUrl}
-              alt="Placeholder"
-            />
+            <div class="relative">
+              <img
+                className="size-10 rounded-full"
+                src={sender.user.avatarUrl}
+                alt="Placeholder"
+              />
+              { isLeader &&
+                <img
+                className="absolute top-7 left-5 size-4"
+                src={Assets.icons.roomLeaderKey}
+                alt="Placeholder"
+              />
+              }
+            </div>
           )}
         </div>
         <div

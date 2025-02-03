@@ -9,10 +9,13 @@ import { Brackets, Repository } from 'typeorm';
 import { paginate } from '@/utils/offset-pagination';
 import { plainToInstance } from 'class-transformer';
 import { OffsetPaginatedDto } from '@/common/dto/offset-pagination/paginated.dto';
-import { RoomType } from '@/constants/entity.enum';
+import { MemberRole, RoomLimit, RoomType } from '@/constants/entity.enum';
 import { Uuid } from '@/common/types/common.type';
 import { MemberEntity } from '../message/entities/member.entity';
 import { MessageEntity } from '../message/entities/message.entity';
+import { CreateGroupReqDto } from './dto/create-group.req.dto';
+import { SYSTEM_USER_ID } from '@/constants/app.constant';
+import assert from 'assert';
 
 @Injectable()
 export class ChatRoomService {
@@ -26,9 +29,40 @@ export class ChatRoomService {
     private readonly messageRepository: Repository<MessageEntity>,
   ){}
 
-  create(createChatRoomDto: CreateChatRoomDto) {
-    return 'This action adds a new chatRoom';
+  async createGroup(dto: CreateGroupReqDto, meId: Uuid) : Promise<RoomResDto>{
+    //create and save new group
+    const newRoom = new ChatRoomEntity({
+      type: RoomType.GROUP,
+      groupName: dto?.groupName,
+      groupAvatar: dto?.groupAvatar,
+      memberLimit: RoomLimit.GROUP,
+      createdBy: meId,
+      updatedBy: SYSTEM_USER_ID
+    })
+    await this.roomRepository.save(newRoom)
+
+    //create and save members
+    const members = dto.userIds.map(id => new MemberEntity({
+        role: MemberRole.MEMBER,
+        roomId: newRoom.id,
+        userId: id,
+        createdBy: SYSTEM_USER_ID,
+        updatedBy: SYSTEM_USER_ID
+    }))
+    const leader = new MemberEntity({
+      role: MemberRole.LEADER,
+      roomId: newRoom.id,
+      userId: meId,
+      createdBy: SYSTEM_USER_ID,
+      updatedBy: SYSTEM_USER_ID
+    })
+    members.push(leader)
+    await this.memberRepository.save(members)
+
+    newRoom.members = members
+    return plainToInstance(RoomResDto,newRoom);
   }
+
 
   async findAll(reqDto: ListRoomReqDto, meId: Uuid): Promise<OffsetPaginatedDto<RoomResDto>> {
     const roomIds = this.roomRepository
@@ -52,7 +86,7 @@ export class ChatRoomService {
     const data = await Promise.all(
       rooms.map(async room => {
         let roomAvatarUrl: string
-        let roomName: string
+        let roomName: string        
   
         if (room.type == RoomType.PERSONAL) {
           const user = room.members.find(member => member.user.id !=  meId)?.user
@@ -66,38 +100,45 @@ export class ChatRoomService {
           roomName = room.groupName
         }
   
-        const lastMsg = await this.messageRepository
-        .createQueryBuilder('msg')
-        .select([
-          'msg.content',
-          'msg.type',
-          'msg.senderId',
-          'msg.createdAt',
-        ])
-        .leftJoin('msg.sender','sender')
-        .addSelect([
-          'sender.id',
-          'sender.userId',
-        ])
-        .where('msg.roomId = :roomId',{roomId: room.id})
-        .orderBy({'msg.createdAt':'DESC'})
-        .getOne()
+        const lastMsg = await this.getLastMsgByRoomId(room.id)
   
-        return {
+        const result : any= {
           id: room.id,
           type: room.type,
           members:room.members,
           roomAvatarUrl,
           roomName,
-          lastMsg:{...lastMsg, isSelfSent:meId == lastMsg.sender.userId}
         }
+        if (lastMsg) {
+          result.lastMsg = {...lastMsg, isSelfSent:meId == lastMsg.sender.userId}
+        }
+        return result
       })
     )
+
+
+
+
     return new OffsetPaginatedDto(plainToInstance(RoomResDto, data), metaDto);    
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} chatRoom`;
+  async findOne(id: Uuid): Promise<RoomResDto> {
+    assert(id, 'id is required');
+    const room = await this.roomRepository
+      .createQueryBuilder('r')
+      .leftJoinAndSelect('r.members','m')
+      .leftJoin('m.user','u')
+      .addSelect(['u.id','u.avatarUrl','u.username'])
+      .where('r.id = :id',{id})
+      .getOne()
+
+    const lastMsg = await this.getLastMsgByRoomId(room.id)
+    return plainToInstance(RoomResDto, {
+      ...room,
+      roomName: room.groupName,
+      roomAvatarUrl: room.groupAvatar,
+      lastMsg
+    })
   }
 
   async findOneByPartnerId(meId: Uuid, partnerId: Uuid): Promise<any>{
@@ -125,5 +166,43 @@ export class ChatRoomService {
 
   remove(id: number) {
     return `This action removes a #${id} chatRoom`;
+  }
+
+  getLastMsgByRoomId = async (roomId: Uuid) => {
+    return await this.messageRepository
+        .createQueryBuilder('msg')
+        .select([
+          'msg.content',
+          'msg.type',
+          'msg.senderId',
+          'msg.createdAt',
+        ])
+        .leftJoin('msg.sender','sender')
+        .addSelect([
+          'sender.id',
+          'sender.userId',
+        ])
+        .where('msg.roomId = :roomId',{roomId: roomId})
+        .orderBy({'msg.createdAt':'DESC'})
+        .getOne()
+  }
+
+  getLastMsgByRoomIds = async (roomIds: Uuid[]) => {
+    return await this.messageRepository
+        .createQueryBuilder('msg')
+        .select([
+          'msg.content',
+          'msg.type',
+          'msg.senderId',
+          'msg.createdAt',
+        ])
+        .leftJoin('msg.sender','sender')
+        .addSelect([
+          'sender.id',
+          'sender.userId',
+        ])
+        .where('msg.roomId IN (:...roomIds)',{roomIds})
+        .orderBy({'msg.createdAt':'DESC'})
+        .getMany()
   }
 }

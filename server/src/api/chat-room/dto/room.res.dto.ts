@@ -5,6 +5,7 @@ import { WrapperType } from '@/common/types/types';
 import { RoomType } from '@/constants/entity.enum';
 import {
   ClassField,
+  ClassFieldOptional,
   EnumField,
   StringField,
 } from '@/decorators/field.decorators';
@@ -32,15 +33,15 @@ export class RoomResDto {
   @Expose()
   members: WrapperType<MemberResDto[]>;
 
-  @ClassField(()=> MessageResDto)
+  @ClassFieldOptional(()=> MessageResDto)
   @Expose()
   lastMsg: WrapperType<MessageResDto[]>;
 
-  @ClassField(()=> MessageResDto)
+  @ClassFieldOptional(()=> MessageResDto)
   @Expose()
   messages: WrapperType<MessageResDto[]>;
 
-  @ClassField(()=> UserResDto)
+  @ClassFieldOptional(()=> UserResDto)
   @Expose()
   user: WrapperType<UserResDto[]>;
 }
