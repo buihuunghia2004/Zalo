@@ -6,6 +6,7 @@ import store from '~/redux/store'
 import AppRouters from '~/routers/AppNavigator'
 import ProfilePersonalScreen from '~/screens/personal/ProfilePersonalScreen';
 import HandleReqScreen from '~/screens/relation/HandleReqScreen';
+import OptionalFriendScreen from '~/screens/relation/OptionalFriendScreen';
 import SendAddFriendScreen from '~/screens/relation/SendAddFriendScreen';
 
 const App = () => {
@@ -15,10 +16,12 @@ const App = () => {
       <GestureHandlerRootView>
         <NavigationContainer>
         <AppRouters/>
-
+        {/* <SendAddFriendScreen/> */}
+        {/* <OptionalFriendScreen/> */}
           {/* <ProfilePersonalScreen/> */}
           {/* <SendAddFriendScreen/> */}
           {/* <HandleReqScreen/> */}
+          {/* <OptionalFriendScreen/> */}
         </NavigationContainer>
       </GestureHandlerRootView>
     </Provider>
