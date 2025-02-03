@@ -304,6 +304,7 @@ const ConversationContent = ({
           <input
             className="w-full bg-dark-3 text-base text-cyan-50 focus:outline-none"
             placeholder="Nhập @, tin nhắn..."
+            maxLength={100}
             value={Utils.convertMsgContent(textContent)}
             onChange={(e) => setTextContent(e.target.value)}
             onFocus={() => setIsInputFocus(true)}

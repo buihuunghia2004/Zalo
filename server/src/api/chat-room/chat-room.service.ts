@@ -122,7 +122,7 @@ export class ChatRoomService {
     return new OffsetPaginatedDto(plainToInstance(RoomResDto, data), metaDto);    
   }
 
-  async findOne(id: Uuid): Promise<RoomResDto> {
+  async findOne(meId: Uuid, id: Uuid): Promise<RoomResDto> {
     assert(id, 'id is required');
     const room = await this.roomRepository
       .createQueryBuilder('r')
@@ -132,11 +132,13 @@ export class ChatRoomService {
       .where('r.id = :id',{id})
       .getOne()
 
+    const partner = room.members.find(m => m.userId != meId).user
+      
     const lastMsg = await this.getLastMsgByRoomId(room.id)
     return plainToInstance(RoomResDto, {
       ...room,
-      roomName: room.groupName,
-      roomAvatarUrl: room.groupAvatar,
+      roomName: room.groupName || partner.username,
+      roomAvatarUrl: room.groupAvatar || partner.avatarUrl,
       lastMsg
     })
   }
