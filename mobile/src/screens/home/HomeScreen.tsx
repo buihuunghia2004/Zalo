@@ -1,27 +1,38 @@
-import React, { useState } from 'react';
-import { View, FlatList, TouchableOpacity, Text } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MainNavProp } from '../../routers/types';
 import ItemChatHome, { Discription } from './components/ItemChatHome';
 import AppBar from '../../components/Common/AppBar';
-import { colors } from '~/styles/Ui/colors';
-import SimpleModal from '~/components/Common/modal/SimpleModal';
-import Toast from '~/components/Common/toast/SimpleToast';
-import { Fonts } from '~/styles/Ui/fonts';
-import styles from '~/styles/components/AppBar.styles';
-import { textStyle } from '~/styles/Ui/text';
+import { RoomService } from '~/features/room/roomService';
+import { _GetAllRoomRes } from '~/features/room/dto/room.dto.parent';
+import { Room } from '~/features/room/dto/room.dto.nested';
 
 const HomeScreen = () => {
   const mainNav = useNavigation<MainNavProp>();
+
+  const [rooms, setRooms] = useState<Room[]>([]);  
 
   const goToSearchScreen = () => {
     mainNav.navigate('SearchScreen');
   };
   const goToChatScreen = (id : string) => {
-    mainNav.navigate('ChatScreen', {id});
+    mainNav.navigate('ChatScreen', {roomId: id});
   }
 
-  // Dữ liệu danh sách chat
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const res = await RoomService.getAllRoom(); 
+        setRooms(res.data); 
+        
+      } catch (error) {
+        console.error('Lỗi khi lấy danh sách phòng:', error); // Xử lý lỗi
+      }
+    };
+
+    fetchRooms(); 
+  }, []);
   const chatList = [
     {
       id: '1',
@@ -66,21 +77,22 @@ const HomeScreen = () => {
               break;
           }
         }}
-        style={{backgroundColor: colors.primary}}
       />
 
       {/* Danh sách chat */}
       <FlatList
-        data={chatList}
+        data={rooms}
         keyExtractor={(item) => item.id} 
         renderItem={({ item }) => (
           <ItemChatHome
-            name={item.name}
-            description={ item.description}
-            time={item.time}
-            isLike={item.isLike}
-            notSeen={item.notSeen}
-            onPress={(id: string) => goToChatScreen(id)}
+            id={item.id}
+            name={item.roomName}
+            image={item.roomAvatarUrl}
+            // description={ item.description}
+            // time={item.time}
+            // isLike={item.isLike}
+            // notSeen={item.notSeen}
+            onPress={() => goToChatScreen(item.id)}
           />
         )}
       />

@@ -16,9 +16,10 @@ const AddFriendScreen = () => {
   
   const handleSenReq = () => {    
     userApi.searchUserByEmail(email)
-      .then(data => {        
+      .then(data => { 
+        
         const pagram: ProfilePersonalPagram = { ...data, options: ProfileOptions.NotFriend }; 
-  
+       
         mainNav.navigate('ProfilePersonalScreen', {profile: pagram});
         
         setEmail('');
@@ -28,14 +29,13 @@ const AddFriendScreen = () => {
       });
   };
   
-  
 
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity>
-        <Image style={iconSize.medium} source={Assets.icons.back_gray}/>
+        <TouchableOpacity onPress={mainNav.goBack}>
+          <Image style={iconSize.medium} source={Assets.icons.back_gray}/>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Thêm bạn</Text>
       </View>

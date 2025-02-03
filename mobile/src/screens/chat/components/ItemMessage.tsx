@@ -32,9 +32,9 @@ type MessageType =
 interface Message {
   id: string;
   data: string;
-  source: SourceMessageType;
+  source?: SourceMessageType;
   type: MessageType;
-  time: string;
+  time?: string;
   emojis?: string[];
   emojisCount?: number;
 }
@@ -137,7 +137,7 @@ const ItemMessage: React.FC<DisplayMessage> = ({
   const renderMessageByType = (type: MessageType, data: string) => {
     switch (type) {
       case 'text':
-        return <Text style={textStyles}>{data}</Text>;
+        return <Text style={styles.messageText}>{data}</Text>;
       case 'image':
         return (
           <Image
@@ -185,15 +185,14 @@ const ItemMessage: React.FC<DisplayMessage> = ({
           {/* Nội dung tin nhắn */}
           {renderMessageByType(type, data)}
           {/* time */}
-          {isDisplayTime && (
+          {/* {isDisplayTime && ( */}
             <Text
-              style={{
+              style={[textStyle.body_xs,{
                 color: source === 'time' ? colors.white : colors.gray,
-                fontSize: 8,
-              }}>
+              }]}>
               {time}
             </Text>
-          )}
+          {/* )} */}
           {/* Hiển thị emoji */}
           <TouchableOpacity
             onPress={() => {
@@ -295,13 +294,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     zIndex: 1,
   },
+  messageText:{
+    ...textStyle.body_md,
+    textAlign: 'left'
+  },
   countText: {
     color: colors.white,
     fontSize: 10,
   },
   textContainer: {
     maxWidth: '80%',
-    minWidth: '22%',
+    minWidth: '18%',
+    justifyContent: 'flex-start',
     gap: 2,
   },
   timeContainer: {

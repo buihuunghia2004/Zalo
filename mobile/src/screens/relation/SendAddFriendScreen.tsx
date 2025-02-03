@@ -18,11 +18,11 @@ import {Assets} from '~/styles/Ui/assets';
 import AppButton from '~/components/Ui/Button';
 import AppBar from '~/components/Common/AppBar';
 import {relationApi} from '~/features/relation/relationService';
-import {SendRequestReq} from '~/features/relation/relationDto';
 import SimpleModal from '~/components/Common/modal/SimpleModal';
 import { textStyle } from '~/styles/Ui/text';
 
 const SendAddFriendScreen = () => {
+
   const mainNav = useNavigation<MainNavProp>();
   const route = useTypedRoute<typeof StackNames.SenAddFriendScreen>();
   const baseProfile = route.params.baseProfile;
@@ -40,14 +40,15 @@ const SendAddFriendScreen = () => {
   };
 
   const handleSenReq = () => {
+    
     const receiverId = baseProfile.id;
-    const dto: SendRequestReq = {receiverId};
+    const dto = {receiverId};
+    
     relationApi
       .sendRequest(dto)
       .then(response => {
         showModal()
         showToast('Thêm số điện thoại tài khoản này vào danh bạ')
-        console.log('Request sent successfully:', response);
       })
       .catch(error => {
         console.error('Failed to send request:', error);
@@ -61,16 +62,7 @@ const SendAddFriendScreen = () => {
         iconButtonLeft={['back']}
         onChangeInputText={text => console.log('Input changed:', text)}
         onPressInput={() => console.log('cc')}
-        onPress={action => {
-          switch (action) {
-            case 'search':
-              break;
-            case 'bell':
-              break;
-            case 'setting':
-              break;
-          }
-        }}
+        onPress={mainNav.goBack}
         style={{backgroundColor: colors.secondary_light}}
       />
       <View style={{padding: 15}}>

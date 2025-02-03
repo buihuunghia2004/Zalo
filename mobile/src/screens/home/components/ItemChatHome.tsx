@@ -1,4 +1,4 @@
-import {View, Text, Image, ImageSourcePropType, TextStyle, Touchable, Pressable, TouchableOpacity} from 'react-native';
+import {View, Text, Image, ImageSourcePropType, TextStyle, Pressable} from 'react-native';
 import React from 'react';
 import {viewStyle} from '../../../styles/Ui/views';
 import {colors} from '../../../styles/Ui/colors';
@@ -6,6 +6,7 @@ import {Assets} from '../../../styles/Ui/assets';
 import {imagesStyle} from '../../../styles/Ui/image';
 import {textStyle} from '../../../styles/Ui/text';
 import { iconSize } from '../../../styles/Ui/icons';
+
 
 type DiscriptionType =
   | 'text'
@@ -35,16 +36,19 @@ export type Discription = {
 };
 
 type Props = {
-  image?: string[];
+  id: string,
+  image?: string;
   name: string;
-  description: Discription;
+  description?: Discription;
   time?: string;
   notSeen?: number;
   isLike?: boolean;
-  onPress?: (id : string) => void;
+  onPress?: () => void;
+  
 };
 
 const MyComponent: React.FC<Props> = ({
+  id,
   image,
   name,
   description,
@@ -78,11 +82,12 @@ const MyComponent: React.FC<Props> = ({
     },
   };
 
-  const currentDescription = descriptionType[description.kind || 'text'];
-  const call_or_video = description.kind?.split('_')[0];
+  const currentDescription = descriptionType[description?.kind || 'text'];
+  const call_or_video = description?.kind?.split('_')[0];
+
   return (
     <Pressable
-      onPress={() => onPress?.('111111')}
+    onPress={onPress}
       style={({ pressed }) => ([ viewStyle.container_row_center,{
         height: 76,
         gap: 10,
@@ -91,7 +96,8 @@ const MyComponent: React.FC<Props> = ({
         backgroundColor: pressed ? 'rgba(0, 0, 0, 0.03)' : 'transparent'
       }])}
      >
-      <Image style={imagesStyle.avatar_50} source={Assets.images.demo} />
+      <Image style={imagesStyle.avatar_50} source={{ uri: image }} />
+
 
       <View
         style={[
@@ -119,7 +125,7 @@ const MyComponent: React.FC<Props> = ({
 {/* Description */}
           <View
             style={[viewStyle.container_row, {gap: 5, alignItems: 'flex-end'}]}>
-            {description.kind == 'text'
+            {description?.kind == 'text'
               ? null
               : currentDescription.icon != null && (
                   <Image
@@ -135,8 +141,8 @@ const MyComponent: React.FC<Props> = ({
                   : textStyle.description_seen
                 )
               }>
-              {description.kind == 'text'
-                ? description.message
+              {description?.kind == 'text'
+                ? description?.message
                 : currentDescription.label}
             </Text>
           </View>

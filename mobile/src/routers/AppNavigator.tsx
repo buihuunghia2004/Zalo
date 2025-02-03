@@ -34,6 +34,8 @@ const AppRouters = () => {
     
     if (auth) {      
       const parsedAuth = JSON.parse(auth) as loginGoogleResponse;
+      console.log(parsedAuth.accessToken);
+      
       dispatch(setAuth(parsedAuth));
       setAuthorizationToken(parsedAuth.accessToken)
     }

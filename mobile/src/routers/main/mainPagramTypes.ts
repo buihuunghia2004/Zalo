@@ -1,4 +1,5 @@
-import { UserSearchRes } from "~/features/user/userDto";
+import { UserSearchRes } from "~/features/user/dto/user.dto.parent";
+import { UserEntity } from "~/features/user/userEntity";
 
 export enum ProfileOptions {
   Friend = 'Friend', 
@@ -10,4 +11,4 @@ export interface ProfilePersonalPagram extends UserSearchRes {
   options:  ProfileOptions
 }
 
-export interface SenAddFriendPagram extends Omit<UserSearchRes, 'email' | 'dob' | 'gender'| 'bio'>{}
+export interface BaseProfilePagram extends Pick<UserEntity, 'id' | 'username' | 'avatarUrl' >{}

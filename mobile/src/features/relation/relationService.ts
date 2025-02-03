@@ -1,23 +1,53 @@
 import axiosInstance from '~/configs/axiosInstance';
-import { SendRequestReq } from '~/features/relation/relationDto';
+import {
+  _SendRequestReq,
+  _SendRequestRes,
+  _HandleRequestReq,
+  _HandleRequestRes,
+} from './dto/relation.dto.parent';
+import { RelationStatus } from './dto/relation.dto.enum';
+import { Relation } from './dto/relation.dto.nested';
 
-const sendRequest = async (dto: SendRequestReq) => {
+const sendRequest = async (dto: _SendRequestReq): Promise<_SendRequestRes> => {
   try {
-    const response = await axiosInstance.post(
-      'relations/sent-request',
-      {
-        receiverId: dto.receiverId,
-      }
-    );
-    console.log(response);
-    return response.data; 
+    const response = await axiosInstance.post('relations/sent-request', {
+      receiverId: dto.receiverId,
+    });
+    return response.data;
   } catch (error: any) {
     console.error('Error sending request:', error);
+    throw new Error('Failed to send request');
+  }
+};
+const getRelations = async (action: RelationStatus): Promise<Relation[]> => {
+  try {
+    const response = await axiosInstance.get('relations', {
+      params: { status: action },
+    });
+
+    if (!Array.isArray(response.data)) {
+      throw new Error('API returned data in an invalid format.');
+    }
+
+    return response.data;
+  } catch (error: any) {
+    throw new Error('Failed to fetch relations. Please try again.');
   }
 };
 
-// const handleRequest = async (dto: handleRequestReq) => {
+const handleRequest = async (dto: _HandleRequestReq): Promise<_HandleRequestRes> => {
+  try {
+    const response = await axiosInstance.post('relations/handle-request', dto);
+    return response.data;
+  } catch (error: any) {
+    console.error('Error handling request:', error);
+    throw new Error('Failed to handle request'); 
+  }
+};
+
 
 export const relationApi = {
   sendRequest,
+  getRelations,
+  handleRequest,
 };
