@@ -1,14 +1,19 @@
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { ProfilePersonalPagram, SenAddFriendPagram } from "./main/mainPagramTypes";
+import { BaseProfilePagram, ProfilePersonalPagram } from "./main/mainPagramTypes";
 
-
+interface ChatScreenProps {
+  roomId?: string,
+  userId?: string
+}
 export type MainStackParamList = {
   Main: undefined;
   SearchScreen: undefined;
-  ChatScreen: { id: string };
+  ChatScreen: ChatScreenProps
   AddFriendScreen: undefined;
   ProfilePersonalScreen: { profile: ProfilePersonalPagram }
-  SenAddFriendScreen: {baseProfile: SenAddFriendPagram}
+  SenAddFriendScreen: {baseProfile: BaseProfilePagram}
+  OptionalFriendScreen: {baseProfile: BaseProfilePagram}
+  HandleReqScreen: undefined
 };
 export const StackNames = {
   Main: 'Main',
@@ -17,6 +22,8 @@ export const StackNames = {
   AddFriendScreen: 'AddFriendScreen',
   ProfilePersonalScreen: 'ProfilePersonalScreen',
   SenAddFriendScreen: 'SenAddFriendScreen',
+  HandleReqScreen: 'HandleReqScreen',
+  OptionalFriendScreen: 'OptionalFriendScreen'
 } as const;
 
 export type MainNavProp = NativeStackNavigationProp<MainStackParamList, 'Main'>;

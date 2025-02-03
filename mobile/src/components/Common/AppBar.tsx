@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable, Image, TextInput, TouchableOpacity, ViewStyle, ImageSourcePropType } from 'react-native';
 import { viewStyle } from '../../styles/Ui/views';
-import { colors } from '../../styles/Ui/colors';
 import { Assets } from '../../styles/Ui/assets';
 import { textStyle } from '../../styles/Ui/text';
 import { Fonts } from '../../styles/Ui/fonts';
 import { iconSize } from '../../styles/Ui/icons';
+import { colors } from '~/styles/Ui/colors';
 
 export type Actions =
   | 'find'
@@ -91,9 +91,9 @@ const AppBar: React.FC<AppBarProps> = ({
         viewStyle.container_row_between,
         {
           ...style,
-          height: 55,
+          maxHeight: 55,
           paddingHorizontal: 10,
-       
+          backgroundColor: colors.secondary
         },
       ]}
     >

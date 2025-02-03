@@ -4,6 +4,7 @@ import {
   StyleProp,
   StyleSheet,
   Text,
+  TextStyle,
   TouchableOpacity,
   ViewStyle,
 } from 'react-native';
@@ -21,6 +22,7 @@ interface ButtonProps {
   rightIcon?: ImageProps;
   centerIcon?: ImageProps;
   style?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
 }
 const AppButton: React.FC<ButtonProps> = ({
   title = '',
@@ -31,6 +33,7 @@ const AppButton: React.FC<ButtonProps> = ({
   rightIcon,
   centerIcon,
   style,
+  textStyle
 }) => {
   return (
     <TouchableOpacity
@@ -46,7 +49,7 @@ const AppButton: React.FC<ButtonProps> = ({
       {centerIcon ? (
         <Image source={centerIcon} style={iconSize.medium} />
       ) : (
-        <Text style={outline ? {color: colors.primary} : {color: colors.white}}>
+        <Text style={[outline ? {color: colors.primary} : {color: colors.white}, textStyle]}>
           {title}
         </Text>
       )}

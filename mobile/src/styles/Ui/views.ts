@@ -5,8 +5,6 @@ import { colors } from "./colors";
     container: {
       flex: 1,
       display: 'flex',
-      alignItems: "center",
-      justifyContent: "center",
     },
     container_row: {
       flex: 1,
@@ -21,6 +19,7 @@ import { colors } from "./colors";
       flexDirection: 'row',
     },
     container_row_between: {
+      flex: 1,
       display: 'flex',
       flexDirection: 'row',
       alignItems: "center",
