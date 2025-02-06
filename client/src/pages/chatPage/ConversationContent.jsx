@@ -12,42 +12,34 @@ import {
 } from '../../redux/slices/roomSlice'
 import Utils from '../../utils/utils'
 import { RoomRoleEnum, RoomTypeEnum } from '../../utils/enum'
+import ConversationInfo from './ConversationInfo'
 
-const ConversationContent = ({
-  avatarUrl,
-  name,
-  type,
-  partnerId,
-  currentMember,
-  members,
-  roomId,
-  newMsg,
-}) => {
+const ConversationContent = ({ newMsg, roomId, partnerId }) => {
+  const meId = useSelector((state) => state.me.user?.id)
   const dispatch = useDispatch()
+  const { emit } = useSocket()
+
   const [isInputFocus, setIsInputFocus] = useState(false)
   const [textContent, setTextContent] = useState('')
   const [messages, setMessages] = useState([])
   const [isPartnerWrite, setIsPartnerWrite] = useState(false)
   const [lastReceiveMsgIds, setLastReceiveMsgIds] = useState([])
-  const [room, setRoom] = useState({ id: roomId })
+  const [room, setRoom] = useState()
   const [lastRCV, setLastRCV] = useState(null)
   const [msgRep, setMsgRep] = useState(null)
-  const [lastViewed, setLastViewed] = useState(null)
-  const [files, setFiles] = useState([])
   const [leader, setLeader] = useState()
   const [pagination, setPagination] = useState([])
   const messagesEndRef = useRef(null)
   const messagesContainerRef = useRef(null)
-  const { emit } = useSocket()
-  const meId = useSelector((state) => state.me.user?.id)
 
-  useSocketEvent(`event:${roomId}:writing_message`, (data) => {
-    setIsPartnerWrite(data.status)
-  })
+  if (roomId) {
+    useSocketEvent(`event:${roomId}:writing_message`, (data) => {
+      setIsPartnerWrite(data.status)
+    })
+  }
   useSocketEvent(`a:${meId}:b`, (data) => {
     const [rcv, viewed] = getLastRCVAndViewd(data, messages)
     setLastRCV(rcv)
-    setLastViewed(viewed)
     setLastReceiveMsgIds(data)
   })
   useSocketEvent(`user-joined`, (data) => {
@@ -135,10 +127,7 @@ const ConversationContent = ({
     } catch (error) {}
   }
   const handleFileChange = async (event) => {
-    setFiles(event.target.files)
     SendMessage({ files: event.target.files })
-    // const files = Array.from(event.target.files)
-    // const imageUrls = files.map((file) => URL.createObjectURL(file))
   }
   const handleScroll = async () => {
     const container = messagesContainerRef.current
@@ -152,6 +141,43 @@ const ConversationContent = ({
     }
   }
 
+  //load room info
+  useEffect(() => {
+    const fetchRoom = async ({roomId, partnerId}) => {
+      let newRoomId = roomId
+      
+      if (!roomId && partnerId) {
+        const roomFetch = await roomAPI.getRoomIdByUserIdAPI(partnerId)
+        newRoomId = roomFetch.roomId
+      }
+
+      //emit join-room
+      emit('join-room', { roomId: roomId, userId: meId })
+      dispatch(deleteAllReceivedMsg({ roomId: roomId }))
+      
+      //fetch room info after have roomId
+      const room = await roomAPI.getRoomByIdAPI(newRoomId)
+      if (room) {
+        setRoom(room)
+        
+        //load messages
+        const data = await messageAPI.loadMoreMessage({
+          roomId: roomId || room.id,
+        })
+  
+        setMessages(data.data.reverse()) //beforeCursor
+        setPagination(data.pagination) //beforeCursor
+      }
+      
+    }
+
+    fetchRoom({roomId, partnerId})
+
+    return () => {
+      emit('out-room', { roomId: roomId })
+    }
+  }, [roomId])
+
   useEffect(() => {
     const container = messagesContainerRef.current
     container.addEventListener('scroll', handleScroll)
@@ -164,38 +190,7 @@ const ConversationContent = ({
     }
   }, [newMsg])
 
-  useEffect(() => {
-    setRoom({ id: roomId })
-
-    const fetchRoomId = async () => {
-      const room = await roomAPI.getRoomIdByUserIdAPI(partnerId)
-      setRoom({ ...room, id: room.roomId })
-    }
-
-    if (!roomId && partnerId) {
-      fetchRoomId()
-    }
-    emit('join-room', { roomId: roomId, userId: meId })
-    dispatch(deleteAllReceivedMsg({ roomId: roomId }))
-
-   
-
-    const fetchLoadMoreMessages = async () => {
-      const data = await messageAPI.loadMoreMessage({
-        roomId: roomId || room.id,
-      })
-
-      setMessages(data.data.reverse()) //beforeCursor
-      setPagination(data.pagination) //beforeCursor
-    }
-    if (room) {
-      fetchLoadMoreMessages()
-    }
-
-    return () => {
-      emit('out-room', { roomId: roomId })
-    }
-  }, [roomId])
+  
 
   useEffect(() => {
     const i = setTimeout(() => {
@@ -206,7 +201,7 @@ const ConversationContent = ({
         })
       } else {
         emit('writing-message', {
-          roomId: room.id,
+          roomId: room?.id,
           status: false,
         })
       }
@@ -215,136 +210,150 @@ const ConversationContent = ({
       clearTimeout(i)
     }
   }, [textContent])
+
   useEffect(() => {
-    if (type == RoomTypeEnum.GROUP) {
-      const leader = members.filter(m => m.role == RoomRoleEnum.LEADER)[0]
-      if (leader) {        
+    if (room?.type == RoomTypeEnum.GROUP) {
+      const leader = members.filter((m) => m.role == RoomRoleEnum.LEADER)[0]
+      if (leader) {
         setLeader(leader)
       }
     }
   }, [])
 
   return (
-    <div className="mx-0.5 flex w-full flex-col">
-      {/* header */}
-      <div className="flex h-20 flex-row items-center bg-dark-3 p-4">
-        <div className="flex w-full flex-row items-center">
-          <img
-            className="size-12 rounded-full"
-            src={avatarUrl}
-            alt="Placeholder"
-          />
-          <div className="mx-3 flex w-full flex-col justify-between py-1">
-            <p className="text-lg font-bold text-cyan-50">{name}</p>
-            <p className="text-sm text-slate-400">Truy cập 1 giờ trước</p>
+    <div className="flex w-full flex-row">
+      <div className="mx-0.5 flex w-full flex-col">
+        {/* header */}
+        <div className="flex h-20 flex-row items-center bg-dark-3 p-4">
+          <div className="flex w-full flex-row items-center">
+            <img
+              className="size-12 rounded-full"
+              src={room?.roomAvatarUrl}
+              alt="Placeholder"
+            />
+            <div className="mx-3 flex w-full flex-col justify-between py-1">
+              <p className="text-lg font-bold text-cyan-50">{room?.roomName}</p>
+              <p className="text-sm text-slate-400">Truy cập 1 giờ trước</p>
+            </div>
           </div>
+          <SquareIcon src={Assets.icons.call} />
+          <SquareIcon src={Assets.icons.videoCall} />
+          <SquareIcon src={Assets.icons.addGroup} />
         </div>
-        <SquareIcon src={Assets.icons.call} />
-        <SquareIcon src={Assets.icons.videoCall} />
-        <SquareIcon src={Assets.icons.addGroup} />
-      </div>
-      {/* nội dung hội thoại */}
-      <div ref={messagesContainerRef} className="h-full overflow-auto p-2">
-        {messages.map((item, index) => (
-          <MessageItem
-            key={index.toString()}
-            data={{ ...item, isLastest: index == messages.length - 1 }}
-            isShowTime={
-              !messages[index + 1] ||
-              messages[index].isSelfSent != messages[index + 1]?.isSelfSent
-            }
-            isLeader={item.sender?.id == leader?.id}
-            lastReceiveMsgIds={lastReceiveMsgIds}
-            setMsgRep={setMsgRep}
-            msgRep={item.parentMessage}
-            lastRCV={lastRCV}
-          />
-        ))}
-        <div ref={messagesEndRef} className="h-5 w-full" />{' '}
-        {/* Placeholder để cuộn tới */}
-      </div>
-      {isPartnerWrite && (
-        <div className="flex">
-          <p className="bg-dark-5 px-2 text-white">Đang soạn tin nhắn</p>
+        {/* nội dung hội thoại */}
+        <div ref={messagesContainerRef} className="h-full overflow-auto p-2">
+          {messages.map((item, index) => (
+            <MessageItem
+              key={index.toString()}
+              data={{ ...item, isLastest: index == messages.length - 1 }}
+              isShowTime={
+                !messages[index + 1] ||
+                messages[index].isSelfSent != messages[index + 1]?.isSelfSent
+              }
+              isShowAvatar = {
+                messages[index]?.sender.id !== messages[index - 1]?.sender?.id
+              }
+              isLeader={item.sender?.id == leader?.id}
+              lastReceiveMsgIds={lastReceiveMsgIds}
+              setMsgRep={setMsgRep}
+              msgRep={item.parentMessage}
+              lastRCV={lastRCV}
+            />
+          ))}
+          <div ref={messagesEndRef} className="h-5 w-full" />{' '}
+          {/* Placeholder để cuộn tới */}
         </div>
-      )}
-      {/* nhập tin nhắn */}
-      <div
-        className={`${isInputFocus ? 'bg-blue-600' : 'bg-dark-2'} mt-0.5 flex flex-col gap-0.5`}
-      >
-        <div
-          className="relative w-full bg-dark-3 p-1"
-          onClick={() => document.getElementById('fileInput').click()} // Kích hoạt input
-        >
-          <input
-            id="fileInput"
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleFileChange}
-            style={{ display: 'none' }} // Ẩn input
-          />
-          <SquareIcon
-            src={Assets.icons.image}
-            className="size-8 cursor-pointer"
-          />
-        </div>
-        {msgRep && (
-          <div className="flex flex-row justify-between px-2">
-            <p className="text-white">{msgRep.content}</p>
-            <p
-              onClick={() => setMsgRep(null)}
-              className="font-medium text-red-600"
-            >
-              Hủy
-            </p>
+        {isPartnerWrite && (
+          <div className="flex">
+            <p className="bg-dark-5 px-2 text-white">Đang soạn tin nhắn</p>
           </div>
         )}
-        <div className="flex h-12 flex-row items-center justify-center bg-dark-3 px-4">
-          <input
-            className="w-full bg-dark-3 text-base text-cyan-50 focus:outline-none"
-            placeholder="Nhập @, tin nhắn..."
-            maxLength={100}
-            value={Utils.convertMsgContent(textContent)}
-            onChange={(e) => setTextContent(e.target.value)}
-            onFocus={() => setIsInputFocus(true)}
-            onBlur={() => setIsInputFocus(false)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                const data = {
-                  content: textContent,
-                }
-                if (msgRep) {
-                  data.parentMessage = {
-                    id: msgRep.id,
-                    content: msgRep.content,
+        {/* nhập tin nhắn */}
+        <div
+          className={`${isInputFocus ? 'bg-blue-600' : 'bg-dark-2'} mt-0.5 flex flex-col gap-0.5`}
+        >
+          <div
+            className="relative w-full bg-dark-3 p-1"
+            onClick={() => document.getElementById('fileInput').click()} // Kích hoạt input
+          >
+            <input
+              id="fileInput"
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleFileChange}
+              style={{ display: 'none' }} // Ẩn input
+            />
+            <SquareIcon
+              src={Assets.icons.image}
+              className="size-8 cursor-pointer"
+            />
+          </div>
+          {msgRep && (
+            <div className="flex flex-row justify-between px-2">
+              <p className="text-white">{msgRep.content}</p>
+              <p
+                onClick={() => setMsgRep(null)}
+                className="font-medium text-red-600"
+              >
+                Hủy
+              </p>
+            </div>
+          )}
+          <div className="flex h-12 flex-row items-center justify-center bg-dark-3 px-4">
+            <input
+              className="w-full bg-dark-3 text-base text-cyan-50 focus:outline-none"
+              placeholder="Nhập @, tin nhắn..."
+              maxLength={100}
+              value={Utils.convertMsgContent(textContent)}
+              onChange={(e) => setTextContent(e.target.value)}
+              onFocus={() => setIsInputFocus(true)}
+              onBlur={() => setIsInputFocus(false)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  const data = {
+                    content: textContent,
                   }
-                }
-                SendMessage(data)
-              }
-            }}
-          />
-          <img
-            className="size-6"
-            src={textContent.length > 0 ? Assets.icons.send : Assets.icons.like}
-            onClick={() => {
-              if (textContent.length > 0) {
-                const data = {
-                  content: textContent,
-                }
-                if (msgRep) {
-                  data.parentMessage = {
-                    id: msgRep.id,
-                    content: msgRep.content,
+                  if (msgRep) {
+                    data.parentMessage = {
+                      id: msgRep.id,
+                      content: msgRep.content,
+                    }
                   }
+                  SendMessage(data)
                 }
-                SendMessage(data)
-              }
-            }}
-          />
+              }}
+            />
+            <img
+              className="size-6"
+              src={textContent.length > 0 ? Assets.icons.send : Assets.icons.like}
+              onClick={() => {
+                if (textContent.length > 0) {
+                  const data = {
+                    content: textContent,
+                  }
+                  if (msgRep) {
+                    data.parentMessage = {
+                      id: msgRep.id,
+                      content: msgRep.content,
+                    }
+                  }
+                  SendMessage(data)
+                }
+              }}
+            />
+          </div>
         </div>
       </div>
+
+      {
+        room &&
+        <ConversationInfo
+          room={room}
+        />
+      }
     </div>
+    
   )
 }
 
@@ -353,6 +362,7 @@ const MessageItem = ({
   isLeader,
   msgRep,
   isShowTime,
+  isShowAvatar,
   setMsgRep,
   lastRCV,
   role,
@@ -371,8 +381,8 @@ const MessageItem = ({
   const [isHovered, setIsHovered] = useState(false) // Trạng thái hover
   const ref = useRef(null)
 
-  useEffect(() => {    
-    const element = ref.current    
+  useEffect(() => {
+    const element = ref.current
 
     const handleMouseEnter = () => setIsHovered(true) // Đang hover
     const handleMouseLeave = () => setIsHovered(false) // Không hover
@@ -392,20 +402,20 @@ const MessageItem = ({
     <div ref={ref} className={`flex flex-col`}>
       <div className={`my-2 flex ${isSelfSent && 'flex-row-reverse'}`}>
         <div className="w-10">
-          {!isSelfSent && isShowTime && (
+          {!isSelfSent && isShowAvatar && (
             <div class="relative">
               <img
                 className="size-10 rounded-full"
                 src={sender.user.avatarUrl}
                 alt="Placeholder"
               />
-              { isLeader &&
+              {isLeader && (
                 <img
-                className="absolute top-7 left-5 size-4"
-                src={Assets.icons.roomLeaderKey}
-                alt="Placeholder"
-              />
-              }
+                  className="absolute left-5 top-7 size-4"
+                  src={Assets.icons.roomLeaderKey}
+                  alt="Placeholder"
+                />
+              )}
             </div>
           )}
         </div>

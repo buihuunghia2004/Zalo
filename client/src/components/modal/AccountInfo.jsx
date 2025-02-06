@@ -40,10 +40,13 @@ export const AccountInfoModal = ({
         <div className="text-center mt-4">
           <h3 className="text-xl font-semibold">Nhân</h3>
           <div className="flex justify-center space-x-2 mt-2">
-            <button className="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-md">
+            {/* <button disabled className="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-md">
               Gọi điện
-            </button>
-            <button className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md">
+            </button> */}
+            <button onClick={()=>{
+              console.log('cccccc');
+              
+            }} className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md">
               Nhắn tin
             </button>
           </div>

@@ -1,6 +1,7 @@
 import { useState } from "react"
 import FriendInviteTab from "./FriendInviteTab"
 import FriendListTab from "./FriendListTab"
+import GroupListTab from "./GroupListTab"
 
 const menus = [
   'Danh sách bạn bè',
@@ -21,6 +22,8 @@ export default function ContactPage() {
   const getContent = () => {
     if (activeItem == menus[0]) {
       return <FriendListTab/>
+    }else if (activeItem == menus[1]) {
+      return <GroupListTab/>
     }else if (activeItem == menus[2]) {
       return <FriendInviteTab/>
     }

@@ -67,7 +67,7 @@ export class ChatRoomService {
   async findAll(reqDto: ListRoomReqDto, meId: Uuid): Promise<OffsetPaginatedDto<RoomResDto>> {
     const roomIds = this.roomRepository
       .createQueryBuilder('r')
-      .select(['r.id','r.type'])
+      .select(['r.id','r.type','r.groupName','r.groupAvatar'])
       .leftJoinAndSelect('r.members','m')
       .leftJoinAndSelect('r.members','m2')
       .leftJoin('m2.user','u')
@@ -85,6 +85,8 @@ export class ChatRoomService {
     
     const data = await Promise.all(
       rooms.map(async room => {
+        console.log('rrr',room);
+        
         let roomAvatarUrl: string
         let roomName: string        
   
@@ -97,7 +99,7 @@ export class ChatRoomService {
           }
         }else{
           roomAvatarUrl = room.groupAvatar
-          roomName = room.groupName
+          roomName = room.groupName || this.getRoomNameFromMembers(room.members)
         }
   
         const lastMsg = await this.getLastMsgByRoomId(room.id)
@@ -116,10 +118,45 @@ export class ChatRoomService {
       })
     )
 
+    return new OffsetPaginatedDto(plainToInstance(RoomResDto, data), metaDto);
+  }
 
+  async findAllGroups(reqDto: ListRoomReqDto, meId: Uuid): Promise<OffsetPaginatedDto<RoomResDto>> {
+    const roomIds = this.roomRepository
+      .createQueryBuilder('r')
+      .select(['r.id','r.type'])
+      .leftJoinAndSelect('r.members','m')
+      .leftJoinAndSelect('r.members','m2')
+      .leftJoin('m2.user','u')
+      .addSelect([
+        'u.id',
+        'u.username',
+        'u.avatarUrl'
+      ])
+      .where('m.userId = :meId',{meId})
+      .andWhere('r.type = :type',{type: RoomType.GROUP})
 
+    let [rooms, metaDto] = await paginate<ChatRoomEntity>(roomIds, reqDto, {
+      skipCount: true,
+      takeAll: true,
+    });
+    
+    const data = await Promise.all(
+      rooms.map(async room => {
+        let roomAvatarUrl: string = room.groupAvatar
+        let roomName: string = room.groupName || this.getRoomNameFromMembers(room.members)
 
-    return new OffsetPaginatedDto(plainToInstance(RoomResDto, data), metaDto);    
+        return {
+          id: room.id,
+          type: room.type,
+          members:room.members,
+          roomAvatarUrl,
+          roomName,
+        }
+      })
+    )
+
+    return new OffsetPaginatedDto(plainToInstance(RoomResDto, data), metaDto);
   }
 
   async findOne(meId: Uuid, id: Uuid): Promise<RoomResDto> {
@@ -135,12 +172,13 @@ export class ChatRoomService {
     const partner = room.members.find(m => m.userId != meId).user
       
     const lastMsg = await this.getLastMsgByRoomId(room.id)
-    return plainToInstance(RoomResDto, {
+    const result = {
       ...room,
-      roomName: room.groupName || partner.username,
+      roomName: room.type == RoomType.GROUP ? (room.groupName || this.getRoomNameFromMembers(room.members) ) : partner.username,
       roomAvatarUrl: room.groupAvatar || partner.avatarUrl,
       lastMsg
-    })
+    }
+    return plainToInstance(RoomResDto, result)
   }
 
   async findOneByPartnerId(meId: Uuid, partnerId: Uuid): Promise<any>{
@@ -206,5 +244,19 @@ export class ChatRoomService {
         .where('msg.roomId IN (:...roomIds)',{roomIds})
         .orderBy({'msg.createdAt':'DESC'})
         .getMany()
+  }
+
+  getRoomNameFromMembers = (members: MemberEntity[]): string => {
+    let name = ''
+    for (let index = 0; index < members.length; index++) {
+      if (index == 4) {
+        break
+      }
+      name += members[index].user.username
+      if (index < members.length - 1) {
+        name += ', '
+      }
+    }
+    return name
   }
 }

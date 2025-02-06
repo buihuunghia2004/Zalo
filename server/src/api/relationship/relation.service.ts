@@ -149,6 +149,10 @@ export class RelationService {
     return result
   }
 
+  async deleteRelation(id: Uuid): Promise<any>{
+    await this.relationRepository.delete({id})
+  }
+
   // async create(dto: CreateFriendDto): Promise<FriendEntity> {
   //   const {userId, partnerId, actionType} = dto
   //   let friendRealate = await FriendEntity.findOneOrFail({

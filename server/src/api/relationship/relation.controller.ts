@@ -46,8 +46,10 @@ export class RelationController {
   //   return this.friendService.update(+id, updateFriendDto);
   // }
 
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.friendService.remove(+id);
-  // }
+  @Delete(':id')
+  remove(@Param('id') id: Uuid) {
+    console.log('id',id);
+    
+    return this.relationService.deleteRelation(id);
+  }
 }

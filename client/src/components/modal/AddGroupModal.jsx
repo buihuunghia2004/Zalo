@@ -46,7 +46,9 @@ export const AddGroupModal = ({ isOpen, setIsOpen }) => {
       userIds: userIds
     })
 
-    console.log('newG',newGroup);
+    if (newGroup) {
+      closeModal()
+    }
   }
 
   return (
