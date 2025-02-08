@@ -3,8 +3,8 @@ import { io } from "socket.io-client";
 const sockets = {}; // Lưu các kết nối theo namespace
 
 export const connectSocket = (namespace) => {
-  if (!sockets[namespace]) {
-    sockets[namespace] = io(`http://localhost:7777/${namespace}`, {
+  if (!sockets[namespace]) {    
+    sockets[namespace] = io(`http://localhost:7777`, {
       transports: ["websocket"],
       auth: {
         token: `Bearer ${localStorage.getItem("accessToken")}`,

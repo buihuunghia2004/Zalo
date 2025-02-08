@@ -9,12 +9,12 @@ import { viewStyle } from '~/styles/Ui/views';
 import AppButton from '~/components/Ui/Button';  
 import { colors } from '~/styles/Ui/colors';  
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import { useAuthDispatch } from '~/redux/store';
+import { useAuthDispatch } from '~/stores/redux/store';
 import { loginWithGoogle } from '~/features/auth/authService';
 import { loginGoogleRequest } from '~/features/auth/authDto';
 
 GoogleSignin.configure({
-  webClientId:'813157104392-lcrddt799qhctjim1otmnq4hg23ekhs6.apps.googleusercontent.com'
+  webClientId:'813157104392-t3rru3rluegqftrtov6sp82momi4s494.apps.googleusercontent.com'
 })
 
 const loginValidationSchema = Yup.object().shape({  
@@ -34,7 +34,7 @@ const LoginForm: React.FC = () => {
       await GoogleSignin.hasPlayServices();
 
       const userInfo = await GoogleSignin.signIn();
-
+      
       if (userInfo.data?.idToken) {
         const googleRequest: loginGoogleRequest = {idToken: userInfo.data.idToken,};
 

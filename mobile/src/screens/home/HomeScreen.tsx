@@ -1,61 +1,52 @@
 import React, { useEffect, useState } from 'react';
 import { View, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { MainNavProp } from '../../routers/types';
+import { MainNavProp, StackNames } from '../../routers/types';
 import ItemChatHome, { Discription } from './components/ItemChatHome';
 import AppBar from '../../components/Common/AppBar';
 import { RoomService } from '~/features/room/roomService';
 import { _GetAllRoomRes } from '~/features/room/dto/room.dto.parent';
 import { Room } from '~/features/room/dto/room.dto.nested';
+import { useSelector } from 'react-redux';
+import { authSelector } from '~/features/auth/authSlice';
+import { useRoomStore } from '~/stores/zustand/room.store';
+import { _MessageSentRes } from '~/features/message/dto/message.dto.parent';
+import useSocket from '~/hooks/useSocket ';
 
 const HomeScreen = () => {
-  const mainNav = useNavigation<MainNavProp>();
+  const mainNav = useNavigation<MainNavProp>();  
 
-  const [rooms, setRooms] = useState<Room[]>([]);  
+  const { rooms, fetchRooms, receiveNewMessage } = useRoomStore()
+  const { user } = useSelector(authSelector);
+  const [userId, setUserId] = useState<string>('user123'); // Giả sử đây là userId của bạn
 
-  const goToSearchScreen = () => {
-    mainNav.navigate('SearchScreen');
-  };
-  const goToChatScreen = (id : string) => {
-    mainNav.navigate('ChatScreen', {roomId: id});
-  }
+  const { socket, newMessages } = useSocket(user);
 
   useEffect(() => {
-    const fetchRooms = async () => {
-      try {
-        const res = await RoomService.getAllRoom(); 
-        setRooms(res.data); 
-        
-      } catch (error) {
-        console.error('Lỗi khi lấy danh sách phòng:', error); // Xử lý lỗi
+    // Lắng nghe thông tin khi kết nối hoặc ngắt kết nối
+    if (socket) {
+      console.log("Đã kết nối với socket server!");
+    }
+
+    return () => {
+      if (socket) {
+        socket.disconnect();
+        console.log("Đã ngắt kết nối socket.");
       }
     };
+  }, [socket]);
 
-    fetchRooms(); 
+  useEffect(() => {
+    fetchRooms()
   }, []);
-  const chatList = [
-    {
-      id: '1',
-      name: 'Nghĩa',
-      description: { sender: 'Huy', message: 'Hello', kind: 'text' } as Discription ,
-      time: '1 giờ',
-    },
-    {
-      id: '2',
-      name: 'Huy',
-      isLike: true,
-      description: { sender: 'Huy', message: 'Hello xin chào mọi người', kind: 'text' }as Discription ,
-      time: '1 giờ',
-      notSeen: 1,
-    },
-    {
-      id: '3',
-      name: 'Lê Văn Tèo',
-      description: { sender: 'Huy', message: 'Hello', kind: 'video_receive' }as Discription ,
-      time: '1 giờ',
-      notSeen: 0,
-    },
-  ];
+
+  
+  const goToSearchScreen = () => {
+    mainNav.navigate(StackNames.SearchScreen);
+  };
+  const goToChatScreen = (id : string) => {
+    mainNav.navigate(StackNames.ChatScreen, {roomId: id});
+  }
 
   return (
     <View style={{ backgroundColor: 'white', flex: 1 }}>
@@ -78,7 +69,6 @@ const HomeScreen = () => {
           }
         }}
       />
-
       {/* Danh sách chat */}
       <FlatList
         data={rooms}

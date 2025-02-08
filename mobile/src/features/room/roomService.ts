@@ -1,5 +1,5 @@
 import axiosInstance from '~/configs/axiosInstance';
-import {_GetAllRoomRes, _GetRoomIdByUserIdRes} from './dto/room.dto.parent';
+import {_GetAllRoomRes, _GetRoomIdByUserIdRes, _GetRoomRes} from './dto/room.dto.parent';
 
 const getAllRoom = async (): Promise<_GetAllRoomRes> => {
   try {
@@ -12,17 +12,21 @@ const getAllRoom = async (): Promise<_GetAllRoomRes> => {
 };
 
 const findOneByPartnerId = async (userId: string): Promise<_GetRoomIdByUserIdRes> => {
-  try {
-    const res = await axiosInstance.get('rooms/partner/', {
-      params: { id: userId },
-    });
-    return res.data;
+  return await axiosInstance.get('rooms/partner/'+userId )
+};
+
+const getRoomIdById = async (roomId: string): Promise<_GetRoomRes> => {
+  console.log('rooomId'+ roomId);
+  
+  try {    
+    return await axiosInstance.get('rooms/'+roomId)
   } catch (error: any) {
     throw error;
   }
-};
+}
 
 export const RoomService = {
   getAllRoom,
+  getRoomIdById,
   findOneByPartnerId
 };

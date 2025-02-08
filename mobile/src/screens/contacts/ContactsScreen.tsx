@@ -1,21 +1,21 @@
-import {useRef} from 'react';
-import {
-  View,
-  StyleSheet,
-  Animated,
-} from 'react-native';
-import {MainNavProp} from '~/routers/types';
-import {useNavigation} from '@react-navigation/native';
+import {useEffect, useRef} from 'react';
+import {View, StyleSheet, Animated} from 'react-native';
+import {MainNavProp, MainStackParamList, StackNames} from '~/routers/types';
+import {RouteProp, useNavigation} from '@react-navigation/native';
 import {colors} from '../../styles/Ui/colors';
 import AppBar from '../../components/Common/AppBar';
 import {Fonts} from '~/styles/Ui/fonts';
 import ContactsTabNavigation from './tab/ContactTabNavigation';
+import { useTypedRoute } from '~/hooks/userMainRoute';
+import { Relation } from '~/features/relation/dto/relation.dto.nested';
 
-const ContactsScreen = () => {
-  
-  const mainNav = useNavigation<MainNavProp>();
+
+const ContactsScreen: React.FC = () => {
+
+  const mainNav = useNavigation<MainNavProp>();  
+
   const tabsPosition = useRef(new Animated.Value(0)).current;
-
+  
   return (
     <View style={{flex: 1}}>
       <AppBar
@@ -43,8 +43,7 @@ const ContactsScreen = () => {
           style={[
             styles.tabContainer,
             {transform: [{translateY: tabsPosition}]},
-          ]}>
-        </Animated.View>
+          ]}></Animated.View>
       </View>
       <ContactsTabNavigation />
     </View>

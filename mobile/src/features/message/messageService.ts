@@ -2,11 +2,16 @@ import axiosInstance from '~/configs/axiosInstance';
 import {_MessageLoadRes, _MessageSentReq, _MessageSentRes} from './dto/message.dto.parent';
 
 const loadMessages = async (roomId: string): Promise<_MessageLoadRes> => {
+  console.log(roomId);
+  
   try {
-    const res = await axiosInstance.get('messages',{
-      params: {roomId: roomId},
-    });
-    return res.data;
+    // return await axiosInstance.get('messages',{
+    //   params: {roomId: roomId},
+    // });
+    if (roomId) {
+      return await axiosInstance.get(`messages?roomId=${roomId}`);
+    }
+    return axiosInstance.get('')
   } catch (error: any) {
     console.error('Error while searching user:', error);
     throw error;
@@ -15,9 +20,7 @@ const loadMessages = async (roomId: string): Promise<_MessageLoadRes> => {
 
 const SentMessage = async (dto: _MessageSentReq): Promise<_MessageSentRes> => {
   try {
-    const res = await axiosInstance.post('messages', dto);
-
-    return res.data;
+    return await axiosInstance.post('messages', dto);;
   } catch (error: any) {
     console.error('Error while searching user:', error);
     throw error;

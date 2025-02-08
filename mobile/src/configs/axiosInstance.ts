@@ -17,12 +17,12 @@ const axiosInstance = axios.create({
 let accessToken = '';
 
 export const setAuthorizationToken = (token: string) => {
-  accessToken = token;
+  accessToken = token;  
 };
 
 axiosInstance.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    if (accessToken) {
+    if (accessToken) {      
       config.headers['Authorization'] = `Bearer ${accessToken}`;
     }
     return config;
@@ -35,7 +35,7 @@ axiosInstance.interceptors.request.use(
 
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => {    
-    return response;
+    return response.data;
   },
   async (error: AxiosError) => {
     console.log('Response Error:', error);

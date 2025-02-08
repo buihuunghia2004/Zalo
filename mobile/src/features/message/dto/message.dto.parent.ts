@@ -16,7 +16,7 @@ export interface _MessageSentRes
     'id' | 'content' | 'type' | 'status' | 'replyMessageId'
   > {
   sender?: MemberBase;
-  room?: Room;
+  roomId?: string;
   isSelfSent?: boolean;
   createdAt?: Date;
 }

@@ -24,8 +24,11 @@ export class RelationController {
   }
   
   @Post('/handle-request')
-  handleRequest(@Body() dto: HandleRequestToAddFriendReqDto) {
-    return this.relationService.handleRequest(dto);
+  handleRequest(
+    @Body() dto: HandleRequestToAddFriendReqDto,
+    @CurrentUser('id') myId: Uuid
+  ) {
+    return this.relationService.handleRequest(dto, myId);
   }
 
   @Get()

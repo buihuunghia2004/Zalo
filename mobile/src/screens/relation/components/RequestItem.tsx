@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {View, Text, StyleSheet, Image} from 'react-native';
 import AppButton from '~/components/Ui/Button';
 import {Relation} from '~/features/relation/dto/relation.dto.nested';
@@ -15,27 +15,28 @@ import {
   RelationAction,
   RelationStatus,
 } from '~/features/relation/dto/relation.dto.enum';
-import {viewStyle} from '~/styles/Ui/views';
 import {Assets} from '~/styles/Ui/assets';
 
-interface RequestItemProps {
+export interface RequestItemProps {
   relation: Relation;
+  itemOnPress: (id: string, status: RelationStatus) => void; 
 }
 
-const RequestItem = ({relation}: RequestItemProps) => {
+const RequestItem = ({ relation, itemOnPress }: RequestItemProps) => {
   const mainNav = useNavigation<MainNavProp>();
 
-  const [status, setStatus] = useState<RelationStatus>(relation.status);
   const [_send, _setSend] = useState<boolean>(true);
-  const [_receive, _setReceive] = useState<any>(null);
+  const [_received, _setReceived] = useState<any>(null);
+  
 
-  useEffect(() => {
+  useEffect(() => {    
     if (relation) {
       setOptionUi();
     }
-  }, []);
+  }, [relation]);
 
   const setOptionUi = () => {
+    
     if (relation.inviter === InviterTypeEnum.SELF) {
       //defind
       if (relation.status === RelationStatus.PENDING) {
@@ -50,34 +51,46 @@ const RequestItem = ({relation}: RequestItemProps) => {
     else {
       //từ chối
       if (relation.status === RelationStatus.NOTTHING) {
-        _setReceive(false);
+        _setReceived(false);
       }
       //đồng ý
       else if (relation.status === RelationStatus.FRIEND) {
-        _setReceive(true);
+        _setReceived(true);
       }
       //defind
       else if (relation.status === RelationStatus.PENDING) {
-        _setReceive(null);
+        _setReceived(null);
       }
     }
   };
-  const handleChangeUi = (action: RelationAction) => {
+  const handleWithAction = (action: RelationAction) => {
     switch (action) {
       case RelationAction.ACCEPT:
-        _setReceive(true);
+        itemOnPress(relation.id, RelationStatus.FRIEND)
+        _setReceived(true);
+
+        mainNav.navigate(StackNames.OptionalFriendScreen, {
+          baseProfile: relation.user,
+        });
         break;
 
       case RelationAction.DECLINE:
-        _setReceive(false);
+        itemOnPress(relation.id, RelationStatus.NOTTHING)
+        _setReceived(false);
         break;
 
       case RelationAction.REVOKE:
+        itemOnPress(relation.id, RelationStatus.NOTTHING)
         _setSend(false);
         break;
 
       case RelationAction.SENT:
+        itemOnPress(relation.id, RelationStatus.PENDING)
         _setSend(true);
+
+        mainNav.navigate(StackNames.SenAddFriendScreen, {
+          baseProfile: relation.user,
+        });
         break;
     }
   };
@@ -85,19 +98,9 @@ const RequestItem = ({relation}: RequestItemProps) => {
   const handleItemOnpress = (action: RelationAction) => {
     const relationId = relation.id;
     const req = {relationId, action};
-    relationApi
-      .handleRequest(req)
-      .then(() => {
-        if (action === RelationAction.SENT) {
-          mainNav.navigate(StackNames.SenAddFriendScreen, {
-            baseProfile: relation.user,
-          });
-        } else if (action === RelationAction.ACCEPT) {
-          mainNav.navigate(StackNames.OptionalFriendScreen, {
-            baseProfile: relation.user,
-          });
-        }
-        handleChangeUi(action);
+
+    relationApi.handleRequest(req).then(() => {
+        handleWithAction(action)
       })
       .catch(error => {
         console.error('Error in handleSenReq:', error);
@@ -112,7 +115,7 @@ const RequestItem = ({relation}: RequestItemProps) => {
   }
 
   return (
-    <View style={[styles.item, { backgroundColor: _receive===null ?  undefined: colors.white }]}>
+    <View style={[styles.item, { backgroundColor: _received===null ?  undefined: colors.white }]}>
       {relation.inviter === InviterTypeEnum.SELF ? (
         <>
           <Image
@@ -123,7 +126,7 @@ const RequestItem = ({relation}: RequestItemProps) => {
             <Text style={styles.username}>
               {relation.user?.username || 'No Username'}
             </Text>
-            {status === RelationStatus.NOTTHING ? (
+            {relation.status === RelationStatus.NOTTHING ? (
               <Text>Đã thu hồi</Text>
             ) : (
               <>
@@ -139,11 +142,11 @@ const RequestItem = ({relation}: RequestItemProps) => {
             textStyle={[
               textStyle.body_sm,
               {fontFamily: Fonts.roboto.medium},
-              status === RelationStatus.NOTTHING
+              relation.status === RelationStatus.NOTTHING
                 ? {color: colors.white}
                 : {color: colors.black},
             ]}
-            title={status === RelationStatus.NOTTHING ? 'kết bạn' : 'thu hồi'}
+            title={relation.status === RelationStatus.NOTTHING ? 'kết bạn' : 'thu hồi'}
             style={_send ? styles.button : styles.buttonCalled}
             onPress={() =>
               handleItemOnpress(
@@ -159,7 +162,7 @@ const RequestItem = ({relation}: RequestItemProps) => {
             source={{uri: relation.user.avatarUrl}}
           />
           <View style={styles.infoContainer}>
-            {_receive === null ? (
+            {_received === null ? (
               <>
                 <Text style={styles.username}>
                   {relation.user?.username || 'No Username'}
@@ -175,19 +178,19 @@ const RequestItem = ({relation}: RequestItemProps) => {
                   <Text style={styles.username}>
                     {relation.user?.username || 'No Username'}
                   </Text>
-                  <Text>{_receive ? 'Đã kết bạn' : 'Đã từ chối'}</Text>
+                  <Text>{_received ? 'Đã kết bạn' : 'Đã từ chối'}</Text>
                 </View>
                 <AppButton
                   textStyle={[textStyle.body_sm, {color: colors.secondary}]}
-                  title={_receive && 'Nhắn tin'}
-                  style={_receive ? styles.btnChat: styles.btnMenu}
-                  centerIcon={!_receive && Assets.icons.menu_row_gray}
-                  onPress={_receive ? goChatScreen: handleMenuPress }
+                  title={_received && 'Nhắn tin'}
+                  style={_received ? styles.btnChat: styles.btnMenu}
+                  centerIcon={!_received && Assets.icons.menu_row_gray}
+                  onPress={_received ? goChatScreen: handleMenuPress }
                 />
               </View>
             )}
 
-            {_receive == null && (
+            {_received == null && (
               <View style={styles.buttonsContainer}>
                 <AppButton
                   textStyle={[textStyle.body_sm]}
