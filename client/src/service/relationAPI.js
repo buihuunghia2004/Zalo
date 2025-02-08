@@ -8,6 +8,15 @@ const getAllRelationsRequestAPI = async (status) => {
   }
 }
 
+const unFriendAPI = async (id) => {
+  try {
+    return await AxiosInstant.delete(`relations/${id}`)
+  } catch (error) {
+    
+  }
+}
+
+
 const sendRequestAddFriendAPI = async (data) => {
   try {
     return await AxiosInstant.post('relations/sent-request', data)
@@ -27,7 +36,8 @@ const handleRequestAddFriendAPI = async (data) => {
 const relationAPI = {
   sendRequestAddFriendAPI,
   handleRequestAddFriendAPI,
-  getAllRelationsRequestAPI
+  getAllRelationsRequestAPI,
+  unFriendAPI
 }
 
 export default relationAPI

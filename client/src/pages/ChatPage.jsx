@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react'
-import ConversationInfo from './chatPage/ConversationInfo'
 import ConversationList from './chatPage/ConversationList'
 import ConversationContent from './chatPage/ConversationContent'
-import { SocketProvider, useSocket } from '../socket/SocketProvider'
+import { useSocket } from '../socket/SocketProvider'
 import { useDispatch, useSelector } from 'react-redux'
 import { addNewMsgToRoom, getAllRooms, updateLastMsgForRoom } from '../redux/slices/roomSlice'
 import useSocketEvent from '../hooks/useSocket'
-import GroupAvatar from '../components/GroupAvatar'
 
 const ChatPage = () => {
   const rooms = useSelector((state) => state.rooms.rooms)
@@ -18,10 +16,8 @@ const ChatPage = () => {
 
   const meId = useSelector((state) => state.me.user?.id)
   
-  
   useSocketEvent(
     `event:notify:${meId}:new_message`,(data) => {           
-      console.log('fff',data);
       
       if (!currentRoom || (data.roomId != currentRoom.id)) {
         distpatch(addNewMsgToRoom(data))
@@ -53,40 +49,26 @@ const ChatPage = () => {
   }, [])
 
   useEffect(() => {    
-    const s = [...rooms].sort((a, b) => new Date(b.lastMsg.createdAt) - new Date(a.lastMsg.createdAt));
+    const s = [...rooms].sort((a, b) => new Date(b.lastMsg?.createdAt) - new Date(a.lastMsg?.createdAt));
     setSortedRooms(s)
   }, [rooms])
-  
-  
+
   return (
-    // <SocketProvider namespace={"notifications"}>
-      <div className="flex size-full flex-row bg-dark-2">
-        {/* danh sách hội thoại */}
-        <ConversationList
-          rooms={sortedRooms}
-          setCurrentConversation={(it)=>setCurrentRoom(it)}
+    <div className="flex size-full flex-row bg-dark-2">
+      {/* danh sách hội thoại */}
+      <ConversationList
+        rooms={sortedRooms}
+        setCurrentConversation={(it)=>setCurrentRoom(it)}
+      />
+      {/* nội dung */}
+      {
+        currentRoom &&
+        <ConversationContent
+          roomId={currentRoom.id}
+          newMsg={newMessage}
         />
-        {/* <p>{currentRoom?.id}</p> */}
-        {/* nội dung */}
-        <div className="flex w-full flex-row">
-          {/* hội thoại */}
-          {
-            currentRoom &&
-            <ConversationContent
-              avatarUrl={currentRoom?.roomAvatarUrl}
-              name={currentRoom?.roomName}
-              type={currentRoom?.type}
-              roomId={currentRoom?.id}
-              newMsg={newMessage}
-              members={currentRoom.members}
-              currentMember={currentRoom.members.find(member => member.user.id == meId)}
-            />
-          }
-          {/* thông tin hội thoại*/}
-          <ConversationInfo/>
-        </div>
-      </div>
-    // </SocketProvider>
+      }
+    </div>
   )
 }
 

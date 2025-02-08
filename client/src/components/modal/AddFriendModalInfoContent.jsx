@@ -91,7 +91,10 @@ export const AddFriendModalInfoContent = ({
             }} className="rounded-md bg-gray-600 px-4 py-2 hover:bg-gray-700">
               {getStatusName({status, whoSent})}
             </button>
-            <button className="rounded-md bg-blue-600 px-4 py-2 hover:bg-blue-700">
+            <button 
+              onClick={()=> {}}
+              className="rounded-md bg-blue-600 px-4 py-2 hover:bg-blue-700"
+            >
               Nhắn tin
             </button>
           </div>

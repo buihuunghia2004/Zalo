@@ -13,9 +13,11 @@ const FriendInviteTab = () => {
   }
 
   const onHandle = ({action, relationId}) => {
-    if (action == 'accept') {
-      
-    }
+    const newSentRequests = sentRequests.filter(it => it.id != relationId)
+    const newReceivRequests = receivRequests.filter(it => it.id != relationId)
+
+    setReceivRequest(newReceivRequests)
+    setSentRequests(newSentRequests)
   }
 
   useEffect(() => {    
@@ -30,7 +32,7 @@ const FriendInviteTab = () => {
           (receivRequests && receivRequests.length > 0) &&
           receivRequests.map(item => {          
             return(
-              <InviteFriendCard data={item}/>
+              <InviteFriendCard data={item} onHandle={onHandle}/>
             )
           })
         }

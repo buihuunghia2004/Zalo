@@ -10,7 +10,13 @@ import GroupAvatar from '../../components/GroupAvatar'
 export default function ConversationList({ rooms, setCurrentConversation }) {
   const [isAFModalOpen, setIsAFModelOpen] = useState(false)
   const [isAGModalOpen, setIsAGModalOpen] = useState(false)
+  const [curRoomId, setCurRoomId] = useState()
   const meId = useSelector((state) => state.me.user?.id)
+
+  const onItemClick = (item) => {
+    setCurrentConversation(item)
+    setCurRoomId(item.id)
+  }
 
   return (
     <div className="flex w-[28rem] flex-col">
@@ -37,12 +43,13 @@ export default function ConversationList({ rooms, setCurrentConversation }) {
         {rooms.map((item, index) => (
           <ConversationItem
             key={index.toString()}
+            isFocus = {item.id == curRoomId}
             data={item}
             lastMsg={item?.lastMsg}
             messLasted={item?.lastMsg?.createdAt}
             msgReceived={item.receivedMsgs}
             isSelfSent={item?.lastMsg?.isSelfSent}
-            onClick={() => setCurrentConversation(item)}
+            onClick={() => onItemClick(item)}
           />
         ))}
       </div>
@@ -91,8 +98,8 @@ const SelectedTab = () => {
   )
 }
 const ConversationItem = ({
-  id,
   data,
+  isFocus,
   isSelfSent,
   lastMsg,
   messLasted,
@@ -117,7 +124,7 @@ const ConversationItem = ({
 
   return (
     <div
-      className="flex h-20 w-full flex-row items-center p-2 pr-4 hover:bg-dark-4"
+      className={`flex h-20 w-full flex-row items-center p-2 pr-4 hover:bg-dark-4 ${isFocus && 'bg-slate-900'}`}
       onMouseEnter={() => setIsHover(true)}
       onMouseLeave={() => setIsHover(false)}
       onClick={onClick}
@@ -129,18 +136,22 @@ const ConversationItem = ({
           alt="Placeholder"
         />
       ) : (
-        <GroupAvatar
-          members={data.members.map(member=>member.user)}
-        />
+        <div className='relative z-0'>
+          <GroupAvatar
+            members={data.members.map(member=>member.user)}
+          />
+        </div>
       )}
 
       <div className="w-full">
         <div className="mx-2 flex w-full flex-row gap-1 py-1">
-          <p className="w-full text-base text-white">{data.roomName}</p>
+          <p className="w-full text-base text-white whitespace-nowrap overflow-hidden">{data.roomName}</p>
           {isHover ? (
-            <SquareIcon className={'size-6'} src={Assets.icons.more} />
+            <div className='w-16'>
+              <SquareIcon className={'size-6'} src={Assets.icons.more} />
+            </div>
           ) : (
-            <p className="text-sm text-slate-400 w-20 ">{timeDifference}</p>
+            <p className="text-sm text-slate-400 w-16 ">{timeDifference}</p>
           )}
         </div>
         <div className="mx-2 flex w-full flex-row gap-1 py-1">
