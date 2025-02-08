@@ -37,8 +37,10 @@ import {useAsyncStorage} from '@react-native-async-storage/async-storage';
 import {userApi} from '~/features/user/userService';
 import {UserFriend} from '~/features/user/dto/user.dto.nested';
 import { MessageBase } from '~/features/message/dto/message.dto.nested';
-import { relationApi } from '~/features/relation/relationService';
 import { RoomService } from '~/features/room/roomService';
+import { _GetRoomRes } from '~/features/room/dto/room.dto.parent';
+import { useSelector } from 'react-redux';
+import { authSelector } from '~/features/auth/authSlice';
 
 type ChatScreenProps = {
   route: RouteProp<MainStackParamList, 'ChatScreen'>;
@@ -54,14 +56,15 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
   const mainNav = useNavigation<MainNavProp>();
   const route = useTypedRoute<typeof StackNames.ChatScreen>();
   const { roomId: roomIdPagram, userId } = route.params;
+  const { user } = useSelector(authSelector)
 
   const bottomSheetRef = useRef<BottomSheet>(null);
   const inputRef = useRef<TextInput>(null);
   const flatListRef = useRef<any>(null);
 
   const {getItem} = useAsyncStorage(AUTH_ASYNC_STORAGE_KEY);
-  const [myId, setMyId] = useState('');
   const [roomId, setRoomId] = useState('');
+  const [room, setRoom] = useState<_GetRoomRes>()
   const [messages, setMessages] = useState<(_MessageSentRes | MessageBase)[]>([]);
   const [member, setMember] = useState<UserFriend>();
 
@@ -70,20 +73,13 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
   const [inputText, setInputText] = useState<string>('');
   const [renderEmojis, setReanderEmojis] = useState<boolean>(false);
 
-  const {newMessages} = useSocket(myId);
+  const {newMessages} = useSocket(user);
 
   const scaleIcons = useRef(new Animated.Value(1)).current;
   const scaleSend = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    const fetchMyData = async () => {
-      const auth = await getItem();
-      if (auth) {
-        const parsedAuth = JSON.parse(auth) as loginGoogleResponse;
-        setMyId(parsedAuth.userId);
-      }
-    };
-    fetchMyData(); 
+
     if (newMessages && newMessages.length > 0) {
       newMessages;
     }
@@ -93,50 +89,60 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
   useEffect(() => {
     const loadMessages = async () => {
       try {
-        const res = await MessageService.loadMessages(roomId);
-        setMessages(res.data);
+        if (roomId) {
+          const res = await MessageService.loadMessages(roomId);
+          setMessages(res.data);
+        }
       } catch (error) {
         console.log(error);
       }
     };
-    const fetchMember = async () => {
+    const fetchMember = async () => {      
       try {
         if (userId) {
-          const res = await userApi.findUserById(userId);
+          const res = await userApi.findUserById(userId);                    
           setMember(res);
         }
       } catch (error) {
         console.log(error);
       }
     };
+    const fetchRoom = async (roomId: string)=>{
+      try {
+        const res = await RoomService.getRoomIdById(roomId);            
+        setRoom(res);
+      } catch (error) {
+        console.log(error);
+      }
+    }
     const findOneByPartnerId = async (): Promise<string | undefined> => {
       if (userId) {
         try {
           const res = await RoomService.findOneByPartnerId(userId);
           return res.roomId;
-        } catch (error) {
-          console.log(error);
+        } catch (error: any) {
+          if (error.response && error.response.status === 404) {
+            fetchMember();
+          } else {
+            console.error("Lỗi khác:", error);
+            throw error
+          }
         }
       }
       return undefined; 
     };
-    fetchMember();
 
-    // if (roomIdPagram && roomId == ''){
-    //   setRoomId(roomIdPagram)
-    //   loadMessages().then(()=>{{
-    //     const myMessage = messages.find(
-    //       (message) => message.sender?.user?.id === myId
-    //     );
-    //   }});
-    // }
-    if (userId){
-      findOneByPartnerId().then(roomId => {
-        if (roomId){
+    if (roomIdPagram && roomId == ''){
+      setRoomId(roomIdPagram)
+      fetchRoom(roomIdPagram);
+      loadMessages();
+    }
+    if (userId){            
+      findOneByPartnerId().then(roomId => {        
+        if (roomId){                    
           setRoomId(roomId)
+          fetchRoom(roomId);
           loadMessages();
-        }else{
-          fetchMember();
         }
       });
     }
@@ -217,11 +223,10 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
       isSelfSent: true,
       type: MessageContentEnum.TEXT,
       status: MessageViewStatus.SENT, 
-      // sender: messages && messages[0]
     };
     setMessages(prevMessages => [...prevMessages, tempMessage]);
     setInputText('');
-      
+    
     const newMessage: _MessageSentReq = {
       content: inputText,
       contentType: MessageContentEnum.TEXT,
@@ -230,10 +235,9 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
     };
     try {
       const mesRes = await MessageService.SentMessage(newMessage);
-      console.log(mesRes.room);
-      
-      if (mesRes.room) {
-        setRoomId(mesRes.room.id);
+  
+      if (mesRes.roomId) {
+        setRoomId(mesRes.roomId);
       }
       setMessages((prevMessages) =>
         prevMessages.map((msg) =>
@@ -272,7 +276,6 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
   }, [messages]);
 
   const RenderItem: React.FC<any> = React.memo(({item, onPress}) => {
-    console.log(`Rendering item: ${item.id}`);
     return (
       <Pressable
         onPress={onPress}
@@ -293,7 +296,7 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
     <View style={styles.container}>
       {/* AppBar */}
       <AppBar
-        // title= {member ? member.avatarUrl : messages && messages[0].}
+        title= {member ? member.username : (room && room.roomName)}
         description="1 giờ trước"
         iconButtonLeft={['back']}
         iconButtonRight={['call', 'video_call', 'menu']}

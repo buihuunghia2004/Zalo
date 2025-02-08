@@ -24,6 +24,7 @@ import { JwtPayloadType } from '../auth/types/jwt-payload.type';
 import { MemberEntity } from './entities/member.entity';
 import { MessageEntity } from './entities/message.entity';
 import { Uuid } from '@/common/types/common.type';
+import { log } from 'console';
 
 @Injectable()
 @WebSocketGateway({ namespace: '/message' })
@@ -45,7 +46,9 @@ export class MessageGateway
     private readonly cacheManager: Cache,
   ) {}
 
-  async handleConnection(@ConnectedSocket() client: Socket) {
+  async handleConnection(@ConnectedSocket() client: Socket) {    
+    console.log('socket message connect', client.id);
+    
     // try {
     //   const accessToken = this.extractTokenFromHeader(client);
     //   const user: JwtPayloadType =
@@ -57,7 +60,7 @@ export class MessageGateway
   }
 
   async handleDisconnect(@ConnectedSocket() client: Socket) {
-
+    console.log('socket message disConnect', client.id);
   }
 
   @SubscribeMessage('join-room')
@@ -115,6 +118,11 @@ export class MessageGateway
         offineClientIds.push(member.userId)
       }
     }))
+
+    console.log('onlineUser', onlineClientIds );
+
+    console.log('offUser', offineClientIds );
+
 
     //gửi đến các user đang online
     onlineClientIds.forEach(id => {

@@ -1,15 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateChatRoomDto } from './dto/create-chat-room.dto';
 import { UpdateChatRoomDto } from './dto/update-chat-room.dto';
 import { ListRoomReqDto } from './dto/list-room.req.dto';
 import { RoomResDto } from './dto/room.res.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatRoomEntity } from '../message/entities/chat-room.entity';
-import { Brackets, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { paginate } from '@/utils/offset-pagination';
 import { plainToInstance } from 'class-transformer';
 import { OffsetPaginatedDto } from '@/common/dto/offset-pagination/paginated.dto';
-import { MemberRole, RoomLimit, RoomType } from '@/constants/entity.enum';
+import { MemberRole, MessageViewStatus, RoomLimit, RoomType } from '@/constants/entity.enum';
 import { Uuid } from '@/common/types/common.type';
 import { MemberEntity } from '../message/entities/member.entity';
 import { MessageEntity } from '../message/entities/message.entity';
@@ -82,7 +81,7 @@ export class ChatRoomService {
       skipCount: false,
       takeAll: false,
     });
-    
+
     const data = await Promise.all(
       rooms.map(async room => {
         console.log('rrr',room);
@@ -103,6 +102,7 @@ export class ChatRoomService {
         }
   
         const lastMsg = await this.getLastMsgByRoomId(room.id)
+        const quantityUnReadMessages = await this.getQuantityUnReadMessages(room.id)
   
         const result : any= {
           id: room.id,
@@ -111,13 +111,14 @@ export class ChatRoomService {
           roomAvatarUrl,
           roomName,
         }
+        result.quantityUnReadMessages = {...quantityUnReadMessages}
         if (lastMsg) {
           result.lastMsg = {...lastMsg, isSelfSent:meId == lastMsg.sender.userId}
         }
+        
         return result
       })
     )
-
     return new OffsetPaginatedDto(plainToInstance(RoomResDto, data), metaDto);
   }
 
@@ -226,6 +227,15 @@ export class ChatRoomService {
         .orderBy({'msg.createdAt':'DESC'})
         .getOne()
   }
+  getQuantityUnReadMessages = async (roomId: Uuid) => {
+    return await this.messageRepository
+      .createQueryBuilder('msg')
+      .select('COUNT(msg.id)', 'unreadCount')  // Đếm số tin nhắn chưa đọc
+      .where('msg.roomId = :roomId',{roomId: roomId})
+      .andWhere('msg.status != :status', { status: MessageViewStatus.VIEWED })  // Loại bỏ tin nhắn đã xem
+      .getRawOne(); 
+  };
+  
 
   getLastMsgByRoomIds = async (roomIds: Uuid[]) => {
     return await this.messageRepository

@@ -21,24 +21,15 @@ import {imagesStyle} from '~/styles/Ui/image';
 import {relationApi} from '~/features/relation/relationService';
 import {RelationStatus} from '~/features/relation/dto/relation.dto.enum';
 import {UserBase} from '~/features/user/dto/user.dto.nested';
+import { useRelationStore } from '~/stores/zustand/relation.store';
 
 const FriendTab = ({ onScrollY }) => {
   const mainNav = useNavigation<MainNavProp>();
-  const [friends, setFriends] = useState<UserBase[]>([]);
+  const { relations_Friend, fetchRelations } = useRelationStore();
 
- useEffect(() => {    
-  const fetchFriends = async () => {
-    try {
-      const data = await relationApi.getRelations(RelationStatus.FRIEND);
-      const friends = data.map(item => item.user).filter(user => !!user);      
-      setFriends(friends); 
-    } catch (error) {
-      console.error('Error fetching friends:', error);
-    }
-  };
-
-  fetchFriends(); 
-}, []);
+  useEffect(() => {
+    fetchRelations(RelationStatus.FRIEND);    
+  }, []);
 
   const items = [
     {icon: Assets.icons.friend_white, label: 'Lời mời kết bạn'},
@@ -95,7 +86,7 @@ const FriendTab = ({ onScrollY }) => {
       <View style={{backgroundColor: colors.white, height: 400}}></View>
       <FlatList
         scrollEnabled={false} 
-        data={friends}
+        data={relations_Friend.map(item => item.user)}
         renderItem={({item}) => renderFriend(item)}
         keyExtractor={item => item.id}
       />

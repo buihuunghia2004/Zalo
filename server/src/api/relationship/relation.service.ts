@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Inject, Injectable } from '@nestjs/common';
+import { Relation, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HandleRequestToAddFriendReqDto } from './dto/handle-req.req.dto';
 import { RelationEntity } from './entities/relation.entity';
@@ -16,6 +16,11 @@ import { ValidationException } from '@/exceptions/validation.exception';
 import { ErrorCode } from '@/constants/error-code.constant';
 import { EventEmitterKey } from '@/constants/event-emitter.constant';
 import { InviterType, RelationAction, RelationStatus } from '@/constants/entity-enum/relation.enum';
+import { MessageService } from '../message/message.service';
+import { ChatRoomService } from '../chat-room/chat-room.service';
+import { ChatRoomEntity } from '../message/entities/chat-room.entity';
+import { CreateChatRoomDto } from '../chat-room/dto/create-chat-room.dto';
+import { CreateGroupReqDto } from '../chat-room/dto/create-group.req.dto';
 
 @Injectable()
 export class RelationService {
@@ -24,7 +29,8 @@ export class RelationService {
     private readonly relationRepository: Repository<RelationEntity>,
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
-    private eventEmitter: EventEmitter2
+    private eventEmitter: EventEmitter2,
+    private chatRoomService: ChatRoomService
   ){}
 
   async sendRequest(senderId: Uuid, receiverId: Uuid, ): Promise<RelationResDto>{    
@@ -68,7 +74,7 @@ export class RelationService {
     return plainToInstance(RelationResDto, newRelation)
   }
 
-  async handleRequest(dto: HandleRequestToAddFriendReqDto): Promise<RelationResDto>{
+  async handleRequest(dto: HandleRequestToAddFriendReqDto, myId: Uuid): Promise<RelationResDto>{
     //check relation exists
     const relation = await this.relationRepository.findOneBy({
       id: dto.relationId,
@@ -78,6 +84,14 @@ export class RelationService {
     if (!relation) {
       throw new ValidationException(ErrorCode.RELATION_E002)
     }
+    if (dto.action === RelationAction.ACCEPT) {
+      const groupDto: CreateGroupReqDto = {
+        userIds: [relation.handlerId], 
+      };
+    
+      await this.chatRoomService.createGroup(groupDto, myId);
+    }
+    
 
     if (
       dto.action === RelationAction.DECLINE ||
@@ -126,6 +140,7 @@ export class RelationService {
     query.select([
       'relation.id',
       'relation.status',
+      'relation.createdAt',
       'requester.id',
       'requester.username',
       'requester.avatarUrl',

@@ -28,12 +28,11 @@ const authSlice = createSlice({
       state.error = null; 
     },
     // Đăng nhập thành công
-    loginSuccess: (state, action: PayloadAction<loginGoogleResponse>) => {
+    loginSuccess: (state, action: PayloadAction<loginGoogleResponse>) => {  
       state.accessToken = action.payload.accessToken; 
       state.refreshToken = action.payload.refreshToken;
       state.user = action.payload.userId; 
       state.isLoading = false; 
-      console.log('Đăng nhập thành công:', state);
     },
     // Đăng nhập thất bại
     loginFailure: (state, action: PayloadAction<string>) => {

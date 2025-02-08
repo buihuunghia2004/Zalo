@@ -17,7 +17,7 @@ const searchUserByEmail = async (email: string): Promise<UserSearchRes> => {
 const getAllFriends = async (): Promise<UserFriend[]> => {
   try {    
     const res = await axiosInstance.get('users');     
-    return res.data.data; 
+    return res.data; 
   } catch (error: any) {
     console.error('Error while searching user:', error);
     throw error; 
@@ -25,8 +25,7 @@ const getAllFriends = async (): Promise<UserFriend[]> => {
 };
 const findUserById = async (id: string): Promise<UserFriend> => {
   try {    
-    const res = await axiosInstance.get(`users/${id}`);     
-    return res.data; 
+    return await axiosInstance.get(`users/${id}`);
   } catch (error: any) {
     console.error('Error while searching user:', error);
     throw error; 

@@ -19,17 +19,17 @@ const sendRequest = async (dto: _SendRequestReq): Promise<_SendRequestRes> => {
     throw new Error('Failed to send request');
   }
 };
-const getRelations = async (action: RelationStatus): Promise<Relation[]> => {
+const getRelations = async (status: RelationStatus): Promise<Relation[]> => {
   try {
     const response = await axiosInstance.get('relations', {
-      params: { status: action },
+      params: { status: status },
     });
 
-    if (!Array.isArray(response.data)) {
+    if (!Array.isArray(response)) {
       throw new Error('API returned data in an invalid format.');
     }
 
-    return response.data;
+    return response;
   } catch (error: any) {
     throw new Error('Failed to fetch relations. Please try again.');
   }

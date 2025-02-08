@@ -5,7 +5,7 @@ import MainNavigator from './main/MainNavigator';
 
 import {SplashScreen} from '~/screens/SplashScreen';
 import {AUTH_ASYNC_STORAGE_KEY} from '~/utils/Constants/authConstant';
-import {useAuthDispatch, useAuthSelector} from '~/redux/store';
+import {useAuthDispatch, useAuthSelector} from '~/stores/redux/store';
 import {setAuth, authSelector} from '~/features/auth/authSlice';
 import {loginGoogleResponse} from '~/features/auth/authDto';
 import { setAuthorizationToken } from '~/configs/axiosInstance';
@@ -33,9 +33,7 @@ const AppRouters = () => {
     const auth = await getItem();
     
     if (auth) {      
-      const parsedAuth = JSON.parse(auth) as loginGoogleResponse;
-      console.log(parsedAuth.accessToken);
-      
+      const parsedAuth = JSON.parse(auth) as loginGoogleResponse;   
       dispatch(setAuth(parsedAuth));
       setAuthorizationToken(parsedAuth.accessToken)
     }

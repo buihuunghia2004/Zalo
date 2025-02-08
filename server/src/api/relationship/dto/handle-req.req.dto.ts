@@ -17,4 +17,6 @@ export class HandleRequestToAddFriendReqDto {
 
   @EnumField(()=> RelationAction)
   action: RelationAction
+
+  
 }

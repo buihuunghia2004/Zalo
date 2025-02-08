@@ -1,46 +1,45 @@
-
 import React, {useEffect, useState, useRef} from 'react';
 import {View, Text, StyleSheet, Animated, Pressable} from 'react-native';
-import {MainNavProp, StackNames} from '~/routers/types';
+import {MainNavProp} from '~/routers/types';
 import {useNavigation} from '@react-navigation/native';
 import {textStyle} from '../../styles/Ui/text';
 import {colors} from '../../styles/Ui/colors';
 import AppBar from '../../components/Common/AppBar';
 import {WINDOW_WIDTH} from '../../utils/Ui/dimensions';
-import {RelationAction, RelationStatus} from '~/features/relation/dto/relation.dto.enum';
+import {RelationStatus} from '~/features/relation/dto/relation.dto.enum';
 import {relationApi} from '~/features/relation/relationService';
 import {Relation} from '~/features/relation/dto/relation.dto.nested';
-import RequestItem from './components/RequestItem'; 
-import { viewStyle } from '~/styles/Ui/views';
-import { Fonts } from '~/styles/Ui/fonts';
+import RequestItem from './components/RequestItem';
+import {viewStyle} from '~/styles/Ui/views';
+import {Fonts} from '~/styles/Ui/fonts';
+import {useRelationStore} from '~/stores/zustand/relation.store';
+import { InviterTypeEnum } from '~/features/user/dto/user.enum';
 
 const HandleReqScreen = () => {
   const mainNav = useNavigation<MainNavProp>();
 
+  const {relations_Pending, fetchRelations, updateStatusRelation} = useRelationStore();
   const [sent, setSent] = useState<Relation[]>([]);
   const [received, setReceived] = useState<Relation[]>([]);
-
   const [activeTab, setActiveTab] = useState(0);
 
   const underlinePosition = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const result = await relationApi.getRelations(RelationStatus.PENDING);
-
-        const sentData = result.filter((item: Relation) => item.inviter === 'self');
-        const receivedData = result.filter((item: Relation) => item.inviter !== 'self');
-
-        setSent(sentData);
-        setReceived(receivedData);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchData();
+    if (relations_Pending.length === 0) {
+      fetchRelations(RelationStatus.PENDING);
+    }
   }, []);
+
+  useEffect(() => {
+    if (relations_Pending.length > 0) {
+      const sentData = relations_Pending.filter((item: Relation) => item.inviter === InviterTypeEnum.SELF);
+      const receivedData = relations_Pending.filter((item: Relation) => item.inviter !== InviterTypeEnum.SELF);
+
+      setSent(sentData);
+      setReceived(receivedData);
+    }
+  }, [relations_Pending]);
 
   const tabs = [
     {id: 0, label: 'Đã nhận', data: received},
@@ -55,21 +54,25 @@ const HandleReqScreen = () => {
       duration: 200,
     }).start();
   };
-
- 
+  const handleGoBack = () => {
+    mainNav.goBack();
+  };
+  const handleSetOptionItem = (id: string, newStatus: RelationStatus) => {
+    updateStatusRelation(id, newStatus);
+  };
 
   return (
     <View style={{flex: 1, backgroundColor: 'white'}}>
       <AppBar
         style={styles.appBar}
-        title='Lời mới kết bạn'
+        title="Lời mới kết bạn"
         iconButtonLeft={['back']}
         iconButtonRight={['setting']}
         onPressInput={() => mainNav.navigate('SearchScreen')}
-        onPress={(action) => {
+        onPress={action => {
           switch (action) {
-            case 'back':              
-              mainNav.goBack()
+            case 'back':
+              handleGoBack();
               break;
             case 'setting':
               break;
@@ -81,24 +84,33 @@ const HandleReqScreen = () => {
         {/* Tabs */}
         <Animated.View style={styles.tabContainer}>
           {tabs.map(tab => (
-            <Pressable key={tab.id} style={styles.tab} onPress={() => handleTabPress(tab.id)}>
-              <Text style={[activeTab === tab.id && styles.activeText]}>{tab.label}</Text>
+            <Pressable
+              key={tab.id}
+              style={styles.tab}
+              onPress={() => handleTabPress(tab.id)}>
+              <Text style={[activeTab === tab.id && styles.activeText]}>
+                {tab.label}
+              </Text>
             </Pressable>
           ))}
           <Animated.View
             style={[
               styles.underline,
-              {transform: [{translateX: underlinePosition}], width: WINDOW_WIDTH / tabs.length},
+              {
+                transform: [{translateX: underlinePosition}],
+                width: WINDOW_WIDTH / tabs.length,
+              },
             ]}
           />
         </Animated.View>
 
         {/* Render các danh sách trong từng tab */}
         <View style={styles.contentContainer}>
-          {tabs[activeTab].data.map((relation, index) => (
+          {tabs[activeTab].data.map(relation => (
             <RequestItem
-              key={index}
+              key={relation.id}
               relation={relation}
+              itemOnPress={handleSetOptionItem}
             />
           ))}
         </View>
@@ -127,7 +139,6 @@ const styles = StyleSheet.create({
     ...textStyle.body_md,
     fontFamily: Fonts.roboto.medium,
     color: colors.secondary_dark,
-    
   },
   underline: {
     position: 'absolute',
@@ -138,7 +149,6 @@ const styles = StyleSheet.create({
   contentContainer: {
     backgroundColor: colors.secondary_transparent,
   },
-
 });
 
 export default HandleReqScreen;

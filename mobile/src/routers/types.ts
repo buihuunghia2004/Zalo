@@ -1,12 +1,14 @@
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { BaseProfilePagram, ProfilePersonalPagram } from "./main/mainPagramTypes";
+import { Relation } from "~/features/relation/dto/relation.dto.nested";
 
 interface ChatScreenProps {
   roomId?: string,
   userId?: string
 }
+
 export type MainStackParamList = {
-  Main: undefined;
+  Main: {newFriend: Relation};
   SearchScreen: undefined;
   ChatScreen: ChatScreenProps
   AddFriendScreen: undefined;

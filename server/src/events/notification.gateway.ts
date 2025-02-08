@@ -49,6 +49,8 @@ export class NotificationGateway
       const accessToken = this.extractTokenFromHeader(client);
       const user: JwtPayloadType =
       await this.authService.verifyAccessToken(accessToken);
+      console.log('socket connect',user.id);
+      
       await this.cacheManager.set(`connected:${user.id}`, user.id);
       this.eventEmitter.emit('aaa',{userId: user.id})
       // this.eventEmitter.emit('xxx',{userId: user.id})
@@ -64,6 +66,8 @@ export class NotificationGateway
       const user: JwtPayloadType =
         await this.authService.verifyAccessToken(accessToken);
       this.cacheManager.del(`connected:${user.id}`);
+      console.log('socket disconnect',user.id);
+      
     } catch (error) {
       this.server.emit('error', 'hihi');
     }
