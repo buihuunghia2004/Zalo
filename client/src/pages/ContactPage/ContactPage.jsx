@@ -11,8 +11,8 @@ const menus = [
 ]
 const ItemMenuContact = ({ text, onClick, isActive }) => {
   return (
-    <div className={`p-4 hover:bg-slate-500  ${isActive && 'bg-slate-700'}`} onClick={() => onClick()}>
-      <p className="text-lg font-semibold text-white">{text}</p>
+    <div className={`p-4 hover:bg-slate-200  ${isActive && 'bg-blue-200'}`} onClick={() => onClick()}>
+      <p className="text-lg font-semibold">{text}</p>
     </div>
   )
 }
@@ -29,8 +29,8 @@ export default function ContactPage() {
     }
   }
   return (
-    <div className="flex size-full flex-row bg-dark-2">
-      <div className="flex w-[28rem] flex-col flex-grow bg-dark-3">
+    <div className="flex size-full flex-row">
+      <div className="flex w-[28rem] flex-col flex-grow">
         {menus.map((item, index) => (
           <ItemMenuContact
             key={index}
@@ -42,6 +42,7 @@ export default function ContactPage() {
       </div>
 
       {/* nội dung */}
+      <div className="h-full w-0.5 bg-slate-400"/>
       <div className="flex w-full flex-row">
         {
           getContent()

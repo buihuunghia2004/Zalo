@@ -40,11 +40,11 @@ const GroupListTab = () => {
         groupList.map(item => 
           <div
             onClick={()=>setCurRoomId(item.id)}
-            className="h-24 px-4 flex flex-col items-center justify-center hover:bg-dark-4">
+            className="h-24 px-4 flex flex-col items-center justify-center hover:bg-slate-200">
             {/* <div className="w-full h-full mb-1 flex flex-col items-center"> */}
               {/* <img className="rounded-full size-14" src={item.user.avatarUrl}/> */}
-              <p className="text-white font-bold text-lg w-full">{item.roomName}</p>
-              <p className="text-white text-base w-full">{item.members?.length + ' thành viên'}</p>
+              <p className=" font-bold text-lg w-full">{item.roomName}</p>
+              <p className=" text-base w-full">{item.members?.length + ' thành viên'}</p>
             {/* </div> */}
             <div className="h-[1px] w-full bg-dark-5"/>
           </div>

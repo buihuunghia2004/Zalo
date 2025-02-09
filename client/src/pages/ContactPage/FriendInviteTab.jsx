@@ -26,7 +26,7 @@ const FriendInviteTab = () => {
   
   return (
     <div className="p-4 flex flex-col">
-      <p className="text-white">{`Lời mời đã nhận ( ${receivRequests.length} )`}</p>
+      <p className="">{`Lời mời đã nhận ( ${receivRequests.length} )`}</p>
       <div className="flex flex-row gap-4 mt-4">
         {
           (receivRequests && receivRequests.length > 0) &&
@@ -37,7 +37,7 @@ const FriendInviteTab = () => {
           })
         }
       </div>
-      <p className="text-white">{`Lời mời đã gửi ( ${sentRequests.length} )`}</p>
+      <p className="">{`Lời mời đã gửi ( ${sentRequests.length} )`}</p>
       <div className="flex flex-row gap-4 mt-4">
         {
           (sentRequests && sentRequests.length > 0) &&

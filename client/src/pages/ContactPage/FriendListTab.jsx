@@ -59,23 +59,23 @@ const FriendItem = ({ item, fetchFriendList, onClick }) => {
   return (
     <div
       onClick={() => onClick(item.user)}
-      className="flex h-24 flex-col items-center justify-center px-4 hover:bg-dark-4"
+      className="flex h-24 flex-col items-center justify-center px-4 hover:bg-slate-200"
     >
       <div className="mb-1 flex h-full w-full flex-row items-center gap-4">
         <img className="size-14 rounded-full" src={item.user.avatarUrl} />
-        <p className="w-full justify-center font-bold text-white">
+        <p className="w-full justify-center font-bold">
           {item.user.username}
         </p>
-        <img
+        {/* <img
           onClick={() => setIsModalOpen(!isModalOpen)}
-          className="h-8 w-8 rounded-md p-2 hover:bg-dark-3"
+          className="h-8 w-8 rounded-md p-2 hover:bg-slate-300"
           src={Assets.icons.more}
-        />
+        /> */}
       </div>
       <div className="h-[1px] w-full bg-dark-4" />
       {isModalOpen && (
         <div className="absolute right-20 rounded-md bg-dark-3 p-2">
-          <p className="rounded-sm p-1 text-white hover:bg-slate-400">
+          <p className="rounded-sm p-1 hover:bg-slate-400">
             Xem thông tin
           </p>
           <p

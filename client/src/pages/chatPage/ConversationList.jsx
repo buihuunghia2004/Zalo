@@ -19,9 +19,9 @@ export default function ConversationList({ rooms, setCurrentConversation }) {
   }
 
   return (
-    <div className="flex w-[28rem] flex-col">
+    <div className="flex w-[22rem] flex-col">
       {/* header */}
-      <div className="mb-0.5 flex h-28 flex-col justify-between bg-dark-3 px-4 pt-4">
+      <div className="mb-0.5 flex h-28 flex-col justify-between px-4 pt-4">
         <div className="flex flex-row">
           <Search />
           <SquareIcon
@@ -38,8 +38,9 @@ export default function ConversationList({ rooms, setCurrentConversation }) {
         </div>
         <SelectedTab />
       </div>
+      <div className='w-full h-0.5 bg-slate-400 my-1'/>
       {/* content */}
-      <div className="flex-grow bg-dark-3">
+      <div className="flex-grow w-[22rem] bg-slate-50">
         {rooms.map((item, index) => (
           <ConversationItem
             key={index.toString()}
@@ -62,14 +63,14 @@ const Search = () => {
   return (
     <div
       className={`${
-        isFocus && 'outline outline-1 outline-sky-400'
-      } flex w-full flex-row rounded-lg bg-dark-2 px-1`}
+        isFocus && 'outline outline-1 outline-sky-400 '
+      } flex w-full flex-row rounded-lg px-1 bg-slate-200`}
     >
       <SquareIcon src={Assets.icons.search} />
       <input
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
-        className="search-input w-full bg-dark-2 text-white focus:outline-none"
+        className="search-input w-full focus:outline-none bg-slate-200"
         placeholder="Tìm kiếm"
       />
     </div>
@@ -79,8 +80,9 @@ const SelectedTab = () => {
   const items = ['Tất cả', 'Chưa đọc']
   const [isSelected, setIsSelected] = useState(items[0])
   return (
-    <div className="flex gap-3">
-      {items.map((item, index) => (
+    <div className="flexflex-col">
+      <div className='flex gap-3'>
+        {items.map((item, index) => (
         <div
           key={index.toString()}
           className=""
@@ -93,7 +95,8 @@ const SelectedTab = () => {
           </p>
           {isSelected === item && <div className="h-1 bg-blue-500" />}
         </div>
-      ))}
+        ))}
+      </div>
     </div>
   )
 }
@@ -124,7 +127,7 @@ const ConversationItem = ({
 
   return (
     <div
-      className={`flex h-20 w-full flex-row items-center p-2 pr-4 hover:bg-dark-4 ${isFocus && 'bg-slate-900'}`}
+      className={`flex h-20 w-full flex-row items-center p-2 pr-4 hover:bg-slate-200 ${isFocus && 'bg-blue-300'}`}
       onMouseEnter={() => setIsHover(true)}
       onMouseLeave={() => setIsHover(false)}
       onClick={onClick}
@@ -145,20 +148,20 @@ const ConversationItem = ({
 
       <div className="w-full">
         <div className="mx-2 flex w-full flex-row gap-1 py-1">
-          <p className="w-full text-base text-white whitespace-nowrap overflow-hidden">{data.roomName}</p>
+          <p className="w-full text-base whitespace-nowrap overflow-hidden">{data.roomName}</p>
           {isHover ? (
             <div className='w-16'>
               <SquareIcon className={'size-6'} src={Assets.icons.more} />
             </div>
           ) : (
-            <p className="text-sm text-slate-400 w-16 ">{timeDifference}</p>
+            <p className="text-xs text-slate-500 font-semibold w-28 text-right">{timeDifference}</p>
           )}
         </div>
         <div className="mx-2 flex w-full flex-row gap-1 py-1">
-          <p className="flex-1 text-sm text-slate-400">
+          <span className="max-w-60 flex-1 text-sm text-slate-400 overflow-hidden text-ellipsis whitespace-nowrap">
             {(isSelfSent ? 'Bạn: ' : '') +
               (lastMsg?.type == 'text' ? lastMsg?.content : 'Hình ảnh')}
-          </p>
+          </span>
           {msgReceived &&
             Array.isArray(msgReceived) &&
             msgReceived.length > 0 && (

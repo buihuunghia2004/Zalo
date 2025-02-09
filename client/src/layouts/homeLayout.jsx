@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { Assets } from '../assets'
 import TaskBarMenuButton from '../components/button/taskBarMenuButton'
 import { useDispatch, useSelector } from 'react-redux'
@@ -6,6 +6,12 @@ import LogoutModal from '../components/modal/LogoutModal'
 import { logout } from '../redux/slices/userSlice'
 import ChatPage from '../pages/ChatPage'
 import ContactPage from '../pages/ContactPage/ContactPage'
+import { SettingMenu } from '../components/menu/SettingMenu'
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { ClickMeMenu } from '../components/menu/ClickMeMenu'
 
 export default function HomeLayout({ children }) {
   const menu = [
@@ -20,19 +26,11 @@ export default function HomeLayout({ children }) {
       iconInActive: Assets.icons.contactOutline,
     },
   ]
-  const avatarUrl = useSelector((state) => state.me.user.avatarUrl)
-  const user = useSelector((state) => state.me.auth)
+  const me = useSelector((state) => state.me.user)
 
   const [activeItem, setActiveItem] = useState(menu[0])
-  const [isSettingOpen, setIsSettingOpen] = useState(false)
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
-  const settingRef = useRef(null)
   const dispatch = useDispatch()
-
-  const toggleMenu = (event) => {
-    event.stopPropagation() // Ngăn sự kiện click lan lên document
-    setIsSettingOpen(!isSettingOpen)
-  }
 
   const onLogout = async () =>{
     try {
@@ -52,23 +50,22 @@ export default function HomeLayout({ children }) {
     }
   }
 
-  // Đóng menu khi click ra ngoài
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (settingRef.current && !settingRef.current.contains(event.target)) {
-        setIsSettingOpen(false)
-      }
-    }
-    document.addEventListener('click', handleClickOutside)
-    return () => document.removeEventListener('click', handleClickOutside)
-  }, [])
-
   return (
     <div className="flex h-screen w-screen flex-row">
       {/* thanh taskbar */}
-      {/* {user.accessToken} */}
-      <div className="flex w-16 flex-col bg-dark-1 px-2 py-3">
-        <img className="rounded-full" src={avatarUrl} />
+      <div className="flex w-16 flex-col bg-blue-1 px-2 py-3">
+
+        {/* avatar */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <img 
+              className="cursor-pointer rounded-full border-2 border-gray-500 object-cover" 
+              src={me?.avatarUrl} />
+          </DropdownMenuTrigger>
+          <ClickMeMenu 
+            onLogoutClick={() => setIsLogoutModalOpen(true)}
+            username={me?.username}/>
+        </DropdownMenu>
 
         {/* menu */}
         <div className="mt-8 h-full">
@@ -85,62 +82,30 @@ export default function HomeLayout({ children }) {
         </div>
 
         {/* menu setting */}
-        <div>
-          <TaskBarMenuButton
-            onClick={(e) => toggleMenu(e)}
-            imgActive={Assets.icons.setting}
-            imgInActive={Assets.icons.settingOutLine}
-            className="mb-4"
-          />
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <div>
+              <TaskBarMenuButton
+                isActive={false}
+                imgActive={Assets.icons.setting}
+                imgInActive={Assets.icons.settingOutLine}
+                className="mb-4 h-12 w-12"
+              />
+            </div> 
+          </DropdownMenuTrigger>
+          <SettingMenu onLogoutClick={() => setIsLogoutModalOpen(true)}/>
+        </DropdownMenu>
       </div>
 
       {/* nội dung */}
-      <div className="w-full bg-dark-2">
+      <div className="w-full">
         {getChild()}
       </div>
-      {isSettingOpen && (
-        <div
-          ref={settingRef}
-          className="fixed bottom-20 left-6 w-56 rounded-lg bg-gray-800 text-white shadow-lg"
-        >
-          <ul className="space-y-1 p-2">
-            <li className="cursor-pointer rounded p-2 hover:bg-gray-700">
-              🔒 Thông tin tài khoản
-            </li>
-            <li className="cursor-pointer rounded p-2 hover:bg-gray-700">
-              ⚙️ Cài đặt
-            </li>
-            <li className="cursor-pointer rounded p-2 hover:bg-gray-700">
-              💾 Dữ liệu
-            </li>
-            <li className="cursor-pointer rounded p-2 hover:bg-gray-700">
-              🔧 Công cụ
-            </li>
-            <li className="cursor-pointer rounded p-2 hover:bg-gray-700">
-              🌐 Ngôn ngữ
-            </li>
-            <li className="cursor-pointer rounded p-2 hover:bg-gray-700">
-              ℹ️ Giới thiệu
-            </li>
-            <hr className="border-gray-600" />
-            <li
-              onClick={() => setIsLogoutModalOpen(true)}
-              className="cursor-pointer rounded p-2 font-bold text-red-400 hover:bg-gray-700"
-            >
-              🔴 Đăng xuất
-            </li>
-            <li className="cursor-pointer rounded p-2 hover:bg-gray-700">
-              ❌ Thoát
-            </li>
-          </ul>
-        </div>
-      )}
+
       <LogoutModal
         isOpen={isLogoutModalOpen}
         onRequestClose={() => setIsLogoutModalOpen(false)}
-        onLogout={onLogout}
-      />
+        onLogout={onLogout}/>
     </div>
   )
 }

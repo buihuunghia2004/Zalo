@@ -1,13 +1,13 @@
 import { useState } from "react"
-import MessageModal from "./MessageModal";
 import userAPI from "../../service/userAPI";
+import { useToast } from "@/hooks/use-toast"
 
 export const AddFriendModalSearchContent = ({
   onCancel,
   onSearch
 }) => {
   const [email, setEmail] = useState('')
-  const [isMessageToast, setIsMessageToast] = useState('')
+  const { toast } = useToast()
 
   const handleSearch = async () => {
     try {
@@ -15,10 +15,11 @@ export const AddFriendModalSearchContent = ({
       onSearch(data)
     } catch (error) {
       if (error.statusCode == 404) {
-        setIsMessageToast(true)
-        setTimeout(() => {
-          setIsMessageToast(false)
-        }, 3000);
+        toast({
+          title: "Thông báo",
+          description: "Email này chưa đăng ký tài khoản hoặc không cho tìm kiếm",
+          duration: 2000
+        })
       }
     }
   }
@@ -68,10 +69,12 @@ export const AddFriendModalSearchContent = ({
         >
           Hủy
         </button>
-        <button onClick={handleSearch} className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-500">
+        <button 
+          disabled={email.length == 0}
+          onClick={handleSearch} 
+          className={`cursor-pointer rounded-md bg-blue-600 px-4 py-2 text-white ${email.length == 0 ? 'bg-dark-5 text-dark-4' : 'hover:bg-blue-500' } `}>
           Tìm kiếm
         </button>
-        <MessageModal isOpen={isMessageToast} message={'Email này chưa đăng ký tài khoản hoặc không cho tìm kiếm'}/>
       </div>
     </>
   )

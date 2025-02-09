@@ -44,7 +44,6 @@ export const AccountInfoModal = ({
               Gọi điện
             </button> */}
             <button onClick={()=>{
-              console.log('cccccc');
               
             }} className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md">
               Nhắn tin

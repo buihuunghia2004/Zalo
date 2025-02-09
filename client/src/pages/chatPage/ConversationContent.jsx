@@ -222,9 +222,9 @@ const ConversationContent = ({ newMsg, roomId, partnerId }) => {
 
   return (
     <div className="flex w-full flex-row">
-      <div className="mx-0.5 flex w-full flex-col">
+      <div className="flex w-full flex-col">
         {/* header */}
-        <div className="flex h-20 flex-row items-center bg-dark-3 p-4">
+        <div className="flex h-20 flex-row items-center p-4">
           <div className="flex w-full flex-row items-center">
             <img
               className="size-12 rounded-full"
@@ -232,7 +232,7 @@ const ConversationContent = ({ newMsg, roomId, partnerId }) => {
               alt="Placeholder"
             />
             <div className="mx-3 flex w-full flex-col justify-between py-1">
-              <p className="text-lg font-bold text-cyan-50">{room?.roomName}</p>
+              <p className="text-lg font-bold">{room?.roomName}</p>
               <p className="text-sm text-slate-400">Truy cập 1 giờ trước</p>
             </div>
           </div>
@@ -240,8 +240,9 @@ const ConversationContent = ({ newMsg, roomId, partnerId }) => {
           <SquareIcon src={Assets.icons.videoCall} />
           <SquareIcon src={Assets.icons.addGroup} />
         </div>
+        <div className='h-0.5 w-full bg-slate-400'/>
         {/* nội dung hội thoại */}
-        <div ref={messagesContainerRef} className="h-full overflow-auto p-2">
+        <div ref={messagesContainerRef} className="h-full overflow-auto p-2 bg-slate-100">
           {messages.map((item, index) => (
             <MessageItem
               key={index.toString()}
@@ -265,15 +266,17 @@ const ConversationContent = ({ newMsg, roomId, partnerId }) => {
         </div>
         {isPartnerWrite && (
           <div className="flex">
-            <p className="bg-dark-5 px-2 text-white">Đang soạn tin nhắn</p>
+            <p className="bg-dark-5 px-2 ">Đang soạn tin nhắn</p>
           </div>
         )}
+
         {/* nhập tin nhắn */}
         <div
-          className={`${isInputFocus ? 'bg-blue-600' : 'bg-dark-2'} mt-0.5 flex flex-col gap-0.5`}
+          className={`flex flex-col gap-0.5`}
         >
+          <div className='h-0.5 w-full bg-slate-400'/>
           <div
-            className="relative w-full bg-dark-3 p-1"
+            className="relative w-full p-1"
             onClick={() => document.getElementById('fileInput').click()} // Kích hoạt input
           >
             <input
@@ -291,7 +294,7 @@ const ConversationContent = ({ newMsg, roomId, partnerId }) => {
           </div>
           {msgRep && (
             <div className="flex flex-row justify-between px-2">
-              <p className="text-white">{msgRep.content}</p>
+              <p className="">{msgRep.content}</p>
               <p
                 onClick={() => setMsgRep(null)}
                 className="font-medium text-red-600"
@@ -300,9 +303,10 @@ const ConversationContent = ({ newMsg, roomId, partnerId }) => {
               </p>
             </div>
           )}
-          <div className="flex h-12 flex-row items-center justify-center bg-dark-3 px-4">
+          <div className='h-0.5 w-full bg-slate-400'/>
+          <div className="flex h-12 flex-row items-center justify-center px-4">
             <input
-              className="w-full bg-dark-3 text-base text-cyan-50 focus:outline-none"
+              className="w-full text-base focus:outline-none"
               placeholder="Nhập @, tin nhắn..."
               maxLength={100}
               value={Utils.convertMsgContent(textContent)}
@@ -345,7 +349,7 @@ const ConversationContent = ({ newMsg, roomId, partnerId }) => {
           </div>
         </div>
       </div>
-
+      <div className='h-full w-0.5 bg-slate-400'/>
       {
         room &&
         <ConversationInfo
@@ -420,13 +424,13 @@ const MessageItem = ({
           )}
         </div>
         <div
-          className={`rounded bg-slate-500 p-2 ${!isSelfSent ? 'ml-2' : 'mr-2'}`}
+          className={`rounded bg-white border-2 border-slate-300  p-2 ${!isSelfSent ? 'ml-2' : 'mr-2'}`}
         >
           {msgRep && (
-            <div className="rounded-md bg-dark-5 p-2">
-              <p className="font-bold text-white">Nghĩa</p>
+            <div className="rounded-md p-2">
+              <p className="font-bold ">Nghĩa</p>
               {msgRep.type == 'text' ? (
-                <p className="text-white">{msgRep?.content || ''}</p>
+                <p className="">{msgRep?.content || ''}</p>
               ) : (
                 <div class="max-w-lg p-4">
                   <div class="relative overflow-hidden">
@@ -441,7 +445,7 @@ const MessageItem = ({
             </div>
           )}
           {type == 'text' ? (
-            <p className="min-w-12 max-w-80 break-words text-white">
+            <p className="min-w-12 max-w-80 break-words">
               {content}
             </p>
           ) : (
@@ -457,7 +461,7 @@ const MessageItem = ({
           )}
 
           {isShowTime && (
-            <p className="font-mono text-xs text-white">
+            <p className="font-mono text-xs">
               {Utils.timeToMmSs(createdAt)}
             </p>
           )}

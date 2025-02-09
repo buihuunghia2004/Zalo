@@ -8,6 +8,7 @@ export const Assets = {
     contactOutline: uriIcons + 'contact-out-line.png',
     addFriend: uriIcons + 'add-friend.png',
     addGroup: uriIcons + 'add-group.png',
+    back: uriIcons + 'back.png',
     search: uriIcons + 'search.png',
     more: uriIcons + 'more.png',
     call: uriIcons + 'call.png',

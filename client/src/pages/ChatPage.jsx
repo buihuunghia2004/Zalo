@@ -54,12 +54,13 @@ const ChatPage = () => {
   }, [rooms])
 
   return (
-    <div className="flex size-full flex-row bg-dark-2">
+    <div className="flex size-full flex-row">
       {/* danh sách hội thoại */}
       <ConversationList
         rooms={sortedRooms}
         setCurrentConversation={(it)=>setCurrentRoom(it)}
       />
+      <div className='w-0.5 h-full bg-slate-400'/>
       {/* nội dung */}
       {
         currentRoom &&
