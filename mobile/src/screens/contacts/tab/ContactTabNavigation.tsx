@@ -8,7 +8,7 @@ const Tab = createMaterialTopTabNavigator();
 
 const ContactsTabNavigation = () => {
   
-    const tabsPosition = useRef(new Animated.Value(0)).current;
+    const tabsPosition = useRef(new Animated.Value(45)).current;
     const lastScrollY = useRef(0);
     const isAnimating = useRef(false);
 
@@ -17,7 +17,7 @@ const ContactsTabNavigation = () => {
     
         Animated.timing(tabsPosition, {
           toValue: newPosition || 0,
-          duration: 300,
+          duration: 250,
           useNativeDriver: true,
         }).start(() => {
           isAnimating.current = false;
@@ -26,20 +26,21 @@ const ContactsTabNavigation = () => {
 
       const handleScroll = (y: number) => {
         let newPosition: any;
+    console.log(y);
     
         if (y === 0) {
-          newPosition = 0;
+          newPosition = 45;
         } else if (y > 60) {
-          newPosition = y > lastScrollY.current ? -50 : 0;
+          newPosition = y > lastScrollY.current ? 0 : 45;
         }
     
         if (isAnimating.current) {
-          if (newPosition === 0) {
+          if (newPosition === 45) {
             setTimeout(() => {
               if (!isAnimating.current) {
                 startAnimation(newPosition);
               }
-            }, 400);
+            }, 300);
           }
           return;
         }
@@ -53,7 +54,6 @@ const ContactsTabNavigation = () => {
     <Tab.Navigator
       screenOptions={{
         tabBarStyle: {
-          zIndex: 10,
             transform: [{ translateY: tabsPosition }],
           },
         swipeEnabled: false,

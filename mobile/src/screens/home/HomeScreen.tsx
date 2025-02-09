@@ -1,14 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { View, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MainNavProp, StackNames } from '../../routers/types';
-import ItemChatHome, { Discription } from './components/ItemChatHome';
+import ItemChatHome from './components/ItemChatHome';
 import AppBar from '../../components/Common/AppBar';
-import { RoomService } from '~/features/room/roomService';
 import { _GetAllRoomRes } from '~/features/room/dto/room.dto.parent';
-import { Room } from '~/features/room/dto/room.dto.nested';
-import { useSelector } from 'react-redux';
-import { authSelector } from '~/features/auth/authSlice';
 import { useRoomStore } from '~/stores/zustand/room.store';
 import { _MessageSentRes } from '~/features/message/dto/message.dto.parent';
 import useSocket from '~/hooks/useSocket ';
@@ -17,23 +13,12 @@ const HomeScreen = () => {
   const mainNav = useNavigation<MainNavProp>();  
 
   const { rooms, fetchRooms, receiveNewMessage } = useRoomStore()
-  const { user } = useSelector(authSelector);
-  const [userId, setUserId] = useState<string>('user123'); // Giả sử đây là userId của bạn
-
-  const { socket, newMessages } = useSocket(user);
+  const { socket, newMessages } = useSocket();
 
   useEffect(() => {
-    // Lắng nghe thông tin khi kết nối hoặc ngắt kết nối
-    if (socket) {
-      console.log("Đã kết nối với socket server!");
-    }
-
-    return () => {
-      if (socket) {
-        socket.disconnect();
-        console.log("Đã ngắt kết nối socket.");
-      }
-    };
+   if (newMessages) {    
+    newMessages.map((message)=>receiveNewMessage(message))
+   }
   }, [socket]);
 
   useEffect(() => {
@@ -44,7 +29,7 @@ const HomeScreen = () => {
   const goToSearchScreen = () => {
     mainNav.navigate(StackNames.SearchScreen);
   };
-  const goToChatScreen = (id : string) => {
+  const goToChatScreen = (id : string) => {    
     mainNav.navigate(StackNames.ChatScreen, {roomId: id});
   }
 

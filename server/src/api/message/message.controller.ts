@@ -47,6 +47,7 @@ export class MessageController {
     @Query() reqDto: LoadMoreMessagesReqDto,
     @CurrentUser('id') meId: Uuid
   ): Promise<CursorPaginatedDto<MessageResDto>> {
+    
     return this.messageService.loadMoreMessage(reqDto, meId);
   }
 

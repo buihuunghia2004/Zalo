@@ -1,4 +1,3 @@
-import {ApiResHasPagination} from '~/features/common/pagination/paginationDto';
 import {MemberBase} from './message.dto.nested';
 import {messageEntity} from '../messageEntity';
 import { MessageContentEnum } from './message.enum';
@@ -20,6 +19,3 @@ export interface _MessageSentRes
   isSelfSent?: boolean;
   createdAt?: Date;
 }
-
-export interface _MessageLoadRes
-  extends ApiResHasPagination<_MessageSentRes[]> {}

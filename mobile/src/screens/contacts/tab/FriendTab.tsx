@@ -28,7 +28,7 @@ const FriendTab = ({ onScrollY }) => {
   const { relations_Friend, fetchRelations } = useRelationStore();
 
   useEffect(() => {
-    fetchRelations(RelationStatus.FRIEND);    
+    fetchRelations(RelationStatus.FRIEND);        
   }, []);
 
   const items = [

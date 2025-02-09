@@ -3,6 +3,7 @@ import AxiosInstant from '../config/axiosInstant'
 const loadMoreMessage = async (data) => {
   try {
     const {roomId, afterCursor} = data
+    
     let query = `roomId=${roomId}`    
     if (afterCursor) {
       query += `&afterCursor=${afterCursor}`
