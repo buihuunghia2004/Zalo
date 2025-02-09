@@ -6,7 +6,6 @@ import { Room } from '~/features/room/dto/room.dto.nested';
 import { RoomService } from '~/features/room/roomService';
 import { UserBase, UserFriend } from '~/features/user/dto/user.dto.nested';
 import { userApi } from '~/features/user/userService';
-
 interface ChatStore {
   messages: _MessageSentRes[];
   pagination: PageOptionsDto;
@@ -16,17 +15,23 @@ interface ChatStore {
   fetchMember: (userId: string) => Promise<void>;
   fetchRoom: (roomId: string) => Promise<void>;
   addMessage: (message: _MessageSentRes) => void;
+  setMessages: (messages: _MessageSentRes[]) => void;
+  clearData: () => void
   loadingMore: boolean,
-  hasMore: boolean 
+  hasMore: boolean
 }
 
-export const useChatStore = create<ChatStore>((set, get) => ({
+const initialState = {
   messages: [],
-  pagination: { page: 1, limit: 10, total: 0 }, // Khởi tạo giá trị hợp lệ
+  pagination: { }, // Khởi tạo giá trị hợp lệ
   member: null,
   room: null,
   loadingMore: false,
   hasMore: true,
+}
+
+export const useChatStore = create<ChatStore>((set, get) => ({
+  ...initialState,
 
   // Fetch danh sách tin nhắn
   loadMoreMessage: async (dto: CursorPaginatedReq<string>) => {
@@ -36,16 +41,16 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
     try {      
       const res = await MessageService.loadMoreMessage(dto);
-      const newMessages = res.data;
+      const {data, pagination} = res;      
 
-      if (newMessages.length === 0) {        
+      if (!res.pagination.afterCursor) {
         set({ hasMore: false }); 
-      } else {
-        set((state) => ({
-          messages: [...state.messages,...res.data ],
-          pagination: res.pagination,
-        }));
       }
+      set((state) => ({
+        messages: [...state.messages,...data ],
+        pagination: pagination,
+      }));
+
     } catch (error) {
       console.error("❌ Lỗi khi tải tin nhắn:", error);
     } finally {
@@ -75,6 +80,14 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
   // Thêm tin nhắn mới vào danh sách
   addMessage: (message) => {
-    set((state) => ({ messages: [...state.messages, message] }));
+    set((state) => ({ messages: [ message, ...state.messages] }));
   },
+
+  setMessages : (messages) => {
+    set((state) => ({ messages: messages}));
+  },
+
+  clearData : () => {
+    set(()=> (initialState)) 
+  }
 }));

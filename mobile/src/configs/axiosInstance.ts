@@ -7,7 +7,7 @@ import {ACCESS_TOKEN} from '~/utils/Constants/authConstant';
 import localStorage from '~/utils/localStorage';
 
 const axiosInstance = axios.create({
-  baseURL: 'http://192.168.1.16:7777/api/v1/',//pham thi thi 5g
+  baseURL: 'http://192.168.1.22:7777/api/v1/',//pham thi thi 5g
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

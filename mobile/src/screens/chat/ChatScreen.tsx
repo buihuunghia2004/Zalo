@@ -28,12 +28,15 @@ import {
   _MessageSentReq,
   _MessageSentRes,
 } from '~/features/message/dto/message.dto.parent';
-import {MessageContentEnum, MessageViewStatus} from '~/features/message/dto/message.enum';
+import {
+  MessageContentEnum,
+  MessageViewStatus,
+} from '~/features/message/dto/message.enum';
 import {formatToHoursMinutes} from '~/utils/Convert/timeConvert';
-import { MessageBase } from '~/features/message/dto/message.dto.nested';
-import { RoomService } from '~/features/room/roomService';
-import { _GetRoomRes } from '~/features/room/dto/room.dto.parent';
-import { useChatStore } from '~/stores/zustand/chat.store';
+import {MessageBase} from '~/features/message/dto/message.dto.nested';
+import {RoomService} from '~/features/room/roomService';
+import {_GetRoomRes} from '~/features/room/dto/room.dto.parent';
+import {useChatStore} from '~/stores/zustand/chat.store';
 
 type ChatScreenProps = {
   route: RouteProp<MainStackParamList, 'ChatScreen'>;
@@ -46,16 +49,28 @@ type DisplayMessage = _MessageSentRes & {
   isDisplayStatus?: boolean;
 };
 const ChatScreen: React.FC<ChatScreenProps> = () => {
+  console.log('re-render');
+  
   const mainNav = useNavigation<MainNavProp>();
   const route = useTypedRoute<typeof StackNames.ChatScreen>();
-  const { roomId: roomIdPagram, userId } = route.params;
+  const {roomId: roomIdPagram, userId} = route.params;
 
   const bottomSheetRef = useRef<BottomSheet>(null);
   const inputRef = useRef<TextInput>(null);
   const flatListRef = useRef<any>(null);
 
   const [roomId, setRoomId] = useState('');
-  const { messages, room, member, pagination, fetchMember, fetchRoom, loadMoreMessage, addMessage } = useChatStore();
+  const {
+    messages,
+    room,
+    member,
+    pagination,
+    fetchMember,
+    fetchRoom,
+    loadMoreMessage,
+    addMessage,
+    clearData
+  } = useChatStore();
 
   const [sheetIndex, setSheetIndex] = useState<number>(0);
   const [keyboard, setKeyboard] = useState<boolean>(false);
@@ -65,51 +80,43 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
   const scaleIcons = useRef(new Animated.Value(1)).current;
   const scaleSend = useRef(new Animated.Value(0)).current;
 
-  useEffect(() => {
-
-  }, []);
-
   // Fetch messages and set myId
-  useEffect(() => {
-    const findOneByPartnerId = async (): Promise<string | undefined> => {
-      if (userId) {
-        try {
-          const res = await RoomService.findOneByPartnerId(userId);
-          return res.roomId;
-        } catch (error: any) {
-          if (error.response && error.response.status === 404) {
-            fetchMember(userId)
-          } else {
-            console.error("Lỗi khác:", error);
-            throw error
+  useEffect(() => {    
+    const findOneByPartnerId = async (): Promise<void> => {
+      try {
+        let roomIdTemp;
+
+        if (roomIdPagram) {
+          roomIdTemp = roomIdPagram;
+        } else {
+          if (userId) {            
+            const res = await RoomService.findOneByPartnerId(userId);
+            roomIdTemp = res.roomId;
           }
         }
-      }
-      return undefined; 
-    };
 
-    if (roomIdPagram && roomId == ''){
-      setRoomId(roomIdPagram)
-      fetchRoom(roomIdPagram);
-      loadMoreMessage({
-        data: roomIdPagram, 
-        pagination,
-      });
-      
-    }
-    if (userId){            
-      findOneByPartnerId().then(roomId => {        
-        if (roomId){                    
-          setRoomId(roomId)
-          fetchRoom(roomId);
-          loadMoreMessage({
-            data: roomId, 
-            pagination,
-          });
+        setRoomId(roomIdTemp);
+        fetchRoom(roomIdTemp);
+        loadMoreMessage({
+          data: roomIdTemp,
+          pagination,
+        });
+      } catch (error: any) {
+        if (error.response && error.response.status === 404) {
+          if (userId) fetchMember(userId);
+        } else {
+          console.error('Lỗi khác:', error);
+          throw error;
         }
-      });
+      }
+    };
+    findOneByPartnerId()
+
+    return () => {
+      clearData()
     }
-  }, [roomId]);
+  }, []);
+  
 
   const handleInputChange = useCallback((text: string) => {
     setInputText(prevText => prevText + text);
@@ -182,28 +189,26 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
       content: inputText,
       isSelfSent: true,
       type: MessageContentEnum.TEXT,
-      status: MessageViewStatus.SENT, 
+      status: MessageViewStatus.SENT,
     };
-    (prevMessages => [...prevMessages, tempMessage]);
+    // prevMessages => [...prevMessages, tempMessage];
     setInputText('');
-    
+
     const newMessage: _MessageSentReq = {
       content: inputText,
       contentType: MessageContentEnum.TEXT,
-      ...(userId && { receiverId: userId }),
-      ...(roomId != '' && { roomId: roomId }),
+      ...(userId && {receiverId: userId}),
+      ...(roomId != '' && {roomId: roomId}),
     };
     try {
       const mesRes = await MessageService.SentMessage(newMessage);
-  
+
       if (mesRes.roomId) {
         setRoomId(mesRes.roomId);
       }
-      addMessage(mesRes)
-    }catch(error){
-     
-    }
-   
+      addMessage(mesRes);
+    } catch (error) {}
+
     // flatListRef.current?.scrollToEnd({animated: true});
   };
 
@@ -213,32 +218,31 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
   };
 
   const messagesDisplay: DisplayMessage[] = React.useMemo(() => {
-    return messages
+    return messages;
     // return messages.map((message, index, array) => ({
     //   ...message,
-      // isDisplayTime:
-      //   index === array.length - 1 ||
-      //   (message.source !== array[index + 1]?.source &&
-      //     message.source !== 'time' &&
-      //     message.source !== 'action'),
-      // isDisplayHeart:
-      //   message.source === 'people' &&
-      //   message.source !== array[index + 1]?.source,
-      // isDisplayAvatar:
-      //   message.source === 'people' &&
-      //   (index === 0 || array[index - 1]?.source !== 'people'),
-      // isDisplayStatus:
-      //     message.source === 'me' && index === array.length - 1
+    // isDisplayTime:
+    //   index === array.length - 1 ||
+    //   (message.source !== array[index + 1]?.source &&
+    //     message.source !== 'time' &&
+    //     message.source !== 'action'),
+    // isDisplayHeart:
+    //   message.source === 'people' &&
+    //   message.source !== array[index + 1]?.source,
+    // isDisplayAvatar:
+    //   message.source === 'people' &&
+    //   (index === 0 || array[index - 1]?.source !== 'people'),
+    // isDisplayStatus:
+    //     message.source === 'me' && index === array.length - 1
     // })
-  // );
+    // );
   }, [messages]);
-
 
   return (
     <View style={styles.container}>
       {/* AppBar */}
       <AppBar
-        title = {member?.username ?? room?.roomName}
+        title={member?.username ?? room?.roomName}
         description="1 giờ trước"
         iconButtonLeft={['back']}
         iconButtonRight={['call', 'video_call', 'menu']}
@@ -255,37 +259,40 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
 
       {/* Content */}
       <FlatList
-      style={{flex: 1}}
-          // ref={flatListRef}
-          inverted 
-          data={messagesDisplay}
-          onEndReached={()=>loadMoreMessage({
-            data: roomId, 
-            pagination,
-          })}
-          onEndReachedThreshold={0.2}
-          // ListFooterComponent={loadingMore ? <ActivityIndicator size="small" color="gray" /> : null}
-          keyExtractor={item => item.id}
-          renderItem={({item}: {item: DisplayMessage}) => (
-            <ItemMessage
-              id={item.id}
-              data={item.content}
-              source={'me'}
-              type={'text'}
-              time={
-                item.createdAt
-                  ? formatToHoursMinutes(item.createdAt.toString())
-                  : 'N/A'
-              }
-              // emojis={'a'}
-              isDisplayTime={item.isDisplayTime}
-              isDisplayHeart={item.isDisplayHeart}
-              isDisplayAvatar={item.isDisplayAvatar}
-              isDisplayStatus={item.isDisplayStatus}
-            />
-          )}
-          contentContainerStyle={{paddingHorizontal: 10}}
+      // ref={flatListRef}
+      style={{flex: 1, marginBottom:50}}
+      inverted
+      data={messagesDisplay}
+      onEndReached={() =>
+        loadMoreMessage({
+          data: roomId,
+          pagination,
+        })
+      }
+      onEndReachedThreshold={0.2}
+      // ListFooterComponent={loadingMore ? <ActivityIndicator size="small" color="gray" /> : null}
+      keyExtractor={item => item.id}
+      renderItem={({item}: {item: DisplayMessage}) => (
+        <ItemMessage
+          id={item.id}
+          data={item.content}
+          source={'me'}
+          type={'text'}
+          time={
+            item.createdAt
+              ? formatToHoursMinutes(item.createdAt.toString())
+              : 'N/A'
+          }
+          // emojis={'a'}
+          isDisplayTime={item.isDisplayTime}
+          isDisplayHeart={item.isDisplayHeart}
+          isDisplayAvatar={item.isDisplayAvatar}
+          isDisplayStatus={item.isDisplayStatus}
         />
+      )}
+      contentContainerStyle={{paddingHorizontal: 10}}
+      />
+      
 
       {/* BottomSheet */}
       <BottomSheet

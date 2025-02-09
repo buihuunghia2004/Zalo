@@ -7,7 +7,7 @@ const loadMoreMessage= async (dto: CursorPaginatedReq<string>): Promise<CursorPa
     let query = `roomId=${dto.data}`    
     if (dto.pagination.afterCursor) {
       query += `&afterCursor=${dto.pagination.afterCursor}`
-    }        
+    }            
       
     return await axiosInstance.get('/messages?'+query)
   } catch (error) {
