@@ -7,6 +7,7 @@ export enum MessageContentEnum {
 }
 
 export enum MessageViewStatus {
+  SENDING = 'sending',
   SENT = 'sent',
   RECEIVED = 'received',
   VIEWED = 'viewed',

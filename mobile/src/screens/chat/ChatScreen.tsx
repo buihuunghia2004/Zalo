@@ -37,6 +37,8 @@ import {MessageBase} from '~/features/message/dto/message.dto.nested';
 import {RoomService} from '~/features/room/roomService';
 import {_GetRoomRes} from '~/features/room/dto/room.dto.parent';
 import {useChatStore} from '~/stores/zustand/chat.store';
+import { useSelector } from 'react-redux';
+import { authSelector } from '~/features/auth/authSlice';
 
 type ChatScreenProps = {
   route: RouteProp<MainStackParamList, 'ChatScreen'>;
@@ -52,6 +54,7 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
   console.log('re-render');
   
   const mainNav = useNavigation<MainNavProp>();
+  const {user} = useSelector(authSelector)
   const route = useTypedRoute<typeof StackNames.ChatScreen>();
   const {roomId: roomIdPagram, userId} = route.params;
 
@@ -69,6 +72,7 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
     fetchRoom,
     loadMoreMessage,
     addMessage,
+    setMessages,
     clearData
   } = useChatStore();
 
@@ -184,14 +188,18 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
   };
 
   const handleSendMessage = async () => {
+    const msgIdTemp = `temp-${Date.now()}`
+    const msgsTemp = messages
+
     const tempMessage: MessageBase = {
-      id: `temp-${Date.now()}`,
+      id: msgIdTemp,
       content: inputText,
       isSelfSent: true,
       type: MessageContentEnum.TEXT,
-      status: MessageViewStatus.SENT,
+      status: MessageViewStatus.SENDING,
     };
-    // prevMessages => [...prevMessages, tempMessage];
+    addMessage(tempMessage);
+    msgsTemp.unshift(tempMessage)
     setInputText('');
 
     const newMessage: _MessageSentReq = {
@@ -206,7 +214,15 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
       if (mesRes.roomId) {
         setRoomId(mesRes.roomId);
       }
-      addMessage(mesRes);
+      
+      const newMsgs = msgsTemp.map((message, index) => {    
+            
+        if (message.id == msgIdTemp) {          
+          return {...mesRes, status:MessageViewStatus.SENT, isSelfSent:true}
+        }
+        return message
+      })
+      setMessages(newMsgs);
     } catch (error) {}
 
     // flatListRef.current?.scrollToEnd({animated: true});
@@ -256,7 +272,7 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
         }}
         style={{backgroundColor: colors.primary}}
       />
-
+      <Text>{messages.length}</Text>
       {/* Content */}
       <FlatList
       // ref={flatListRef}
@@ -272,12 +288,13 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
       onEndReachedThreshold={0.2}
       // ListFooterComponent={loadingMore ? <ActivityIndicator size="small" color="gray" /> : null}
       keyExtractor={item => item.id}
-      renderItem={({item}: {item: DisplayMessage}) => (
+      renderItem={({item, index}: {item: DisplayMessage, index: number}) => (
         <ItemMessage
           id={item.id}
           data={item.content}
           source={'me'}
           type={'text'}
+          status={item.status}
           time={
             item.createdAt
               ? formatToHoursMinutes(item.createdAt.toString())
@@ -287,13 +304,12 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
           isDisplayTime={item.isDisplayTime}
           isDisplayHeart={item.isDisplayHeart}
           isDisplayAvatar={item.isDisplayAvatar}
-          isDisplayStatus={item.isDisplayStatus}
+          isDisplayStatus={index == 0}
         />
       )}
       contentContainerStyle={{paddingHorizontal: 10}}
       />
       
-
       {/* BottomSheet */}
       <BottomSheet
         ref={bottomSheetRef}
