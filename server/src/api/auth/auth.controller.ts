@@ -32,11 +32,11 @@ export class AuthController {
 async googleLoginMobile(@Body() dto: LoginWithGoogleReqMobileDto) {
   const {idToken} = dto
   
-  const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+  const client = new OAuth2Client('813157104392-t3rru3rluegqftrtov6sp82momi4s494.apps.googleusercontent.com');
 
   const ticket = await client.verifyIdToken({
     idToken,
-    audience: process.env.GOOGLE_CLIENT_ID,
+    audience: '813157104392-t3rru3rluegqftrtov6sp82momi4s494.apps.googleusercontent.com',
   });
 
   const payload = ticket.getPayload();
