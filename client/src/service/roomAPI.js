@@ -8,9 +8,25 @@ const getAllRoomAPI = async () => {
   }
 }
 
+const getAllGroupAPI = async () => {
+  try {
+    return await AxiosInstant.get('rooms/groups')
+  } catch (error) {
+    
+  }
+}
+
 const getRoomIdByUserIdAPI = async (partnerId) => {
   try {
     return await AxiosInstant.get(`rooms/partner/${partnerId}`)
+  } catch (error) {
+    
+  }
+}
+
+const getRoomByIdAPI = async (id) => {
+  try {
+    return await AxiosInstant.get(`rooms/${id}`)
   } catch (error) {
     
   }
@@ -42,7 +58,9 @@ const handleRequestAddFriendAPI = async (data) => {
 
 const roomAPI = {
   getAllRoomAPI,
+  getRoomByIdAPI,
   getRoomIdByUserIdAPI,
+  getAllGroupAPI,
   createNewGroupdAPI
 }
 

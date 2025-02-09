@@ -1,9 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Modal from "react-modal";
 
 Modal.setAppElement("#root"); // Chỉ định root element cho React Modal
 
 const MessageModal = ({ isOpen, onRequestClose, message }) => {
+  useEffect(() => {
+    
+  
+    return () => {
+      second
+    }
+  }, [isOpen])
+  
   return (
     <Modal
       isOpen={isOpen}

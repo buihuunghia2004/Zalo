@@ -23,12 +23,22 @@ export class ChatRoomController {
     return this.chatRoomService.createGroup(dto, id);
   }
 
+  
+
   @Get()
   findAll(
     @Query() reqDto: ListRoomReqDto,
     @CurrentUser('id') meId: Uuid
   ) {
     return this.chatRoomService.findAll(reqDto, meId);
+  }
+  
+  @Get('/groups')
+  getAllGroups(
+    @Query() reqDto: ListRoomReqDto,
+    @CurrentUser('id') meId: Uuid
+  ) {
+    return this.chatRoomService.findAllGroups(reqDto, meId);
   }
 
   @Get('/partner/:id')

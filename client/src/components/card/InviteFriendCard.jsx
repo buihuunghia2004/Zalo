@@ -12,7 +12,10 @@ export const InviteFriendCard = ({
         relationId: id,
         action: action
       })
-      onHandle(action)
+      onHandle({
+        relationId: id,
+        action: action
+      })
     } catch (error) {
       
     }
