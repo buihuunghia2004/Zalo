@@ -1,7 +1,13 @@
-import { OmitType } from '@nestjs/mapped-types';
-import { CreateUserReqDto } from './create-user.req.dto';
+import { DateFieldOptional, EnumFieldOptional, StringField, StringFieldOptional } from '@/decorators/field.decorators';
+import { Gender } from '@/constants/entity.enum';
 
-export class UpdateUserReqDto extends OmitType(CreateUserReqDto, [
-  'roles',
-  'email',
-] as const) {}
+export class UpdateUserReqDto{
+  @StringFieldOptional()
+  username: string;
+
+  @EnumFieldOptional(()=>Gender)
+  gender?: Gender;
+
+  @DateFieldOptional()
+  dob?: Date
+}

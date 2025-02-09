@@ -140,7 +140,7 @@ export class UserService {
     assert(id, 'id is required');
     const user = await this.userRepository.findOneByOrFail({ id });
 
-    return user.toDto(UserResDto);
+    return plainToInstance(UserResDto,user);
   }
 
   async update(id: Uuid, dto: UpdateUserByAdminReqDto, updator: string) {
@@ -157,12 +157,12 @@ export class UserService {
 
   async updateMe(id: Uuid, dto: UpdateCurrentUserReqDto): Promise<UserResDto> {
     const user = await this.userRepository.findOneByOrFail({ id });
-    const account = await this.authProviderRepository.findOneByOrFail({id: user.authProviderId})
+    // const account = await this.authProviderRepository.findOneByOrFail({id: user.authProviderId})
 
     Object.keys(dto).map(key => {
       user[key] = dto[key]
     })
-    user.email = account.email
+    // user.email = account.email
     user.updatedBy = SYSTEM_USER_ID;
     
     const savedUser = await this.userRepository.save(user)

@@ -1,6 +1,7 @@
 import {
   BooleanField,
   ClassField,
+  DateField,
   EnumField,
   StringField,
   StringFieldOptional,
@@ -20,6 +21,14 @@ export class UserResDto {
   @StringField()
   @Expose()
   email: string;
+
+  @StringField()
+  @Expose()
+  gender: string;
+
+  @DateField()
+  @Expose()
+  dob: string;
 
   @StringFieldOptional()
   @Expose()
