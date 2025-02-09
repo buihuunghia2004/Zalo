@@ -1,22 +1,20 @@
 import axiosInstance from '~/configs/axiosInstance';
-import {_MessageLoadRes, _MessageSentReq, _MessageSentRes} from './dto/message.dto.parent';
+import {_MessageSentReq, _MessageSentRes} from './dto/message.dto.parent';
+import { CursorPaginatedReq, CursorPaginatedRes } from '../common/pagination/paginationDto';
 
-const loadMessages = async (roomId: string): Promise<_MessageLoadRes> => {
-  console.log(roomId);
-  
+const loadMoreMessage= async (dto: CursorPaginatedReq<string>): Promise<CursorPaginatedRes<_MessageSentRes>> => {
   try {
-    // return await axiosInstance.get('messages',{
-    //   params: {roomId: roomId},
-    // });
-    if (roomId) {
-      return await axiosInstance.get(`messages?roomId=${roomId}`);
-    }
-    return axiosInstance.get('')
-  } catch (error: any) {
-    console.error('Error while searching user:', error);
+    let query = `roomId=${dto.data}`    
+    if (dto.pagination.afterCursor) {
+      query += `&afterCursor=${dto.pagination.afterCursor}`
+    }        
+      
+    return await axiosInstance.get('/messages?'+query)
+  } catch (error) {
+    console.error('Lỗi khi tải thêm tin nhắn:', error);
     throw error;
   }
-};
+}
 
 const SentMessage = async (dto: _MessageSentReq): Promise<_MessageSentRes> => {
   try {
@@ -28,6 +26,6 @@ const SentMessage = async (dto: _MessageSentReq): Promise<_MessageSentRes> => {
 };
 
 export const MessageService = {
-  loadMessages,
+  loadMoreMessage,
   SentMessage,
 }

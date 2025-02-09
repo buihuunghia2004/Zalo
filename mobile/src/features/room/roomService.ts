@@ -16,8 +16,6 @@ const findOneByPartnerId = async (userId: string): Promise<_GetRoomIdByUserIdRes
 };
 
 const getRoomIdById = async (roomId: string): Promise<_GetRoomRes> => {
-  console.log('rooomId'+ roomId);
-  
   try {    
     return await axiosInstance.get('rooms/'+roomId)
   } catch (error: any) {

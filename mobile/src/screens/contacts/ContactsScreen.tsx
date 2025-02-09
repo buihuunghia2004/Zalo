@@ -1,24 +1,18 @@
-import {useEffect, useRef} from 'react';
-import {View, StyleSheet, Animated} from 'react-native';
-import {MainNavProp, MainStackParamList, StackNames} from '~/routers/types';
-import {RouteProp, useNavigation} from '@react-navigation/native';
-import {colors} from '../../styles/Ui/colors';
+import {View} from 'react-native';
+import {MainNavProp} from '~/routers/types';
+import {useNavigation} from '@react-navigation/native';
 import AppBar from '../../components/Common/AppBar';
-import {Fonts} from '~/styles/Ui/fonts';
 import ContactsTabNavigation from './tab/ContactTabNavigation';
-import { useTypedRoute } from '~/hooks/userMainRoute';
-import { Relation } from '~/features/relation/dto/relation.dto.nested';
 
 
 const ContactsScreen: React.FC = () => {
 
   const mainNav = useNavigation<MainNavProp>();  
-
-  const tabsPosition = useRef(new Animated.Value(0)).current;
   
   return (
     <View style={{flex: 1}}>
       <AppBar
+        style={{position: 'absolute', zIndex: 10}}
         iconButtonLeft={['search']}
         iconButtonRight={['add_friend']}
         inputSearch={false}
@@ -36,49 +30,10 @@ const ContactsScreen: React.FC = () => {
           }
         }}
       />
-
-      <View>
-        {/* Tabs */}
-        <Animated.View
-          style={[
-            styles.tabContainer,
-            {transform: [{translateY: tabsPosition}]},
-          ]}></Animated.View>
-      </View>
-      <ContactsTabNavigation />
+      <ContactsTabNavigation  />
     </View>
   );
 };
 
 export default ContactsScreen;
 
-const styles = StyleSheet.create({
-  tabContainer: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderColor: colors.gray_light,
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 4,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 15,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.white,
-  },
-  activeText: {
-    fontWeight: 'bold',
-    fontFamily: Fonts.roboto.regular,
-    color: colors.secondary_dark,
-  },
-  underline: {
-    position: 'absolute',
-    bottom: -1,
-    height: 2,
-    backgroundColor: colors.primary_icon,
-  },
-});

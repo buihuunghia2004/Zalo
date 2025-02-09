@@ -281,6 +281,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 8,
     marginBottom: `2%`,
+    marginTop: 50
   },
   countContainer: {
     position: 'absolute',

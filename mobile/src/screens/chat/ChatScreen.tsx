@@ -10,6 +10,7 @@ import {
   Text,
   FlatList,
   Pressable,
+  ActivityIndicator,
 } from 'react-native';
 import {RouteProp, useNavigation} from '@react-navigation/native';
 import {MainNavProp, MainStackParamList, StackNames} from '../../routers/types';
@@ -24,23 +25,15 @@ import EmojiList from './components/EmojiList';
 import {MessageService} from '~/features/message/messageService';
 import {useTypedRoute} from '~/hooks/userMainRoute';
 import {
-  _MessageLoadRes,
   _MessageSentReq,
   _MessageSentRes,
 } from '~/features/message/dto/message.dto.parent';
 import {MessageContentEnum, MessageViewStatus} from '~/features/message/dto/message.enum';
 import {formatToHoursMinutes} from '~/utils/Convert/timeConvert';
-import useSocket from '~/hooks/useSocket ';
-import {AUTH_ASYNC_STORAGE_KEY} from '~/utils/Constants/authConstant';
-import {loginGoogleResponse} from '~/features/auth/authDto';
-import {useAsyncStorage} from '@react-native-async-storage/async-storage';
-import {userApi} from '~/features/user/userService';
-import {UserFriend} from '~/features/user/dto/user.dto.nested';
 import { MessageBase } from '~/features/message/dto/message.dto.nested';
 import { RoomService } from '~/features/room/roomService';
 import { _GetRoomRes } from '~/features/room/dto/room.dto.parent';
-import { useSelector } from 'react-redux';
-import { authSelector } from '~/features/auth/authSlice';
+import { useChatStore } from '~/stores/zustand/chat.store';
 
 type ChatScreenProps = {
   route: RouteProp<MainStackParamList, 'ChatScreen'>;
@@ -56,65 +49,28 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
   const mainNav = useNavigation<MainNavProp>();
   const route = useTypedRoute<typeof StackNames.ChatScreen>();
   const { roomId: roomIdPagram, userId } = route.params;
-  const { user } = useSelector(authSelector)
 
   const bottomSheetRef = useRef<BottomSheet>(null);
   const inputRef = useRef<TextInput>(null);
   const flatListRef = useRef<any>(null);
 
-  const {getItem} = useAsyncStorage(AUTH_ASYNC_STORAGE_KEY);
   const [roomId, setRoomId] = useState('');
-  const [room, setRoom] = useState<_GetRoomRes>()
-  const [messages, setMessages] = useState<(_MessageSentRes | MessageBase)[]>([]);
-  const [member, setMember] = useState<UserFriend>();
+  const { messages, room, member, pagination, fetchMember, fetchRoom, loadMoreMessage, addMessage } = useChatStore();
 
   const [sheetIndex, setSheetIndex] = useState<number>(0);
   const [keyboard, setKeyboard] = useState<boolean>(false);
   const [inputText, setInputText] = useState<string>('');
   const [renderEmojis, setReanderEmojis] = useState<boolean>(false);
 
-  const {newMessages} = useSocket(user);
-
   const scaleIcons = useRef(new Animated.Value(1)).current;
   const scaleSend = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
 
-    if (newMessages && newMessages.length > 0) {
-      newMessages;
-    }
-  }, [newMessages]);
+  }, []);
 
   // Fetch messages and set myId
   useEffect(() => {
-    const loadMessages = async () => {
-      try {
-        if (roomId) {
-          const res = await MessageService.loadMessages(roomId);
-          setMessages(res.data);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    const fetchMember = async () => {      
-      try {
-        if (userId) {
-          const res = await userApi.findUserById(userId);                    
-          setMember(res);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    const fetchRoom = async (roomId: string)=>{
-      try {
-        const res = await RoomService.getRoomIdById(roomId);            
-        setRoom(res);
-      } catch (error) {
-        console.log(error);
-      }
-    }
     const findOneByPartnerId = async (): Promise<string | undefined> => {
       if (userId) {
         try {
@@ -122,7 +78,7 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
           return res.roomId;
         } catch (error: any) {
           if (error.response && error.response.status === 404) {
-            fetchMember();
+            fetchMember(userId)
           } else {
             console.error("Lỗi khác:", error);
             throw error
@@ -135,21 +91,25 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
     if (roomIdPagram && roomId == ''){
       setRoomId(roomIdPagram)
       fetchRoom(roomIdPagram);
-      loadMessages();
+      loadMoreMessage({
+        data: roomIdPagram, 
+        pagination,
+      });
+      
     }
     if (userId){            
       findOneByPartnerId().then(roomId => {        
         if (roomId){                    
           setRoomId(roomId)
           fetchRoom(roomId);
-          loadMessages();
+          loadMoreMessage({
+            data: roomId, 
+            pagination,
+          });
         }
       });
     }
-    
   }, [roomId]);
-
-  
 
   const handleInputChange = useCallback((text: string) => {
     setInputText(prevText => prevText + text);
@@ -224,7 +184,7 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
       type: MessageContentEnum.TEXT,
       status: MessageViewStatus.SENT, 
     };
-    setMessages(prevMessages => [...prevMessages, tempMessage]);
+    (prevMessages => [...prevMessages, tempMessage]);
     setInputText('');
     
     const newMessage: _MessageSentReq = {
@@ -239,16 +199,12 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
       if (mesRes.roomId) {
         setRoomId(mesRes.roomId);
       }
-      setMessages((prevMessages) =>
-        prevMessages.map((msg) =>
-          msg.id === tempMessage.id ? { ...msg, id: mesRes.id, status: MessageViewStatus.SENT } : msg
-        )
-      );
+      addMessage(mesRes)
     }catch(error){
      
     }
    
-    flatListRef.current?.scrollToEnd({animated: true});
+    // flatListRef.current?.scrollToEnd({animated: true});
   };
 
   const handleInputPress = () => {
@@ -257,8 +213,9 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
   };
 
   const messagesDisplay: DisplayMessage[] = React.useMemo(() => {
-    return messages.map((message, index, array) => ({
-      ...message,
+    return messages
+    // return messages.map((message, index, array) => ({
+    //   ...message,
       // isDisplayTime:
       //   index === array.length - 1 ||
       //   (message.source !== array[index + 1]?.source &&
@@ -272,31 +229,16 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
       //   (index === 0 || array[index - 1]?.source !== 'people'),
       // isDisplayStatus:
       //     message.source === 'me' && index === array.length - 1
-    }));
+    // })
+  // );
   }, [messages]);
 
-  const RenderItem: React.FC<any> = React.memo(({item, onPress}) => {
-    return (
-      <Pressable
-        onPress={onPress}
-        style={({pressed}) => ({
-          width: 48,
-          height: 48,
-          alignItems: 'center',
-          borderRadius: 50,
-          backgroundColor: pressed ? 'rgba(24, 157, 252, 0.1)' : 'transparent',
-          justifyContent: 'center',
-        })}>
-        <Text style={{fontSize: 22}}>{item.image}</Text>
-      </Pressable>
-    );
-  });
 
   return (
     <View style={styles.container}>
       {/* AppBar */}
       <AppBar
-        title= {member ? member.username : (room && room.roomName)}
+        title = {member?.username ?? room?.roomName}
         description="1 giờ trước"
         iconButtonLeft={['back']}
         iconButtonRight={['call', 'video_call', 'menu']}
@@ -312,10 +254,17 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
       />
 
       {/* Content */}
-      <View style={{flex: 1, marginBottom: 50}}>
-        <FlatList
+      <FlatList
+      style={{flex: 1}}
           // ref={flatListRef}
+          inverted 
           data={messagesDisplay}
+          onEndReached={()=>loadMoreMessage({
+            data: roomId, 
+            pagination,
+          })}
+          onEndReachedThreshold={0.2}
+          // ListFooterComponent={loadingMore ? <ActivityIndicator size="small" color="gray" /> : null}
           keyExtractor={item => item.id}
           renderItem={({item}: {item: DisplayMessage}) => (
             <ItemMessage
@@ -337,7 +286,6 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
           )}
           contentContainerStyle={{paddingHorizontal: 10}}
         />
-      </View>
 
       {/* BottomSheet */}
       <BottomSheet
