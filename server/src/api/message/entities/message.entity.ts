@@ -2,7 +2,7 @@ import { Uuid } from "@/common/types/common.type";
 import { MessageContentType, MessageViewStatus } from "@/constants/entity.enum";
 import { AbstractEntity } from "@/database/entities/abstract.entity";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { ChatRoomEntity } from "./chat-room.entity";
+import { ChatRoomEntity } from "../../chat-room/entities/chat-room.entity";
 import { MemberEntity } from "./member.entity";
 
 @Entity('message')

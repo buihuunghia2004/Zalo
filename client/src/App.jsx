@@ -38,7 +38,7 @@ export default function App() {
             <PrivateRoute>
               <SocketProvider namespace={"message"}>
               <HomeLayout>
-                  <ChatPage/>
+                <ChatPage/>
               </HomeLayout>
               </SocketProvider>
             </PrivateRoute>

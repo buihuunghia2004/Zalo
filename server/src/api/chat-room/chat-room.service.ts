@@ -3,7 +3,7 @@ import { UpdateChatRoomDto } from './dto/update-chat-room.dto';
 import { ListRoomReqDto } from './dto/list-room.req.dto';
 import { RoomResDto } from './dto/room.res.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ChatRoomEntity } from '../message/entities/chat-room.entity';
+import { ChatRoomEntity } from './entities/chat-room.entity';
 import { Repository } from 'typeorm';
 import { paginate } from '@/utils/offset-pagination';
 import { plainToInstance } from 'class-transformer';
@@ -83,9 +83,7 @@ export class ChatRoomService {
     });
 
     const data = await Promise.all(
-      rooms.map(async room => {
-        console.log('rrr',room);
-        
+      rooms.map(async room => {        
         let roomAvatarUrl: string
         let roomName: string        
   

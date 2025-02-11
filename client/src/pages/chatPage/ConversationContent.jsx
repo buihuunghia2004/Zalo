@@ -131,7 +131,7 @@ const ConversationContent = ({ newMsg, roomId, partnerId }) => {
   }
   const handleScroll = async () => {
     const container = messagesContainerRef.current
-    if (container.scrollTop === 0) {
+    if (container.scrollTop === 0 && pagination.afterCursor) {
       const data = await messageAPI.loadMoreMessage({
         roomId: roomId || room.id,
         afterCursor: pagination.afterCursor,

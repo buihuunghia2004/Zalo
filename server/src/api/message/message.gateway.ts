@@ -11,7 +11,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { AuthService } from '../auth/auth.service';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { UserEntity } from '../user/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Inject, Injectable } from '@nestjs/common';
@@ -106,44 +106,47 @@ export class MessageGateway
 
   @OnEvent(EventEmitterKey.NEW_MESSAGE)
   async newMessage(data: any) {
-    const { members, roomId } = data;
-    //check clients online or offline
-    let onlineClientIds = []
-    let offineClientIds = []
+    const { members, roomId, createdAt } = data;
+    //check members online or offline
+    let onlineMembers = []
+    let offineMembers = []
+
     await Promise.all(await members.map( async (member) => {
       const userId = await this.cacheManager.get(`connected:${member.userId}`)
       if (userId) {
-        onlineClientIds.push(member.userId)
+        member.msgRTime = new Date(createdAt).getMilliseconds()
+        onlineMembers.push(member)
       }else{
-        offineClientIds.push(member.userId)
+        offineMembers.push(member)
       }
     }))
 
-    console.log('onlineUser', onlineClientIds );
-
-    console.log('offUser', offineClientIds );
-
 
     //gửi đến các user đang online
-    onlineClientIds.forEach(id => {
+    onlineMembers.forEach(member => {
       this.server.emit(
-        createEventKey(EventKey.NEW_MESSAGE, id),
+        createEventKey(EventKey.NEW_MESSAGE, member.userId),
         data,
       );
     });
 
+    //lưu trạng thái đã nhận tin nhắn cho các user đang online
+    await this.memberRepository.update(
+      {id: In(onlineMembers.map(m => m.id))},
+      {msgRTime: new Date(createdAt).getMilliseconds()}
+    )
+
     //lưu lại các user đang offline
     await Promise.all(
-      offineClientIds.map(async (id) => {
-        const tmp = await this.cacheManager.get(`unrcv_message:${id}`)
+      offineMembers.map(async (member) => {
+        const tmp = await this.cacheManager.get(`unrcv_message:${member.userId}`)
         let roomIds = tmp || {}
         if (!roomIds[`${roomId}`]) {
           roomIds[`${roomId}`] = data.createdAt
         }
-        await this.cacheManager.set(`unrcv_message:${id}`,roomIds)
+        await this.cacheManager.set(`unrcv_message:${member.userId}`,roomIds)
       })
     )
-
   }
 
   @OnEvent('aaa')
@@ -200,6 +203,14 @@ export class MessageGateway
       .getMany()
       
     this.server.emit(`a:${senderId}:b`,receivedMemberList)
+  }
+
+  private changeMsgStatusWhenUserOnline = async ({userId}) => {
+   
+    //Get a list of room's ids where the user has not received messages
+    const roomIds = await this.cacheManager.get(`unrcv_message:${userId}`)
+
+    
   }
 }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
  

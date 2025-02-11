@@ -18,7 +18,7 @@ import { EventEmitterKey } from '@/constants/event-emitter.constant';
 import { InviterType, RelationAction, RelationStatus } from '@/constants/entity-enum/relation.enum';
 import { MessageService } from '../message/message.service';
 import { ChatRoomService } from '../chat-room/chat-room.service';
-import { ChatRoomEntity } from '../message/entities/chat-room.entity';
+import { ChatRoomEntity } from '../chat-room/entities/chat-room.entity';
 import { CreateChatRoomDto } from '../chat-room/dto/create-chat-room.dto';
 import { CreateGroupReqDto } from '../chat-room/dto/create-group.req.dto';
 

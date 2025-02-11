@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { MemberEntity } from './entities/member.entity';
-import { ChatRoomEntity } from './entities/chat-room.entity';
+import { ChatRoomEntity } from '../chat-room/entities/chat-room.entity';
 import { MessageEntity } from './entities/message.entity';
 import {
   MemberRole,

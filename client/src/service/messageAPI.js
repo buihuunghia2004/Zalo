@@ -7,7 +7,7 @@ const loadMoreMessage = async (data) => {
     let query = `roomId=${roomId}`    
     if (afterCursor) {
       query += `&afterCursor=${afterCursor}`
-    }    
+    }
     const result = await AxiosInstant.get(`messages?`+query)
     return result
     
