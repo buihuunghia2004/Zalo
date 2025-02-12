@@ -91,7 +91,7 @@ export class MessageGateway
     client.join(data.roomId);
     // await this.cacheManager.del(`unrcv_message:${data.userId}`);
   }
-7
+
   @SubscribeMessage('out-room')
   async handleOutRoom(
     @MessageBody() data: { roomId: string },
