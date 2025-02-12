@@ -33,6 +33,8 @@ export interface UnReceiMsgData {
   count: number,
   lastMsg: string
 }
+const SOCKET_ROOM = 'socket_room:'
+const CHAT_ROOM = 'chat_room:'
 @Injectable()
 @WebSocketGateway({ namespace: '/message' })
 export class MessageGateway
@@ -58,13 +60,19 @@ export class MessageGateway
     const accessToken = this.extractTokenFromHeader(client);
     const {id}: JwtPayloadType =
       await this.authService.verifyAccessToken(accessToken);
-    
-    //caching lại userId bằng clientId  
-    await this.cacheManager.set(createCacheKey(CacheKey.EVENT_CONNECT, client.id), id);
+     
+    //caching lại member bằng clientId  
+    const member = await this.memberRepository.findOne({
+      where: {
+        userId: id as Uuid
+      },
+      select:['id','userId']
+    })
+    await this.cacheManager.set(createCacheKey(CacheKey.EVENT_CONNECT, client.id), member);
 
     //client join tất cả các phòng chat
     const roomIds = await this.chatRoomService.getAllRoomIdsByUserId(id)
-    client.join(roomIds)
+    client.join(SOCKET_ROOM + roomIds)
 
     //xử lý khi client connect
     this.newConnect(id)
@@ -88,7 +96,8 @@ export class MessageGateway
     @MessageBody() data: { roomId: string},
     @ConnectedSocket() client: Socket,
   ) {    
-    client.join(data.roomId);
+    //vào 1 phòng chat
+    client.join(CHAT_ROOM + data.roomId);
     // await this.cacheManager.del(`unrcv_message:${data.userId}`);
   }
 
@@ -97,11 +106,13 @@ export class MessageGateway
     @MessageBody() data: { roomId: string },
     @ConnectedSocket() client: Socket,
   ) {
-    //rời phòng trong socket
-    client.leave(data.roomId);
+    //rời phòng chat
+    client.leave(CHAT_ROOM + data.roomId);
+
+    const member: MemberEntity = await this.cacheManager.get(createCacheKey(CacheKey.EVENT_CONNECT, client.id))
 
     //set thời gian rời phòng cho member
-
+    await this.memberRepository.update({id:member.id},{msgVTime: new Date().getMilliseconds()})
   }
 
   @SubscribeMessage('writing-message')
