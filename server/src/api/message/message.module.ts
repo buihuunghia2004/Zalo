@@ -10,11 +10,13 @@ import { MessageEntity } from './entities/message.entity';
 import { LoggerMiddleware } from 'src/middleware/guard-socket.middleware';
 import { AuthModule } from '../auth/auth.module';
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
+import { ChatRoomModule } from '../chat-room/chat-room.module';
 
 @Module({
   imports:[
     AuthModule,
     CloudinaryModule,
+    ChatRoomModule,
     TypeOrmModule.forFeature([
       UserEntity,
       ChatRoomEntity,

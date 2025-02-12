@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 // import { UpdateMessageDto } from './dto/update-message.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../user/entities/user.entity';
@@ -16,7 +16,6 @@ import { CursorPaginatedDto } from '@/common/dto/cursor-pagination/paginated.dto
 import { buildPaginator } from '@/utils/cursor-pagination';
 import { CursorPaginationDto } from '@/common/dto/cursor-pagination/cursor-pagination.dto';
 import { plainToInstance } from 'class-transformer';
-import { UserResDto } from '../user/dto/user.res.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SendMessageReqDto } from './dto/send-message.req.dto';
 import { Uuid } from '@/common/types/common.type';
@@ -27,7 +26,11 @@ import { MessageResDto } from './dto/message.res.dto';
 import { SortEnum } from '@/constants/sort.enum';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { CloudinaryResponse } from 'src/cloudinary/cloudinary/cloudinary-response';
-import { log } from 'console';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+import { createCacheKey } from '@/utils/cache.util';
+import { CacheKey } from '@/constants/cache.constant';
+
 
 @Injectable()
 export class MessageService {
@@ -42,6 +45,8 @@ export class MessageService {
     private readonly messageRepository: Repository<MessageEntity>,
     private eventEmitter: EventEmitter2,
     private cloundService: CloudinaryService,
+    @Inject(CACHE_MANAGER)
+    private readonly cacheManager: Cache,
   ) {}
 
   async sendMessage(
@@ -110,10 +115,29 @@ export class MessageService {
     
     await this.messageRepository.save(newMessage);
   
+    //lọc danh sách member online và offline
+    const members = room.members.filter(member => member.userId != senderId)
+    const userIdKeys = members.map(m => createCacheKey(CacheKey.EVENT_CONNECT,m.userId))
+    const userCacheIds = await this.cacheManager.store.mget(...userIdKeys)
+    let onlineMembers = []
+    let offineMembers = []
+    userCacheIds.forEach((id, index) => {
+      if (id) {
+        //member.msgRTime = new Date(createdAt).getMilliseconds()
+        onlineMembers.push(members[index])
+      }else{
+        offineMembers.push(members[index])
+      }
+    });
+
+    const result = {
+      ...newMessage,
+      receivedMembers: onlineMembers.map(m => m.id)
+    }
+
     // Gửi thông báo sự kiện
     this.eventEmitter.emit(EventEmitterKey.NEW_MESSAGE, {
       id:newMessage.id,
-      status: 'ok',
       content: contentType == MessageContentType.TEXT ? content : resultFile.secure_url,
       type: contentType,
       roomId: room.id,
@@ -123,7 +147,7 @@ export class MessageService {
       members: room.members.filter(member => member.userId != senderId),
     });
 
-    return plainToInstance(MessageResDto, newMessage)
+    return plainToInstance(MessageResDto, result)
   }
   
 

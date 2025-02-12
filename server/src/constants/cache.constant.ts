@@ -5,5 +5,6 @@ export enum CacheKey {
   EVENT_CONNECT = 'event:connect%s', // %s: clientId in socket
   
   //messages
-  UNRECEIVE_MSG = 'unreceive-msg:%s:%s' //userId:roomId
+  UNRECEIVE_MSG = 'unreceive-msg:%s', //userId
+  JOIN_ROOM = 'join-room:%s' //clientId
 }
