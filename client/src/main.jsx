@@ -12,9 +12,9 @@ createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <Provider store={store}>
         <PersistGate loading={<p>Loading...</p>} persistor={persistor}>
-          <SocketProvider namespace={""}>
+          {/* <SocketProvider namespace={""}> */}
             <App />
-          </SocketProvider>
+          {/* </SocketProvider> */}
         </PersistGate>
       </Provider>
     </BrowserRouter>

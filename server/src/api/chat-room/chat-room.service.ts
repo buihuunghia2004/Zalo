@@ -28,7 +28,7 @@ export class ChatRoomService {
     private readonly messageRepository: Repository<MessageEntity>,
   ){}
 
-  async createGroup(dto: CreateGroupReqDto, meId: Uuid) : Promise<RoomResDto>{
+  async createGroupRoom(dto: CreateGroupReqDto, meId: Uuid) : Promise<RoomResDto>{
     //create and save new group
     const newRoom = new ChatRoomEntity({
       type: RoomType.GROUP,
@@ -60,6 +60,32 @@ export class ChatRoomService {
 
     newRoom.members = members
     return plainToInstance(RoomResDto,newRoom);
+  }
+
+  async createPersonalRoom (userId1: Uuid, userId2: Uuid): Promise<RoomResDto> {
+    // Tạo một room mới
+    const room = new ChatRoomEntity({
+      type: RoomType.PERSONAL,
+      memberLimit: 2,
+    })
+    const newRoom = await this.roomRepository.save(room)
+
+    // Thêm member vào room
+    const member1 = new MemberEntity({
+      userId: userId1,
+      roomId: newRoom.id,
+      role: MemberRole.MEMBER
+    })
+    const member2 = new MemberEntity({
+      userId: userId2,
+      roomId: newRoom.id,
+      role: MemberRole.MEMBER
+    })
+    await this.memberRepository.save([member1, member2])
+
+    newRoom.members = [member1, member2]
+
+    return plainToInstance(RoomResDto, newRoom);
   }
 
   async findAll(reqDto: ListRoomReqDto, meId: Uuid): Promise<OffsetPaginatedDto<RoomResDto>> {
@@ -277,4 +303,5 @@ export class ChatRoomService {
     }
     return name
   }
+
 }

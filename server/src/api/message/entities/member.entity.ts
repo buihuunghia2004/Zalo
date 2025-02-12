@@ -26,16 +26,16 @@ export class MemberEntity extends AbstractEntity{
   roomId!: Uuid
 
   @Column({name: 'received_msg_id', nullable:true})
-  receivedMsgId: Uuid
+  receivedMsgId?: Uuid
 
   @Column({name: 'viewed_msg_id', nullable: true})
-  viewedMsgId: Uuid
+  viewedMsgId?: Uuid
 
   @Column({name: 'msg_r_time', nullable:true, default: 0})
-  msgRTime: number
+  msgRTime?: number
 
   @Column({name: 'msg_v_time', nullable: true, default: 0})
-  msgVTime: number
+  msgVTime?: number
 
   @OneToMany(()=>MessageEntity,(message)=>message.sender)
   messages: MessageEntity[]

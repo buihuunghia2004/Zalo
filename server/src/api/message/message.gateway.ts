@@ -50,21 +50,25 @@ export class MessageGateway
     private readonly cacheManager: Cache,
   ) {}
 
-  async handleConnection(@ConnectedSocket() client: Socket) {
-    const accessToken = this.extractTokenFromHeader(client);
-    const {id}: JwtPayloadType =
-      await this.authService.verifyAccessToken(accessToken);
-     
-    //caching lại userId bằng clientId  
-    await this.cacheManager.set(createCacheKey(CacheKey.EVENT_CONNECT, client.id), id);
+  async handleConnection(@ConnectedSocket() client: Socket) {    
+    try {
+      const accessToken = this.extractTokenFromHeader(client);      
+      const {id}: JwtPayloadType =
+        await this.authService.verifyAccessToken(accessToken);
+      
+      //caching lại userId bằng clientId  
+      await this.cacheManager.set(createCacheKey(CacheKey.EVENT_CONNECT, client.id), id);
 
-    //client join tất cả các phòng chat
-    const roomIds = await this.chatRoomService.getAllRoomIdsByUserId(id)
-    client.join(SOCKET_ROOM + roomIds)
+      //client join tất cả các phòng chat
+      const roomIds = await this.chatRoomService.getAllRoomIdsByUserId(id)
+      client.join(SOCKET_ROOM + roomIds)
 
-    //xử lý khi client connect
-    this.loadMsgWhenConnect(id, client.id)
-    console.log(`user ${id} connected with client id is ${client.id}`);
+      //xử lý khi client connect
+      this.loadMsgWhenConnect(id, client.id)
+      console.log(`user ${id} connected with client id is ${client.id}`);
+    } catch (error) {
+      
+    }
   }
 
   async handleDisconnect(@ConnectedSocket() client: Socket) {
@@ -76,7 +80,7 @@ export class MessageGateway
     await this.cacheManager.del(createCacheKey(CacheKey.EVENT_CONNECT, client.id));
 
     //set thời gian truy cập lần cuối cho user
-    await this.userRepository.update(userId, {lastOnline: new Date()})
+    await this.userRepository.update({id: userId}, {lastOnline: new Date()})
     // const roomIds = await this.chatRoomService.getAllRoomIdsByUserId(userId) as string[]
   }
 
