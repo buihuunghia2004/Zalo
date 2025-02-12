@@ -20,6 +20,8 @@ import { EventKey } from '@/constants/event.constants';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MessageEntity } from '@/api/message/entities/message.entity';
 import { Repository } from 'typeorm';
+import { createCacheKey } from '@/utils/cache.util';
+import { CacheKey } from '@/constants/cache.constant';
 
 @Injectable()
 @WebSocketGateway({
@@ -45,29 +47,27 @@ export class NotificationGateway
   server: Server;
 
   async handleConnection(@ConnectedSocket() client: Socket) {
-    try {
-      const accessToken = this.extractTokenFromHeader(client);
-      const user: JwtPayloadType =
-      await this.authService.verifyAccessToken(accessToken);
-      await this.cacheManager.set(`connected:${user.id}`, user.id);
-      this.eventEmitter.emit('aaa',{userId: user.id})
-      // this.eventEmitter.emit('xxx',{userId: user.id})
-
-    } catch (error) {
-      this.server.emit('error', 'hihi');
-    }
+    // try {
+    //   const accessToken = this.extractTokenFromHeader(client);
+    //   const user: JwtPayloadType =
+    //   await this.authService.verifyAccessToken(accessToken);
+    //   await this.cacheManager.set(createCacheKey(CacheKey.EVENT_CONNECT,user.id), user.id);
+    //   this.eventEmitter.emit(EventEmitterKey.CONNECT,{userId: user.id})
+    // } catch (error) {
+    //   this.server.emit('error', 'hihi');
+    // }
   }
 
   async handleDisconnect(@ConnectedSocket() client: Socket) {
-    try {
-      const accessToken = this.extractTokenFromHeader(client);
-      const user: JwtPayloadType =
-        await this.authService.verifyAccessToken(accessToken);
-      this.cacheManager.del(`connected:${user.id}`);
+    // try {
+    //   const accessToken = this.extractTokenFromHeader(client);
+    //   const user: JwtPayloadType =
+    //   await this.authService.verifyAccessToken(accessToken);
+    //   this.cacheManager.del(createCacheKey(CacheKey.EVENT_CONNECT,user.id));
       
-    } catch (error) {
-      this.server.emit('error', 'hihi');
-    }
+    // } catch (error) {
+    //   this.server.emit('error', 'hihi');
+    // }
   }
 
   @OnEvent(EventEmitterKey.SENT_REQUEST_ADD_FRIEND)

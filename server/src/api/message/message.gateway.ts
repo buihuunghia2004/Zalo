@@ -25,7 +25,14 @@ import { MemberEntity } from './entities/member.entity';
 import { MessageEntity } from './entities/message.entity';
 import { Uuid } from '@/common/types/common.type';
 import { log } from 'console';
+import { CacheKey } from '@/constants/cache.constant';
+import { createCacheKey } from '@/utils/cache.util';
+import { ChatRoomService } from '../chat-room/chat-room.service';
 
+export interface UnReceiMsgData {
+  count: number,
+  lastMsg: string
+}
 @Injectable()
 @WebSocketGateway({ namespace: '/message' })
 export class MessageGateway
@@ -36,6 +43,7 @@ export class MessageGateway
 
   constructor(
     private readonly authService: AuthService,
+    private readonly chatRoomService: ChatRoomService,
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(MemberEntity)
@@ -46,38 +54,54 @@ export class MessageGateway
     private readonly cacheManager: Cache,
   ) {}
 
-  async handleConnection(@ConnectedSocket() client: Socket) {    
-    console.log('socket message connect', client.id);
+  async handleConnection(@ConnectedSocket() client: Socket) {   
+    const accessToken = this.extractTokenFromHeader(client);
+    const {id}: JwtPayloadType =
+      await this.authService.verifyAccessToken(accessToken);
     
-    // try {
-    //   const accessToken = this.extractTokenFromHeader(client);
-    //   const user: JwtPayloadType =
-    //     await this.authService.verifyAccessToken(accessToken);
-    //   this.cacheManager.set(`connected:${user.id}`, user.id);
-    // } catch (error) {
-    //   this.server.emit('error', 'hihi');
-    // }
+    //caching lại userId bằng clientId  
+    await this.cacheManager.set(createCacheKey(CacheKey.EVENT_CONNECT, client.id), id);
+
+    //client join tất cả các phòng chat
+    const roomIds = await this.chatRoomService.getAllRoomIdsByUserId(id)
+    client.join(roomIds)
+
+    //xử lý khi client connect
+    this.newConnect(id)
   }
 
   async handleDisconnect(@ConnectedSocket() client: Socket) {
     console.log('socket message disConnect', client.id);
+    //lấy userId từ clientSocetId
+    const userId = await this.cacheManager.get(createCacheKey(CacheKey.EVENT_CONNECT, client.id)) as Uuid;
+
+    //xóa userId ra khỏi cache 
+    await this.cacheManager.del(createCacheKey(CacheKey.EVENT_CONNECT, client.id));
+
+    //set thời gian truy cập lần cuối cho user
+    await this.userRepository.update(userId, {lastOnline: new Date()})
+    // const roomIds = await this.chatRoomService.getAllRoomIdsByUserId(userId) as string[]
   }
 
   @SubscribeMessage('join-room')
   async handleJoinRoom(
-    @MessageBody() data: { roomId: string, userId: string },
+    @MessageBody() data: { roomId: string},
     @ConnectedSocket() client: Socket,
   ) {    
-    client.join(data.roomId);    
-    await this.cacheManager.del(`unrcv_message:${data.userId}`);
+    client.join(data.roomId);
+    // await this.cacheManager.del(`unrcv_message:${data.userId}`);
   }
-
+7
   @SubscribeMessage('out-room')
   async handleOutRoom(
     @MessageBody() data: { roomId: string },
     @ConnectedSocket() client: Socket,
-  ) {    
+  ) {
+    //rời phòng trong socket
     client.leave(data.roomId);
+
+    //set thời gian rời phòng cho member
+
   }
 
   @SubscribeMessage('writing-message')
@@ -107,28 +131,29 @@ export class MessageGateway
   @OnEvent(EventEmitterKey.NEW_MESSAGE)
   async newMessage(data: any) {
     const { members, roomId, createdAt } = data;
-    //check members online or offline
+
+    //lọc danh sách member online và offline
+    const userIdKeys = members.map(m => createCacheKey(CacheKey.EVENT_CONNECT,m.userId))
+    const userCacheIds = await this.cacheManager.store.mget(...userIdKeys)
     let onlineMembers = []
     let offineMembers = []
-
-    await Promise.all(await members.map( async (member) => {
-      const userId = await this.cacheManager.get(`connected:${member.userId}`)
-      if (userId) {
-        member.msgRTime = new Date(createdAt).getMilliseconds()
-        onlineMembers.push(member)
+    userCacheIds.forEach((id, index) => {
+      if (id) {
+        //member.msgRTime = new Date(createdAt).getMilliseconds()
+        onlineMembers.push(members[index])
       }else{
-        offineMembers.push(member)
+        offineMembers.push(members[index])
       }
-    }))
-
+    });
 
     //gửi đến các user đang online
-    onlineMembers.forEach(member => {
-      this.server.emit(
-        createEventKey(EventKey.NEW_MESSAGE, member.userId),
-        data,
-      );
-    });
+    this.server.to(roomId).emit(data)
+    // onlineMembers.forEach(member => {
+    //   this.server.emit(
+    //     createEventKey(EventKey.NEW_MESSAGE, member.userId),
+    //     data
+    //   );
+    // });
 
     //lưu trạng thái đã nhận tin nhắn cho các user đang online
     await this.memberRepository.update(
@@ -136,22 +161,31 @@ export class MessageGateway
       {msgRTime: new Date(createdAt).getMilliseconds()}
     )
 
-    //lưu lại các user đang offline
-    await Promise.all(
-      offineMembers.map(async (member) => {
-        const tmp = await this.cacheManager.get(`unrcv_message:${member.userId}`)
-        let roomIds = tmp || {}
-        if (!roomIds[`${roomId}`]) {
-          roomIds[`${roomId}`] = data.createdAt
+    /**
+     * caching roomId vào danh sách phòng có tin nhắn mới
+     * key:createCacheKey(CacheKey.UNRECEIVE_MSG, userId, roomId)
+     * value: {
+     *    roomId: string
+     *   lastMsg: string
+     *   count: number
+     * }
+     */
+    const mKeys: string[] = offineMembers.map(m => createCacheKey(CacheKey.UNRECEIVE_MSG, m.userId, roomId))
+    let mOldOffData = await this.cacheManager.store.mget(...mKeys) as UnReceiMsgData[]
+    const mNewOffData: Array<[string, UnReceiMsgData]> = mOldOffData.map((m, index)=> {
+      return [
+        createCacheKey(CacheKey.UNRECEIVE_MSG, offineMembers[index].userId, roomId),
+        {
+
+          lastMsg: data.content,
+          count: m ? m.count + 1 : 1
         }
-        await this.cacheManager.set(`unrcv_message:${member.userId}`,roomIds)
-      })
-    )
+      ]
+    })
+    await this.cacheManager.store.mset(mNewOffData)
   }
 
-  @OnEvent('aaa')
-  async aaa(data: any) {
-    const {userId} = data
+  async newConnect(userId: string) {
     const rawRooms = await this.cacheManager.get(`unrcv_message:${userId}`);
     if (rawRooms) {
       const roomIds = Object.keys(rawRooms);
@@ -186,7 +220,8 @@ export class MessageGateway
   }
 
   private  extractTokenFromHeader(request: Socket): string | undefined {
-    const accessToken = request.handshake.auth.token || request.handshake.headers.authorization
+    const accessToken = 
+      request.handshake.auth.token || request.handshake.headers.authorization
     const [type, token] = accessToken.trim()?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
   }
@@ -203,14 +238,6 @@ export class MessageGateway
       .getMany()
       
     this.server.emit(`a:${senderId}:b`,receivedMemberList)
-  }
-
-  private changeMsgStatusWhenUserOnline = async ({userId}) => {
-   
-    //Get a list of room's ids where the user has not received messages
-    const roomIds = await this.cacheManager.get(`unrcv_message:${userId}`)
-
-    
   }
 }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
  

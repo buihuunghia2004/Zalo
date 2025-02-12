@@ -62,7 +62,6 @@ export class ChatRoomService {
     return plainToInstance(RoomResDto,newRoom);
   }
 
-
   async findAll(reqDto: ListRoomReqDto, meId: Uuid): Promise<OffsetPaginatedDto<RoomResDto>> {
     const roomIds = this.roomRepository
       .createQueryBuilder('r')
@@ -207,6 +206,17 @@ export class ChatRoomService {
     return `This action removes a #${id} chatRoom`;
   }
 
+  async getAllRoomIdsByUserId (userId: string) {
+    const roomIds = await this.roomRepository
+      .createQueryBuilder('r')
+      .select(['r.id'])
+      .leftJoin('r.members','m')
+      .where('m.userId = :userId',{userId})
+      .getMany()
+
+    return roomIds.map(r => r.id)
+  }
+
   getLastMsgByRoomId = async (roomId: Uuid) => {
     return await this.messageRepository
         .createQueryBuilder('msg')
@@ -225,6 +235,7 @@ export class ChatRoomService {
         .orderBy({'msg.createdAt':'DESC'})
         .getOne()
   }
+
   getQuantityUnReadMessages = async (roomId: Uuid) => {
     return await this.messageRepository
       .createQueryBuilder('msg')
@@ -233,7 +244,6 @@ export class ChatRoomService {
       .andWhere('msg.status != :status', { status: MessageViewStatus.VIEWED })  // Loại bỏ tin nhắn đã xem
       .getRawOne(); 
   };
-  
 
   getLastMsgByRoomIds = async (roomIds: Uuid[]) => {
     return await this.messageRepository
