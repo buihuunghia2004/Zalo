@@ -17,7 +17,7 @@ const ChatPage = () => {
   const meId = useSelector((state) => state.me.user?.id)
   
   useSocketEvent(
-    `event:notify:${meId}:new_message`,(data) => {           
+    `new_message`,(data) => {           
       
       if (!currentRoom || (data.roomId != currentRoom.id)) {
         distpatch(addNewMsgToRoom(data))
@@ -34,13 +34,6 @@ const ChatPage = () => {
           isSelfSent: false
         }
       }))
-
-      //đã nhận tin nhắn
-      emit('received-message',{
-        msgId:data.id,
-        senderId:data.sender.user.id,
-        memberId: rooms.find(room => room.id == data.roomId).members.find(member => member.user.id == meId).id
-      })
     }
   )
 

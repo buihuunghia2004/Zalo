@@ -77,7 +77,7 @@ export class MessageService {
     }
     
     if (!room) {
-      // Nếu không tồn tại room, tạo mới      
+      // Nếu không tồn tại room, tạo mới
       room = await this.createChatRoom(senderId, receiverId);
       await this.chatRoomRepository.save(room);
     }

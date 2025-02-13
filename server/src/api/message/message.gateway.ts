@@ -96,7 +96,7 @@ export class MessageGateway
     const member = await this.memberRepository.findOne({
       where:{roomId: data.roomId as Uuid, userId: userId as Uuid},
       select:['id']
-    })
+    })    
     //cache memberId bằng clientId
     await this.cacheManager.set(createCacheKey(CacheKey.JOIN_ROOM, client.id), member.id);
 
@@ -121,13 +121,20 @@ export class MessageGateway
 
   @SubscribeMessage('writing-message')
   async handleClientMessage(
-    @MessageBody() data: {roomId: string, },
+    @MessageBody() data: {roomId: string, status: boolean },
     @ConnectedSocket() client: Socket,
   ) {
     const memberId = await this.cacheManager.get(createCacheKey(CacheKey.JOIN_ROOM, client.id))
-    this.server.to(data.roomId).emit(SocketEmitKey.WRITING_MESSAGE, memberId)
+    const isWriting = await this.cacheManager.get('writing-msg:'+data.roomId)
+    if (data.status && !isWriting) {
+      await this.cacheManager.set('writing-msg:'+data.roomId,memberId)
+      this.server.to(SOCKET_ROOM + data.roomId).emit(SocketEmitKey.WRITING_MESSAGE, {memberId, status: data.status})
+    }else if(!data.status && isWriting){
+      await this.cacheManager.del('writing-msg:'+data.roomId)
+      this.server.to(SOCKET_ROOM + data.roomId).emit(SocketEmitKey.WRITING_MESSAGE, {memberId, status: data.status})
+    }
 
-    console.log(`member ${memberId} is writing message in room ${data.roomId}`);
+    // console.log(`member ${memberId} is writing message in room ${data.roomId}`);
   }
 
   @OnEvent(EventEmitterKey.NEW_MESSAGE)

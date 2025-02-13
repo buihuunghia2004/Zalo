@@ -37,12 +37,22 @@ export const sendMessage = createAsyncThunk(
 const roomSlice = createSlice({
   name: 'rooms',
   initialState: {
-    rooms:[]
+    rooms:[
+      /**
+       * id
+       * roomAvatarUrl
+       * roomName
+       * type
+       * memberAvatarUrls
+       * memberCount
+       * lastMsg
+       * unReadMsgCount
+       * 
+      /  */
+    ]
   },
   reducers: {
     addNewMsgToRoom: (state, action) => {
-      console.log('aaa',action.payload);
-      
       state.rooms = state.rooms.map((room) => {
         if (room.id === action.payload.roomId) {
           return {

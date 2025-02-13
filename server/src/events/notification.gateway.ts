@@ -20,6 +20,7 @@ import { Repository } from 'typeorm';
 import { JwtPayloadType } from '@/api/auth/types/jwt-payload.type';
 import { createCacheKey } from '@/utils/cache.util';
 import { CacheKey } from '@/constants/cache.constant';
+import { SocketEmitKey } from '@/constants/socket-emit.constanct';
 
 @Injectable()
 @WebSocketGateway({
@@ -69,15 +70,15 @@ export class NotificationGateway
   }
 
   @OnEvent(EventEmitterKey.SENT_REQUEST_ADD_FRIEND)
-  async sendNotificationSentRequestAddFriend(receiverId: string,data: any) {
-    const clientSocketId: string = await this.cacheManager.get(receiverId)
-    this.server.to(clientSocketId).emit(data);
+  async sendNotificationSentRequestAddFriend({receiverId, data}) {    
+    const clientSocketId: string = await this.cacheManager.get(receiverId)    
+    this.server.to(clientSocketId).emit(SocketEmitKey.RECEIVED_RELATION_REQ, data);
   }
 
   @OnEvent(EventEmitterKey.ACCEPT_RELATION_REQ)
   async handleNotificationSentRequestAddFriend(requesterId: string, data: any) {
     const clientSocketId: string = await this.cacheManager.get(requesterId)
-    this.server.to(clientSocketId).emit(data);
+    this.server.to(clientSocketId).emit(SocketEmitKey.ACCEPT_RELATION_REQ, data);
   }
 
   @SubscribeMessage('requestNotification')

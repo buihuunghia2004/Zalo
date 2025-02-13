@@ -32,21 +32,15 @@ const ConversationContent = ({ newMsg, roomId, partnerId }) => {
   const messagesEndRef = useRef(null)
   const messagesContainerRef = useRef(null)
 
-  if (roomId) {
-    useSocketEvent(`event:${roomId}:writing_message`, (data) => {
+  // if (roomId) {
+    useSocketEvent('writing_message', (data) => {      
       setIsPartnerWrite(data.status)
     })
-  }
+  // }
   useSocketEvent(`a:${meId}:b`, (data) => {
     const [rcv, viewed] = getLastRCVAndViewd(data, messages)
     setLastRCV(rcv)
     setLastReceiveMsgIds(data)
-  })
-  useSocketEvent(`user-joined`, (data) => {
-    console.log('đã vào', data.clientId)
-  })
-  useSocketEvent(`user-outed`, (data) => {
-    console.log('đã thoát', data.clientId)
   })
 
   const scrollToBottom = () => {
@@ -152,7 +146,8 @@ const ConversationContent = ({ newMsg, roomId, partnerId }) => {
       }
 
       //emit join-room
-      emit('join-room', { roomId: roomId, userId: meId })
+      emit('join-room', { roomId: roomId})
+      
       dispatch(deleteAllReceivedMsg({ roomId: roomId }))
       
       //fetch room info after have roomId
@@ -174,7 +169,7 @@ const ConversationContent = ({ newMsg, roomId, partnerId }) => {
     fetchRoom({roomId, partnerId})
 
     return () => {
-      emit('out-room', { roomId: roomId })
+      emit('leave-room', { roomId: roomId })
     }
   }, [roomId])
 
@@ -190,8 +185,6 @@ const ConversationContent = ({ newMsg, roomId, partnerId }) => {
     }
   }, [newMsg])
 
-  
-
   useEffect(() => {
     const i = setTimeout(() => {
       if (textContent) {
@@ -201,7 +194,7 @@ const ConversationContent = ({ newMsg, roomId, partnerId }) => {
         })
       } else {
         emit('writing-message', {
-          roomId: room?.id,
+          roomId: room?.id || roomId,
           status: false,
         })
       }
@@ -266,7 +259,7 @@ const ConversationContent = ({ newMsg, roomId, partnerId }) => {
         </div>
         {isPartnerWrite && (
           <div className="flex">
-            <p className="bg-dark-5 px-2 ">Đang soạn tin nhắn</p>
+            <p className="bg-dark-5 px-2 ">{`Đang soạn tin nhắn`}</p>
           </div>
         )}
 

@@ -59,7 +59,7 @@ export class RelationService {
       {
         receiverId,
         data:{
-          user: relationExists.requester
+          user: newRelation.requesterId
         }
       }
     )

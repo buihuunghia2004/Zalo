@@ -5,12 +5,6 @@ import {
   UUIDField,
 } from '@/decorators/field.decorators';
 
-export enum ActionHanleRequestRelation{
-  ACCEPT = 'accept',
-  REJECT = 'reject',
-  REVOKE = 'revoke',
-}
-
 export class HandleRequestToAddFriendReqDto {
   @UUIDField()
   relationId: Uuid

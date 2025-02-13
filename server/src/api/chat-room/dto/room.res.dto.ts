@@ -21,6 +21,10 @@ export class RoomResDto {
   @Expose()
   roomAvatarUrl: string;
 
+  @StringField({each: true})
+  @Expose()
+  roomAvatarUrls: string[];
+
   @StringField()
   @Expose()
   roomName: string;
@@ -35,7 +39,7 @@ export class RoomResDto {
 
   @ClassFieldOptional(()=> MessageResDto)
   @Expose()
-  lastMsg: WrapperType<MessageResDto[]>;
+  lastMsg: WrapperType<MessageResDto>;
 
   @ClassFieldOptional(()=> MessageResDto)
   @Expose()

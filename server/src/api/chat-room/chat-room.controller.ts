@@ -20,10 +20,8 @@ export class ChatRoomController {
     @Body() dto: CreateGroupReqDto,
     @CurrentUser('id') id: Uuid,
   ) {
-    return this.chatRoomService.createGroup(dto, id);
+    return this.chatRoomService.createGroupRoom(dto, id);
   }
-
-  
 
   @Get()
   findAll(

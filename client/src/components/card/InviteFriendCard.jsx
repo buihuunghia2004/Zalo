@@ -36,7 +36,7 @@ export const InviteFriendCard = ({
           <div>
             <div className="flex flex-row gap-2">
               <button onClick={()=> onHandleRquest('accept')} className="bg-blue-900 text-white p-2 rounded-sm w-full">Đồng ý</button>
-              <button onClick={()=> onHandleRquest('reject')} className="bg-dark-4 hover:bg-dark-5 text-white p-2 rounded-sm w-full">Từ chối</button>
+              <button onClick={()=> onHandleRquest('decline')} className="bg-dark-4 hover:bg-dark-5 text-white p-2 rounded-sm w-full">Từ chối</button>
             </div>
           </div>
         )
