@@ -52,7 +52,8 @@ export class NotificationGateway
       await this.cacheManager.set(`connected:${user.id}`, user.id);
       this.eventEmitter.emit('aaa',{userId: user.id})
       // this.eventEmitter.emit('xxx',{userId: user.id})
-
+      console.log('socket connect', client.id);
+      
     } catch (error) {
       this.server.emit('error', 'hihi');
     }
@@ -64,7 +65,8 @@ export class NotificationGateway
       const user: JwtPayloadType =
         await this.authService.verifyAccessToken(accessToken);
       this.cacheManager.del(`connected:${user.id}`);
-      
+      console.log('socket dis connect', client.id);
+
     } catch (error) {
       this.server.emit('error', 'hihi');
     }

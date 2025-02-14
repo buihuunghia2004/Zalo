@@ -4,7 +4,7 @@ const sockets = {}; // Lưu các kết nối theo namespace
 
 export const connectSocket = (namespace) => {
   if (!sockets[namespace]) {    
-    sockets[namespace] = io(`http://localhost:7777`, {
+    sockets[namespace] = io(`http://localhost:7777/${namespace}`, {
       transports: ["websocket"],
       auth: {
         token: `Bearer ${localStorage.getItem("accessToken")}`,

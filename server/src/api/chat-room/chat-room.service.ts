@@ -84,7 +84,6 @@ export class ChatRoomService {
 
     const data = await Promise.all(
       rooms.map(async room => {
-        console.log('rrr',room);
         
         let roomAvatarUrl: string
         let roomName: string        

@@ -68,6 +68,8 @@ export class MessageGateway
     @MessageBody() data: { roomId: string, userId: string },
     @ConnectedSocket() client: Socket,
   ) {    
+    console.log('join room', data.roomId);
+    
     client.join(data.roomId);    
     await this.cacheManager.del(`unrcv_message:${data.userId}`);
   }
@@ -77,6 +79,8 @@ export class MessageGateway
     @MessageBody() data: { roomId: string },
     @ConnectedSocket() client: Socket,
   ) {    
+    console.log('out room', data.roomId);
+    
     client.leave(data.roomId);
   }
 
@@ -85,6 +89,7 @@ export class MessageGateway
     @MessageBody() data: any,
     @ConnectedSocket() client: Socket,
   ) {
+    log(data);
     client.broadcast.emit(
       createEventKey(EventKey.WRITING_MESSAGE, data.roomId),
       { status: data.status },
@@ -124,7 +129,7 @@ export class MessageGateway
     console.log('offUser', offineClientIds );
 
 
-    //gửi đến các user đang online
+    //gửi đến các user đang online    
     onlineClientIds.forEach(id => {
       this.server.emit(
         createEventKey(EventKey.NEW_MESSAGE, id),

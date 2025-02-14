@@ -72,6 +72,7 @@ export const Assets = {
         google: require(uriIcons + 'google.png'),
         facebook: require(uriIcons + 'facebook.png'),
 
+        reply_message: require(uriIcons + 'reply-message.png'),
     },
     images: {
         demo: require(images + 'demo.jpg'),
