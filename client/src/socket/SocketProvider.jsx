@@ -6,9 +6,7 @@ const SocketContext = createContext();
 export const useSocket = () => useContext(SocketContext);
 
 export const SocketProvider = ({ namespace, children }) => {
-  useEffect(() => {
-    console.log('namespacemmmmmmmmmmmmm'+namespace);
-    
+  useEffect(() => {    
     connectSocket(namespace);
 
     return () => {
