@@ -1,6 +1,6 @@
 import { EventEmitterKey } from '@/constants/event-emitter.constant';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Inject, Injectable, UseGuards } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import {
   WebSocketGateway,
@@ -14,12 +14,13 @@ import {
 import { Server, Socket } from 'socket.io';
 import { Cache } from 'cache-manager';
 import { AuthService } from '@/api/auth/auth.service';
-import { JwtPayloadType } from '@/api/auth/types/jwt-payload.type';
-import { createEventKey } from '@/utils/socket.util';
-import { EventKey } from '@/constants/event.constants';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MessageEntity } from '@/api/message/entities/message.entity';
 import { Repository } from 'typeorm';
+import { JwtPayloadType } from '@/api/auth/types/jwt-payload.type';
+import { createCacheKey } from '@/utils/cache.util';
+import { CacheKey } from '@/constants/cache.constant';
+import { SocketEmitKey } from '@/constants/socket-emit.constanct';
 
 @Injectable()
 @WebSocketGateway({
@@ -47,41 +48,38 @@ export class NotificationGateway
   async handleConnection(@ConnectedSocket() client: Socket) {
     try {
       const accessToken = this.extractTokenFromHeader(client);
-      const user: JwtPayloadType =
+      const {id}: JwtPayloadType =
       await this.authService.verifyAccessToken(accessToken);
-      await this.cacheManager.set(`connected:${user.id}`, user.id);
-      this.eventEmitter.emit('aaa',{userId: user.id})
-      // this.eventEmitter.emit('xxx',{userId: user.id})
-      console.log('socket connect', client.id);
-      
+
+      await this.cacheManager.set(createCacheKey(CacheKey.NOTI_SOCKET_CONNECT, client.id), id);
+      await this.cacheManager.set(id, client.id);
+
+      console.log(`client ${client.id} connected notification socket`);
     } catch (error) {
-      this.server.emit('error', 'hihi');
     }
   }
 
   async handleDisconnect(@ConnectedSocket() client: Socket) {
     try {
-      const accessToken = this.extractTokenFromHeader(client);
-      const user: JwtPayloadType =
-        await this.authService.verifyAccessToken(accessToken);
-      this.cacheManager.del(`connected:${user.id}`);
-      console.log('socket dis connect', client.id);
+      const userId: string = await this.cacheManager.get(createCacheKey(CacheKey.NOTI_SOCKET_CONNECT, client.id));
+      await this.cacheManager.del(createCacheKey(CacheKey.NOTI_SOCKET_CONNECT, client.id));
+      await this.cacheManager.del(userId)
 
+      console.log(`client ${client.id} disconnected notification socket`);
     } catch (error) {
-      this.server.emit('error', 'hihi');
     }
   }
 
   @OnEvent(EventEmitterKey.SENT_REQUEST_ADD_FRIEND)
-  sendNotificationSentRequestAddFriend(data: any) {
-    const { to, payload } = data;
-    this.server.emit(to, payload);
+  async sendNotificationSentRequestAddFriend({receiverId, data}) {    
+    const clientSocketId: string = await this.cacheManager.get(receiverId)    
+    this.server.to(clientSocketId).emit(SocketEmitKey.RECEIVED_RELATION_REQ, data);
   }
 
-  @OnEvent(EventEmitterKey.HANDLE_REQUEST_ADD_FRIEND)
-  handleNotificationSentRequestAddFriend(data: any) {
-    const { to, payload } = data;
-    this.server.emit(to, payload);
+  @OnEvent(EventEmitterKey.ACCEPT_RELATION_REQ)
+  async handleNotificationSentRequestAddFriend(requesterId: string, data: any) {
+    const clientSocketId: string = await this.cacheManager.get(requesterId)
+    this.server.to(clientSocketId).emit(SocketEmitKey.ACCEPT_RELATION_REQ, data);
   }
 
   @SubscribeMessage('requestNotification')

@@ -3,7 +3,7 @@ import { Uuid } from "@/common/types/common.type";
 import { MemberRole } from "@/constants/entity.enum";
 import { AbstractEntity } from "@/database/entities/abstract.entity";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { ChatRoomEntity } from "./chat-room.entity";
+import { ChatRoomEntity } from "../../chat-room/entities/chat-room.entity";
 import { MessageEntity } from "./message.entity";
 
 @Entity('member')
@@ -26,10 +26,16 @@ export class MemberEntity extends AbstractEntity{
   roomId!: Uuid
 
   @Column({name: 'received_msg_id', nullable:true})
-  receivedMsgId: Uuid
+  receivedMsgId?: Uuid
 
   @Column({name: 'viewed_msg_id', nullable: true})
-  viewedMsgId: Uuid
+  viewedMsgId?: Uuid
+
+  @Column({name: 'msg_r_time', nullable:true, default: 0})
+  msgRTime?: number
+
+  @Column({name: 'msg_v_time', nullable: true, default: 0})
+  msgVTime?: number
 
   @OneToMany(()=>MessageEntity,(message)=>message.sender)
   messages: MessageEntity[]

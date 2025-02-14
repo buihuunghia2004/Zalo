@@ -24,13 +24,13 @@ const getRoomIdByUserIdAPI = async (partnerId) => {
   }
 }
 
-const getRoomByIdAPI = async (id) => {
-  try {
-    return await AxiosInstant.get(`rooms/${id}`)
-  } catch (error) {
+// const getRoomByIdAPI = async (id) => {
+//   try {
+//     return await AxiosInstant.get(`rooms/${id}`)
+//   } catch (error) {
     
-  }
-}
+//   }
+// }
 
 const createNewGroupdAPI = async (data) => {
   try {
@@ -58,7 +58,7 @@ const handleRequestAddFriendAPI = async (data) => {
 
 const roomAPI = {
   getAllRoomAPI,
-  getRoomByIdAPI,
+  // getRoomByIdAPI,
   getRoomIdByUserIdAPI,
   getAllGroupAPI,
   createNewGroupdAPI

@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useEffect } from 'react'
 import { getMe } from './redux/slices/userSlice'
 import HomeLayout from './layouts/HomeLayout'
-import { SocketProvider, useSocket } from './socket/SocketProvider'
+import { SocketProvider } from './socket/SocketProvider'
 import useSocketEvent from './hooks/useSocket'
 import { Toaster } from "@/components/ui/toaster"
 
@@ -16,6 +16,23 @@ export default function App() {
   const dispatch = useDispatch()
   const accessToken = useSelector((state) => state.me.auth.accessToken)
   const email = useSelector((state) => state.me.user?.email)
+
+  //relation socket
+  useSocketEvent(
+    'received_relation_req',(data) => {           
+      console.log('Đã nhận được lời mời kết bạn',data);
+    }
+  )
+  useSocketEvent(
+    'accept_relation_req',(data) => {           
+      console.log('Lời mời kết bạn đã được chấp nhận',data);
+    }
+  )
+  useSocketEvent(
+    'aaa',(data) => {           
+      console.log('aaa',data);
+    }
+  )
   
   const PrivateRoute = ({ children }) => {
     useEffect(() => {
@@ -38,7 +55,7 @@ export default function App() {
             <PrivateRoute>
               <SocketProvider namespace={"message"}>
               <HomeLayout>
-                  <ChatPage/>
+                <ChatPage/>
               </HomeLayout>
               </SocketProvider>
             </PrivateRoute>

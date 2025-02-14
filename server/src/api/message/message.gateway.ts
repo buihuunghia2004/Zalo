@@ -5,27 +5,32 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   ConnectedSocket,
-  WsException,
   SubscribeMessage,
   MessageBody,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { AuthService } from '../auth/auth.service';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { UserEntity } from '../user/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Inject, Injectable } from '@nestjs/common';
 import { EventEmitterKey } from '@/constants/event-emitter.constant';
-import { createEventKey } from '@/utils/socket.util';
-import { EventKey } from '@/constants/event.constants';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { JwtPayloadType } from '../auth/types/jwt-payload.type';
 import { MemberEntity } from './entities/member.entity';
-import { MessageEntity } from './entities/message.entity';
 import { Uuid } from '@/common/types/common.type';
-import { log } from 'console';
+import { CacheKey } from '@/constants/cache.constant';
+import { createCacheKey } from '@/utils/cache.util';
+import { ChatRoomService } from '../chat-room/chat-room.service';
+import { SocketEmitKey } from '@/constants/socket-emit.constanct';
 
+export interface UnReceiMsgData {
+  count: number,
+  lastMsg: string
+}
+const SOCKET_ROOM = 'socket_room:'
+const CHAT_ROOM = 'chat_room:'
 @Injectable()
 @WebSocketGateway({ namespace: '/message' })
 export class MessageGateway
@@ -36,175 +41,188 @@ export class MessageGateway
 
   constructor(
     private readonly authService: AuthService,
+    private readonly chatRoomService: ChatRoomService,
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(MemberEntity)
     private readonly memberRepository: Repository<MemberEntity>,
-    @InjectRepository(MessageEntity)
-    private readonly messageRepository: Repository<MessageEntity>,
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
   ) {}
 
   async handleConnection(@ConnectedSocket() client: Socket) {    
-    console.log('socket message connect', client.id);
-    
-    // try {
-    //   const accessToken = this.extractTokenFromHeader(client);
-    //   const user: JwtPayloadType =
-    //     await this.authService.verifyAccessToken(accessToken);
-    //   this.cacheManager.set(`connected:${user.id}`, user.id);
-    // } catch (error) {
-    //   this.server.emit('error', 'hihi');
-    // }
+    try {
+      const accessToken = this.extractTokenFromHeader(client);      
+      const {id}: JwtPayloadType =
+        await this.authService.verifyAccessToken(accessToken);
+      
+      //caching lại userId bằng clientId  
+      await this.cacheManager.set(createCacheKey(CacheKey.EVENT_CONNECT, client.id), id);
+
+      //client join tất cả các phòng chat
+      const roomIds = await this.chatRoomService.getAllRoomIdsByUserId(id)
+      client.join(SOCKET_ROOM + roomIds)
+
+      //xử lý khi client connect
+      this.loadMsgWhenConnect(id, client.id)
+      console.log(`user ${id} connected with client id is ${client.id}`);
+    } catch (error) {
+      
+    }
   }
 
   async handleDisconnect(@ConnectedSocket() client: Socket) {
-    console.log('socket message disConnect', client.id);
+    console.log(`client ${client.id} disconnected`);
+    //lấy userId từ clientSocetId
+    const userId = await this.cacheManager.get(createCacheKey(CacheKey.EVENT_CONNECT, client.id)) as Uuid;
+
+    //xóa userId ra khỏi cache 
+    await this.cacheManager.del(createCacheKey(CacheKey.EVENT_CONNECT, client.id));
+
+    //set thời gian truy cập lần cuối cho user
+    await this.userRepository.update({id: userId}, {lastOnline: new Date()})
+    // const roomIds = await this.chatRoomService.getAllRoomIdsByUserId(userId) as string[]
   }
 
   @SubscribeMessage('join-room')
   async handleJoinRoom(
-    @MessageBody() data: { roomId: string, userId: string },
+    @MessageBody() data: { roomId: string},
     @ConnectedSocket() client: Socket,
   ) {    
-    console.log('join room', data.roomId);
-    
-    client.join(data.roomId);    
-    await this.cacheManager.del(`unrcv_message:${data.userId}`);
+
+    //vào 1 phòng chat
+    client.join(CHAT_ROOM + data.roomId);
+
+    const userId = await this.cacheManager.get(createCacheKey(CacheKey.EVENT_CONNECT, client.id));
+    const member = await this.memberRepository.findOne({
+      where:{roomId: data.roomId as Uuid, userId: userId as Uuid},
+      select:['id']
+    })    
+    //cache memberId bằng clientId
+    await this.cacheManager.set(createCacheKey(CacheKey.JOIN_ROOM, client.id), member.id);
+
+    //console.log(`client ${client.id} has join room ${data.roomId}`);
   }
 
-  @SubscribeMessage('out-room')
+  @SubscribeMessage('leave-room')
   async handleOutRoom(
     @MessageBody() data: { roomId: string },
     @ConnectedSocket() client: Socket,
-  ) {    
-    console.log('out room', data.roomId);
+
+  ) {
+    //rời phòng chat
+    client.leave(CHAT_ROOM + data.roomId);
+
+    const memberId = await this.cacheManager.get(createCacheKey(CacheKey.JOIN_ROOM, client.id))
+
+    //set thời gian rời phòng cho member
+    await this.memberRepository.update({id: memberId as Uuid},{msgVTime: new Date().getMilliseconds()})
     
-    client.leave(data.roomId);
+    console.log(`client ${client.id} has leave room ${data.roomId}`);
   }
 
   @SubscribeMessage('writing-message')
   async handleClientMessage(
-    @MessageBody() data: any,
+    @MessageBody() data: {roomId: string, status: boolean },
     @ConnectedSocket() client: Socket,
   ) {
-    log(data);
-    client.broadcast.emit(
-      createEventKey(EventKey.WRITING_MESSAGE, data.roomId),
-      { status: data.status },
-    );
-  }
-  
-  @SubscribeMessage('received-message')
-  async handleReceivedMessage(
-    @MessageBody() data: any,
-    @ConnectedSocket() client: Socket,
-  ) {
-    await this.receivedMessage(data)
-  }
 
-  @OnEvent('received-message')
-  async handleReceivedMessageAfterOnline(data: any){    
-    await this.receivedMessage(data)
+    const memberId = await this.cacheManager.get(createCacheKey(CacheKey.JOIN_ROOM, client.id))
+    const isWriting = await this.cacheManager.get('writing-msg:'+data.roomId)
+    if (data.status && !isWriting) {
+      await this.cacheManager.set('writing-msg:'+data.roomId,memberId)
+      this.server.to(SOCKET_ROOM + data.roomId).emit(SocketEmitKey.WRITING_MESSAGE, {memberId, status: data.status})
+    }else if(!data.status && isWriting){
+      await this.cacheManager.del('writing-msg:'+data.roomId)
+      this.server.to(SOCKET_ROOM + data.roomId).emit(SocketEmitKey.WRITING_MESSAGE, {memberId, status: data.status})
+    }
+    console.log(`member ${memberId} is writing message in room ${data.roomId}`);
   }
 
   @OnEvent(EventEmitterKey.NEW_MESSAGE)
   async newMessage(data: any) {
-    const { members, roomId } = data;
-    //check clients online or offline
-    let onlineClientIds = []
-    let offineClientIds = []
-    await Promise.all(await members.map( async (member) => {
-      const userId = await this.cacheManager.get(`connected:${member.userId}`)
-      if (userId) {
-        onlineClientIds.push(member.userId)
-      }else{
-        offineClientIds.push(member.userId)
-      }
-    }))
+    const { onlineMembers, offineMembers,  roomId, createdAt } = data;
 
-    console.log('onlineUser', onlineClientIds );
+    //lọc danh sách member online và offline
+    // const userIdKeys = members.map(m => createCacheKey(CacheKey.EVENT_CONNECT,m.userId))
+    // const userCacheIds = await this.cacheManager.store.mget(...userIdKeys)
+    // let onlineMembers = []
+    // let offineMembers = []
+    // userCacheIds.forEach((id, index) => {
+    //   if (id) {
+    //     //member.msgRTime = new Date(createdAt).getMilliseconds()
+    //     onlineMembers.push(members[index])
+    //   }else{
+    //     offineMembers.push(members[index])
+    //   }
+    // });
 
-    console.log('offUser', offineClientIds );
 
+    //gửi đến các user đang online
+    this.server.to(SOCKET_ROOM + roomId).emit(data)
 
-    //gửi đến các user đang online    
-    onlineClientIds.forEach(id => {
-      this.server.emit(
-        createEventKey(EventKey.NEW_MESSAGE, id),
-        data,
-      );
-    });
-
-    //lưu lại các user đang offline
-    await Promise.all(
-      offineClientIds.map(async (id) => {
-        const tmp = await this.cacheManager.get(`unrcv_message:${id}`)
-        let roomIds = tmp || {}
-        if (!roomIds[`${roomId}`]) {
-          roomIds[`${roomId}`] = data.createdAt
-        }
-        await this.cacheManager.set(`unrcv_message:${id}`,roomIds)
-      })
+    //lưu trạng thái đã nhận tin nhắn cho các user đang online
+    await this.memberRepository.update(
+      {id: In(onlineMembers.map(m => m.id))},
+      {msgRTime: new Date(createdAt).getMilliseconds()}
     )
 
+    /**
+     * Khi user offline
+     * caching roomId vào danh sách phòng có tin nhắn mới
+     * key:createCacheKey(CacheKey.UNRECEIVE_MSG, userId)
+     * value: {
+     *  xxx-yyy:{
+     *    lastMsg: string
+     *    count: number
+     *  }
+     * }
+     * trong đó xxx-yyy là roomId
+     */
+    const mKeys: string[] = offineMembers.map(m => createCacheKey(CacheKey.UNRECEIVE_MSG, m.userId))
+    let mOldOffData = await this.cacheManager.store.mget(...mKeys)
+    const mNewOffData: Array<[string, any]> = mOldOffData.map((m, index)=> {
+      const value = {}
+      value[roomId] = {
+        lastMsg: data.content,
+        count: m[roomId] ? m[roomId].count + 1 : 1
+      }
+      return [
+        mKeys[index],
+        value
+      ]
+    })
+    await this.cacheManager.store.mset(mNewOffData)
   }
 
-  @OnEvent('aaa')
-  async aaa(data: any) {
-    const {userId} = data
-    const rawRooms = await this.cacheManager.get(`unrcv_message:${userId}`);
-    if (rawRooms) {
-      const roomIds = Object.keys(rawRooms);
-      for (const roomId of roomIds) {
-        const messages = await this.messageRepository
-          .createQueryBuilder('m')
-          .where('m.roomId = :roomId', { roomId })
-          .andWhere('m.createdAt >= :createdAt', {
-            createdAt: rawRooms[roomId],
-          })
-          .getMany();
-          
-        for (const message of messages) {
-          const sender = await this.messageRepository
-            .createQueryBuilder('msg')
-            .leftJoin('msg.sender','sender')
-            .addSelect('sender.id')
-            .leftJoin('sender.user','user')
-            .addSelect('user.id')
-            .where('msg.id = :msgId',{msgId: message.id})
-            .getOne()            
-          this.server.emit(
-            createEventKey(EventKey.NEW_MESSAGE, userId),
-            {
-              ...message,
-              sender:sender.sender
-            },
-          );
-        }
-      }
+  async loadMsgWhenConnect(userId: string,  clientSocketId: string) {
+    //Lấy danh sách các phòng có tin nhắn mới
+    const unReceiveMsgRooms = await this.cacheManager.get(createCacheKey(CacheKey.UNRECEIVE_MSG, userId))
+    if (unReceiveMsgRooms) {
+      //Emit socket về client
+      this.server.to(clientSocketId).emit(
+        SocketEmitKey.LOAD_MORE_MSGS_WHEN_CONNECT,
+        unReceiveMsgRooms
+      )
+
+      //Emit socket thông báo đã nhận tin nhắn đến các phòng
+      const roomIds = Object.keys(unReceiveMsgRooms)
+      await Promise.all(roomIds.map(async (id) => {
+        const member = await this.memberRepository.findOne({
+          where: {roomId: id as Uuid, userId: userId as Uuid}
+        })
+        this.server.to(id).emit(SocketEmitKey.RECEIVED_MSG,member.id)
+      }))
+
+      await this.memberRepository.update({userId: userId as Uuid},{msgRTime: new Date().getMilliseconds()})
     }
   }
 
   private  extractTokenFromHeader(request: Socket): string | undefined {
-    const accessToken = request.handshake.auth.token || request.handshake.headers.authorization
+    const accessToken = 
+      request.handshake.auth.token || request.handshake.headers.authorization
     const [type, token] = accessToken.trim()?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
-  }
-
-  private async receivedMessage({msgId, memberId, senderId}){
-    await this.memberRepository.update(memberId, {receivedMsgId: msgId})
-
-    const receivedMemberList = await this.memberRepository
-      .createQueryBuilder('mem')
-      .select([
-        'mem.id','mem.receivedMsgId','mem.viewedMsgId'
-      ])
-      .where('mem.receivedMsgId = :receivedMsgId',{receivedMsgId: msgId})
-      .getMany()
-      
-    this.server.emit(`a:${senderId}:b`,receivedMemberList)
   }
 }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
  

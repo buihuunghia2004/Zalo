@@ -49,6 +49,10 @@ export class MessageResDto {
   @Expose()
   sender: WrapperType<MemberResDto>;
 
+  @StringField({each: true})
+  @Expose()
+  receivedMembers: string;
+
   @ClassField(()=> RoomResDto)
   @Expose()
   room?: WrapperType<RoomResDto>;

@@ -20,10 +20,8 @@ export class ChatRoomController {
     @Body() dto: CreateGroupReqDto,
     @CurrentUser('id') id: Uuid,
   ) {
-    return this.chatRoomService.createGroup(dto, id);
+    return this.chatRoomService.createGroupRoom(dto, id);
   }
-
-  
 
   @Get()
   findAll(
@@ -51,10 +49,10 @@ export class ChatRoomController {
 
   @Get(':id')
   findOne(
-    @Param('id') id: Uuid,
+    @Param('id') roomId: Uuid,
     @CurrentUser('id') meId: Uuid
   ) {
-    return this.chatRoomService.findOne(meId, id);
+    return this.chatRoomService.findOne(roomId, meId);
   }
 
   @Patch(':id')

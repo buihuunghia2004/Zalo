@@ -2,20 +2,20 @@ import { useEffect, useState } from 'react'
 import SquareIcon from '../../components/icon/squareIcon'
 import { AddFriendModal } from '../../components/modal/AddFriendModal'
 import { Assets } from '../../assets'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import Utils from '../../utils/utils'
 import { AddGroupModal } from '../../components/modal/AddGroupModal'
 import GroupAvatar from '../../components/GroupAvatar'
+import { setCurrentRoom } from '../../redux/slices/currentRoomSlice'
 
-export default function ConversationList({ rooms, setCurrentConversation }) {
+export default function ConversationList({ rooms }) {
+  const dispatch = useDispatch()
   const [isAFModalOpen, setIsAFModelOpen] = useState(false)
   const [isAGModalOpen, setIsAGModalOpen] = useState(false)
-  const [curRoomId, setCurRoomId] = useState()
-  const meId = useSelector((state) => state.me.user?.id)
+  const currentRoomId = useSelector(state => state.currentRoom.id)
 
   const onItemClick = (item) => {
-    setCurrentConversation(item)
-    setCurRoomId(item.id)
+    dispatch(setCurrentRoom(item))
   }
 
   return (
@@ -44,7 +44,7 @@ export default function ConversationList({ rooms, setCurrentConversation }) {
         {rooms.map((item, index) => (
           <ConversationItem
             key={index.toString()}
-            isFocus = {item.id == curRoomId}
+            isFocus = {item.id == currentRoomId}
             data={item}
             lastMsg={item?.lastMsg}
             messLasted={item?.lastMsg?.createdAt}
