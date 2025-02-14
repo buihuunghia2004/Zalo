@@ -1,12 +1,15 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import roomAPI from '../../service/roomAPI';
 import messageAPI from '../../service/messageAPI';
+import AxiosInstant from '../../config/axiosInstant';
+
+const roomUrl = 'rooms'
 
 export const getAllRooms = createAsyncThunk(
   'rooms/get-all',
   async ( _, {rejectWithValue}) => {
-    try {
-      return await roomAPI.getAllRoomAPI()
+    try {      
+      return await AxiosInstant.get(`${roomUrl}`)
     } catch (error) {
       return rejectWithValue(error.message)
     }
@@ -37,19 +40,19 @@ export const sendMessage = createAsyncThunk(
 const roomSlice = createSlice({
   name: 'rooms',
   initialState: {
-    rooms:[
+    data:[
       /**
        * id
        * roomAvatarUrl
+       * roomAvatarUrls
        * roomName
        * type
-       * memberAvatarUrls
        * memberCount
        * lastMsg
-       * unReadMsgCount
        * 
       /  */
-    ]
+    ],
+    pending: false
   },
   reducers: {
     addNewMsgToRoom: (state, action) => {
@@ -88,8 +91,12 @@ const roomSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(getAllRooms.fulfilled, (state, action) => {      
-      state.rooms = action.payload.data
+    builder.addCase(getAllRooms.pending, (state, action) => {      
+      state.pending = true
+    }),
+    builder.addCase(getAllRooms.fulfilled, (state, action) => {            
+      state.data = action.payload.data
+      state.pending = false
     }),
     builder.addCase(sendMessage.pending, (state, action) => {      
       state.rooms = action.payload.data

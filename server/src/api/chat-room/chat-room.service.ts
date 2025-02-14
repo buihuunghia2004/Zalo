@@ -178,24 +178,24 @@ export class ChatRoomService {
     return new OffsetPaginatedDto(plainToInstance(RoomResDto, data), metaDto);
   }
 
-  async findOne(meId: Uuid, id: Uuid): Promise<RoomResDto> {
-    assert(id, 'id is required');
+  async findOne(roomId: Uuid, meId: Uuid): Promise<RoomResDto> {
+    assert(roomId, 'id is required');
     const room = await this.roomRepository
       .createQueryBuilder('r')
+      .select([
+        'r.id',
+        'u.id','u.avatarUrl','u.username'
+      ])
       .leftJoinAndSelect('r.members','m')
       .leftJoin('m.user','u')
-      .addSelect(['u.id','u.avatarUrl','u.username'])
-      .where('r.id = :id',{id})
+      .where('r.id = :roomId',{roomId})
       .getOne()
 
-    const partner = room.members.find(m => m.userId != meId).user
+    const memberId = room.members.find(m => m.user.id == meId).id
       
-    const lastMsg = await this.getLastMsgByRoomId(room.id)
     const result = {
       ...room,
-      roomName: room.type == RoomType.GROUP ? (room.groupName || this.getRoomNameFromMembers(room.members) ) : partner.username,
-      roomAvatarUrl: room.groupAvatar || partner.avatarUrl,
-      lastMsg
+      memberId
     }
     return plainToInstance(RoomResDto, result)
   }

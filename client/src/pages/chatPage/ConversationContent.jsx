@@ -13,18 +13,24 @@ import {
 import Utils from '../../utils/utils'
 import { RoomRoleEnum, RoomTypeEnum } from '../../utils/enum'
 import ConversationInfo from './ConversationInfo'
+import { getRoomById, loadMoreMessages } from '../../redux/slices/currentRoomSlice'
 
-const ConversationContent = ({ newMsg, roomId, partnerId }) => {
-  const meId = useSelector((state) => state.me.user?.id)
+const ConversationContent = ({ newMsg, partnerId }) => {
   const dispatch = useDispatch()
+  const room = useSelector(state => state.currentRoom)
+  const roomId = useSelector(state => state.currentRoom.roomId)
+  const memberId = useSelector(state => state.currentRoom.memberId)
+  const messages = useSelector(state => state.currentRoom.messages)
+  const meId = useSelector((state) => state.me.user?.id)
+
   const { emit } = useSocket()
 
   const [isInputFocus, setIsInputFocus] = useState(false)
   const [textContent, setTextContent] = useState('')
-  const [messages, setMessages] = useState([])
-  const [isPartnerWrite, setIsPartnerWrite] = useState(false)
+  const [isWriting, setIsWriting] = useState(false)
+  const [messagess, setMessages] = useState([])
+  const [partnerWriting, setpartnerWriting] = useState({})
   const [lastReceiveMsgIds, setLastReceiveMsgIds] = useState([])
-  const [room, setRoom] = useState()
   const [lastRCV, setLastRCV] = useState(null)
   const [msgRep, setMsgRep] = useState(null)
   const [leader, setLeader] = useState()
@@ -33,9 +39,10 @@ const ConversationContent = ({ newMsg, roomId, partnerId }) => {
   const messagesContainerRef = useRef(null)
 
   // if (roomId) {
-    useSocketEvent('writing_message', (data) => {      
-      setIsPartnerWrite(data.status)
-    })
+  useSocketEvent('writing_message', (data) => {          
+    setpartnerWriting(data)
+  })
+  
   // }
   useSocketEvent(`a:${meId}:b`, (data) => {
     const [rcv, viewed] = getLastRCVAndViewd(data, messages)
@@ -50,7 +57,7 @@ const ConversationContent = ({ newMsg, roomId, partnerId }) => {
       })
     }
   }
-  const SendMessage = async ({ content, parentMessage, files, type }) => {
+  const SendMessage = async ({ content, parentMessage, files, type, roomId }) => {
     try {
       let newMessage
       const send = async (formData) => {
@@ -120,6 +127,9 @@ const ConversationContent = ({ newMsg, roomId, partnerId }) => {
       setMsgRep(null)
     } catch (error) {}
   }
+  const sendTextMsg = async ({roomId, content}) => {
+
+  }
   const handleFileChange = async (event) => {
     SendMessage({ files: event.target.files })
   }
@@ -135,38 +145,45 @@ const ConversationContent = ({ newMsg, roomId, partnerId }) => {
     }
   }
 
-  //load room info
+  //load message
   useEffect(() => {
-    const fetchRoom = async ({roomId, partnerId}) => {
-      let newRoomId = roomId
-      
-      if (!roomId && partnerId) {
-        const roomFetch = await roomAPI.getRoomIdByUserIdAPI(partnerId)
-        newRoomId = roomFetch.roomId
-      }
+    if (roomId) {
+      dispatch(getRoomById({roomId}))
+      dispatch(loadMoreMessages({roomId}))
+      emit('join-room', { roomId})
+    }     
 
-      //emit join-room
-      emit('join-room', { roomId: roomId})
+
+    // const fetchRoom = async ({roomId, partnerId}) => {
+    //   let newRoomId = roomId
       
-      dispatch(deleteAllReceivedMsg({ roomId: roomId }))
+    //   if (!roomId && partnerId) {
+    //     const roomFetch = await roomAPI.getRoomIdByUserIdAPI(partnerId)
+    //     newRoomId = roomFetch.roomId
+    //   }
+
+    //   //emit join-room
+    //   emit('join-room', { roomId: roomId})
       
-      //fetch room info after have roomId
-      const room = await roomAPI.getRoomByIdAPI(newRoomId)
-      if (room) {
-        setRoom(room)
+    //   dispatch(deleteAllReceivedMsg({ roomId: roomId }))
+      
+    //   //fetch room info after have roomId
+    //   const room = await roomAPI.getRoomByIdAPI(newRoomId)
+    //   if (room) {
+    //     //setRoom(room)
         
-        //load messages
-        const data = await messageAPI.loadMoreMessage({
-          roomId: roomId || room.id,
-        })
+    //     //load messages
+    //     const data = await messageAPI.loadMoreMessage({
+    //       roomId: roomId || room.id,
+    //     })
   
-        setMessages(data.data.reverse()) //beforeCursor
-        setPagination(data.pagination) //beforeCursor
-      }
+    //     setMessages(data.data.reverse()) //beforeCursor
+    //     setPagination(data.pagination) //beforeCursor
+    //   }
       
-    }
+    // }
 
-    fetchRoom({roomId, partnerId})
+    // fetchRoom({roomId, partnerId})
 
     return () => {
       emit('leave-room', { roomId: roomId })
@@ -186,21 +203,35 @@ const ConversationContent = ({ newMsg, roomId, partnerId }) => {
   }, [newMsg])
 
   useEffect(() => {
-    const i = setTimeout(() => {
-      if (textContent) {
-        emit('writing-message', {
-          roomId: room.id,
-          status: true,
-        })
-      } else {
-        emit('writing-message', {
-          roomId: room?.id || roomId,
-          status: false,
-        })
-      }
-    }, 500)
-    return () => {
-      clearTimeout(i)
+    // const i = setTimeout(() => {
+    //   if (textContent) {
+    //     emit('writing-message', {
+    //       roomId: room.id,
+    //       status: true,
+    //     })
+    //   } else {
+    //     emit('writing-message', {
+    //       roomId: room?.id || roomId,
+    //       status: false,
+    //     })
+    //   }
+    // }, 500)
+    // return () => {
+    //   clearTimeout(i)
+    // }
+
+    if (textContent && !isWriting) {
+      emit('writing-message', {
+        roomId: room?.id || roomId,
+        status: true,
+      })
+      setIsWriting(true)
+    }else if(!textContent && isWriting){
+      emit('writing-message', {
+        roomId: room?.id || roomId,
+        status: false,
+      })
+      setIsWriting(false)
     }
   }, [textContent])
 
@@ -257,7 +288,7 @@ const ConversationContent = ({ newMsg, roomId, partnerId }) => {
           <div ref={messagesEndRef} className="h-5 w-full" />{' '}
           {/* Placeholder để cuộn tới */}
         </div>
-        {isPartnerWrite && (
+        {partnerWriting?.status && (memberId != partnerWriting?.memberId) && (
           <div className="flex">
             <p className="bg-dark-5 px-2 ">{`Đang soạn tin nhắn`}</p>
           </div>

@@ -49,10 +49,10 @@ export class ChatRoomController {
 
   @Get(':id')
   findOne(
-    @Param('id') id: Uuid,
+    @Param('id') roomId: Uuid,
     @CurrentUser('id') meId: Uuid
   ) {
-    return this.chatRoomService.findOne(meId, id);
+    return this.chatRoomService.findOne(roomId, meId);
   }
 
   @Patch(':id')

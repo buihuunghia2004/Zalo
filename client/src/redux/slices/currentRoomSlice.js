@@ -4,32 +4,35 @@ import messageAPI from '../../service/messageAPI';
 import AxiosInstant from '../../config/axiosInstant';
 
 const roomUrl = 'rooms'
+const messageUrl = 'messages'
 
-// export const getAllRooms = createAsyncThunk(
-//   'rooms/get-all',
-//   async ( _, {rejectWithValue}) => {
-//     try {
-//       return await roomAPI.getAllRoomAPI()
-//     } catch (error) {
-//       return rejectWithValue(error.message)
-//     }
-//   }
-// )
-// export const sendMessage = createAsyncThunk(
-//   'rooms/send-message',
-//   async ( data, {rejectWithValue}) => {
-//     try {
-//       return await messageAPI.sentMessage(data)
-//     } catch (error) {
-//       return rejectWithValue(error.message)
-//     }
-//   }
-// )
-export const getRoomById = createAsyncThunk(
-  'rooms/send-message',
-  async ( id, {rejectWithValue}) => {
+export const loadMoreMessages = createAsyncThunk(
+  'rooms/load-more-messages',
+  async ( {roomId, affterCursor}, {rejectWithValue}) => {    
     try {
-      return await AxiosInstant.get(`${roomUrl}/${id}`)
+      let q = `${messageUrl}?roomId=${roomId}`
+      if (affterCursor) q += `&affterCursor=${affterCursor}`
+      return await AxiosInstant.get(q)
+    } catch (error) {
+      return rejectWithValue(error.message)
+    }
+  }
+)
+export const getRoomById = createAsyncThunk(
+  'rooms/get-room-by-id',
+  async ( {roomId}, {rejectWithValue}) => {
+    try {
+      return await AxiosInstant.get(`${roomUrl}/${roomId}`)
+    } catch (error) {
+      return rejectWithValue(error.message)
+    }
+  }
+)
+export const sendTextMsg = createAsyncThunk(
+  'rooms/get-room-by-id',
+  async ( {roomId}, {rejectWithValue}) => {
+    try {
+      return await AxiosInstant.get(`${roomUrl}/${roomId}`)
     } catch (error) {
       return rejectWithValue(error.message)
     }
@@ -40,81 +43,62 @@ export const getRoomById = createAsyncThunk(
 const currentRoomSlice = createSlice({
   name: 'currentRoom',
   initialState: {
-    id:'',
+    roomId:'',
+    partnerId:'',
+    memberId: '',
     roomAvatarUrl: '',
-    avatarUrl:'',
+    roomAvatarUrls: '',
+    roomName: '',
     isGroup: false,
     members:[],
     messages:[],
+    pagination:{},
     isWritingMsg:[],
     memberWritingMsg:null,
 
     isLoading: false
   },
   reducers: {
-    addNewMsgToRoom: (state, action) => {
-      console.log('aaa',action.payload);
-      
-      state.rooms = state.rooms.map((room) => {
-        if (room.id === action.payload.roomId) {
-          return {
-            ...room,
-            receivedMsgs: [...(room.receivedMsgs || []), action.payload],
-          };
-        }
-        return room;
-      });
+    setCurrentRoom: (state, action) => {      
+      const {id,roomAvatarUrl,roomAvatarUrls,roomName,type,memberCount} = action.payload
+      state.roomId = id
+      state.roomAvatarUrl = roomAvatarUrl
+      state.roomAvatarUrls = roomAvatarUrls
+      state.roomName = roomName
+      state.type = type
+      state.memberCount = memberCount
     },
-    deleteAllReceivedMsg: (state, action) => {
-      state.rooms = state.rooms.map((room) => {
-        if (room.id === action.payload.roomId) {
-          return {
-            ...room,
-            receivedMsgs: [],
-          };
-        }
-        return room;
-      });
-    },
-    updateLastMsgForRoom: (state, action) => {
-      const {roomId, lastMsg} = action.payload
-      state.rooms = state.rooms.map((room) => {
-        if (room.id === roomId) {
-          return {
-            ...room,
-            lastMsg: lastMsg,
-          };
-        }
-        return room;
-      });
+    setPartnerId: (state, action) => {
+      const {partnerId, partnerAvatarUrl} = action.payload
+      state.partnerId = partnerId
+      state.roomAvatarUrl = partnerAvatarUrl
+      state.roomName = roomName
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(getRoomById.pending, (state, action) => {      
+    builder.addCase(loadMoreMessages.pending, (state, action) => {
+      state.isLoading = true
+    }),
+    builder.addCase(loadMoreMessages.fulfilled, (state, action) => {
+      const {data, pagination} = action.payload
+      state.messages = data
+      state.pagination = pagination
+      state.isLoading = false
+    }),
+    builder.addCase(getRoomById.pending, (state, action) => {
       state.isLoading = true
     }),
     builder.addCase(getRoomById.fulfilled, (state, action) => {
-      const {id, roomAvatarUrl, roomName, type, members  } = action.payload
-      const newState = {
-        id,
-        roomName,
-        roomAvatarUrl,
-        isGroup: type == 'group',
-        members,
-        messages:[],
-        isWritingMsg:[],
-        memberWritingMsg:null,
-        isLoading: false
-      }
-      state = newState
+      const {memberId, members} = action.payload
+      state.memberId = memberId
+      state.members = members
+      state.isLoading = false
     })
   }
 });
 
 export const { 
-  // addNewMsgToRoom,
-  // deleteAllReceivedMsg,
-  // updateLastMsgForRoom,
+  setCurrentRoom
 } = currentRoomSlice.actions;
 
 export default currentRoomSlice.reducer;

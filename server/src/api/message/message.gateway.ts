@@ -100,7 +100,7 @@ export class MessageGateway
     //cache memberId bằng clientId
     await this.cacheManager.set(createCacheKey(CacheKey.JOIN_ROOM, client.id), member.id);
 
-    console.log(`client ${client.id} has join room ${data.roomId}`);
+    //console.log(`client ${client.id} has join room ${data.roomId}`);
   }
 
   @SubscribeMessage('leave-room')
@@ -134,7 +134,7 @@ export class MessageGateway
       this.server.to(SOCKET_ROOM + data.roomId).emit(SocketEmitKey.WRITING_MESSAGE, {memberId, status: data.status})
     }
 
-    // console.log(`member ${memberId} is writing message in room ${data.roomId}`);
+    console.log(`member ${memberId} is writing message in room ${data.roomId}`);
   }
 
   @OnEvent(EventEmitterKey.NEW_MESSAGE)

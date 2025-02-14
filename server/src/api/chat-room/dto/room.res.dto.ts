@@ -1,13 +1,13 @@
 import { MessageResDto } from '@/api/message/dto/message.res.dto';
 import { MemberResDto } from '@/api/relationship/dto/member.res.dto';
-import { UserResDto } from '@/api/user/dto/user.res.dto';
 import { WrapperType } from '@/common/types/types';
 import { RoomType } from '@/constants/entity.enum';
 import {
-  ClassField,
   ClassFieldOptional,
   EnumField,
+  NumberFieldOptional,
   StringField,
+  StringFieldOptional,
 } from '@/decorators/field.decorators';
 import { Exclude, Expose } from 'class-transformer';
 
@@ -17,11 +17,11 @@ export class RoomResDto {
   @Expose()
   id: string;
 
-  @StringField()
+  @StringFieldOptional()
   @Expose()
   roomAvatarUrl: string;
 
-  @StringField({each: true})
+  @StringFieldOptional({each: true})
   @Expose()
   roomAvatarUrls: string[];
 
@@ -33,19 +33,19 @@ export class RoomResDto {
   @Expose()
   type: RoomType;
 
-  @ClassField(()=> MemberResDto)
+  @NumberFieldOptional()
   @Expose()
-  members: WrapperType<MemberResDto[]>;
+  memberCount: number;
+
+  @StringFieldOptional()
+  @Expose()
+  memberId: number;
 
   @ClassFieldOptional(()=> MessageResDto)
   @Expose()
   lastMsg: WrapperType<MessageResDto>;
 
-  @ClassFieldOptional(()=> MessageResDto)
+  @ClassFieldOptional(()=> MemberResDto)
   @Expose()
-  messages: WrapperType<MessageResDto[]>;
-
-  @ClassFieldOptional(()=> UserResDto)
-  @Expose()
-  user: WrapperType<UserResDto[]>;
+  members: WrapperType<MemberResDto[]>;
 }
