@@ -38,6 +38,7 @@ const ConversationContent = ({ newMsg, partnerId }) => {
   const messagesEndRef = useRef(null)
   const messagesContainerRef = useRef(null)
 
+
   // if (roomId) {
   useSocketEvent('writing_message', (data) => {          
     setpartnerWriting(data)
@@ -203,6 +204,7 @@ const ConversationContent = ({ newMsg, partnerId }) => {
   }, [newMsg])
 
   useEffect(() => {
+
     // const i = setTimeout(() => {
     //   if (textContent) {
     //     emit('writing-message', {

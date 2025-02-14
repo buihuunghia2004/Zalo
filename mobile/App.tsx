@@ -8,6 +8,7 @@ import ProfilePersonalScreen from '~/screens/personal/ProfilePersonalScreen';
 import HandleReqScreen from '~/screens/relation/HandleReqScreen';
 import OptionalFriendScreen from '~/screens/relation/OptionalFriendScreen';
 import SendAddFriendScreen from '~/screens/relation/SendAddFriendScreen';
+import MenuMessDetailModal from '~/components/Common/modal/UModal';
 
 const App = () => {
   return (
@@ -15,6 +16,7 @@ const App = () => {
       <GestureHandlerRootView>
         <NavigationContainer>
           <AppRouters />
+          
         </NavigationContainer>
       </GestureHandlerRootView>
     </Provider>

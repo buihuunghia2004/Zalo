@@ -9,8 +9,6 @@ import {
   Animated,
   Text,
   FlatList,
-  Pressable,
-  ActivityIndicator,
 } from 'react-native';
 import {RouteProp, useNavigation} from '@react-navigation/native';
 import {MainNavProp, MainStackParamList, StackNames} from '../../routers/types';
@@ -37,8 +35,11 @@ import {MessageBase} from '~/features/message/dto/message.dto.nested';
 import {RoomService} from '~/features/room/roomService';
 import {_GetRoomRes} from '~/features/room/dto/room.dto.parent';
 import {useChatStore} from '~/stores/zustand/chat.store';
+import useSocketEvent from '~/hooks/useSocket ';
 import { useSelector } from 'react-redux';
 import { authSelector } from '~/features/auth/authSlice';
+import { textStyle } from '~/styles/Ui/text';
+import { useSocket } from '~/socket/SocketProvider';
 
 type ChatScreenProps = {
   route: RouteProp<MainStackParamList, 'ChatScreen'>;
@@ -51,18 +52,15 @@ type DisplayMessage = _MessageSentRes & {
   isDisplayStatus?: boolean;
 };
 const ChatScreen: React.FC<ChatScreenProps> = () => {
-  console.log('re-render');
   
   const mainNav = useNavigation<MainNavProp>();
-  const {user} = useSelector(authSelector)
   const route = useTypedRoute<typeof StackNames.ChatScreen>();
   const {roomId: roomIdPagram, userId} = route.params;
 
   const bottomSheetRef = useRef<BottomSheet>(null);
   const inputRef = useRef<TextInput>(null);
-  const flatListRef = useRef<any>(null);
 
-  const [roomId, setRoomId] = useState('');
+  const [roomId, setRoomId] = useState(roomIdPagram);
   const {
     messages,
     room,
@@ -75,29 +73,52 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
     setMessages,
     clearData
   } = useChatStore();
+  const { user } = useSelector(authSelector)
+  const { emit } = useSocket()
 
   const [sheetIndex, setSheetIndex] = useState<number>(0);
   const [keyboard, setKeyboard] = useState<boolean>(false);
   const [inputText, setInputText] = useState<string>('');
   const [renderEmojis, setReanderEmojis] = useState<boolean>(false);
+  const [isPartnerWrite, setIsPartnerWrite] = useState(false)
 
   const scaleIcons = useRef(new Animated.Value(1)).current;
   const scaleSend = useRef(new Animated.Value(0)).current;
 
+  useSocketEvent<_MessageSentRes>({
+    event: `event:notify:${user}:new_message`,
+    callback: (newMessage) => {
+      addMessage({...newMessage,isSelfSent: false});
+    },
+  });
+  if (roomId) {    
+    useSocketEvent<{id: string, status: boolean}>({
+    event: `event:${roomId}:writing_message`,
+    callback(data) {
+        setIsPartnerWrite(data.status)
+    },
+  })
+  }
+  
   // Fetch messages and set myId
   useEffect(() => {    
-    const findOneByPartnerId = async (): Promise<void> => {
+    const setData = async (): Promise<void> => {
       try {
-        let roomIdTemp;
+        let roomIdTemp: any;
 
         if (roomIdPagram) {
           roomIdTemp = roomIdPagram;
+
         } else {
           if (userId) {            
             const res = await RoomService.findOneByPartnerId(userId);
             roomIdTemp = res.roomId;
           }
         }
+
+        //emit join-room
+        emit('join-room', { roomId: roomIdTemp, userId: user })
+       
 
         setRoomId(roomIdTemp);
         fetchRoom(roomIdTemp);
@@ -114,15 +135,37 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
         }
       }
     };
-    findOneByPartnerId()
+    setData()
 
     return () => {
       clearData()
+      emit('out-room', { roomId: roomId })
     }
-  }, []);
+  }, [roomId]);
+
   
 
-  const handleInputChange = useCallback((text: string) => {
+  useEffect(()=>{
+    const i = setTimeout(() => {    
+      if (inputText) {        
+        emit('writing-message', {
+          roomId: roomId,
+          status: true,
+        })
+      } else {
+        emit('writing-message', {
+          roomId: roomId,
+          status: false,
+        })
+      }
+    }, 500)
+    return () => {
+      clearTimeout(i)
+    }
+  },[inputText])
+  
+
+  const handleInputChange = useCallback((text: string) => {    
     setInputText(prevText => prevText + text);
     handleAnimation(text);
   }, []);
@@ -215,7 +258,7 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
         setRoomId(mesRes.roomId);
       }
       
-      const newMsgs = msgsTemp.map((message, index) => {    
+      const newMsgs = msgsTemp.map((message) => {    
             
         if (message.id == msgIdTemp) {          
           return {...mesRes, status:MessageViewStatus.SENT, isSelfSent:true}
@@ -223,9 +266,9 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
         return message
       })
       setMessages(newMsgs);
+     
     } catch (error) {}
 
-    // flatListRef.current?.scrollToEnd({animated: true});
   };
 
   const handleInputPress = () => {
@@ -233,25 +276,37 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
     setSheetIndex(0);
   };
 
+  const loadMoreData=()=>{
+    loadMoreMessage({
+      data: roomId ?? "",
+      pagination,
+    })
+  }
+
   const messagesDisplay: DisplayMessage[] = React.useMemo(() => {
-    return messages;
-    // return messages.map((message, index, array) => ({
-    //   ...message,
+    return messages.map((message, index, array) => ({
+      ...message,
     // isDisplayTime:
     //   index === array.length - 1 ||
     //   (message.source !== array[index + 1]?.source &&
     //     message.source !== 'time' &&
     //     message.source !== 'action'),
+
     // isDisplayHeart:
     //   message.source === 'people' &&
     //   message.source !== array[index + 1]?.source,
-    // isDisplayAvatar:
-    //   message.source === 'people' &&
-    //   (index === 0 || array[index - 1]?.source !== 'people'),
+      isDisplayHeart:
+      !message.isSelfSent  &&
+      (array[index - 1]?.isSelfSent || index ==0),
+    isDisplayAvatar:
+      !message.isSelfSent &&
+      ( array[index + 1]?.isSelfSent),
     // isDisplayStatus:
     //     message.source === 'me' && index === array.length - 1
-    // })
-    // );
+       isDisplayStatus:
+        message.isSelfSent && index === 0
+    })
+    );
   }, [messages]);
 
   return (
@@ -272,27 +327,24 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
         }}
         style={{backgroundColor: colors.primary}}
       />
-      <Text>{messages.length}</Text>
       {/* Content */}
+      <View style={{flex: 1, paddingBottom: 50}}>
+
       <FlatList
-      // ref={flatListRef}
-      style={{flex: 1, marginBottom:50}}
+      style={{flex: 1,}}
       inverted
       data={messagesDisplay}
       onEndReached={() =>
-        loadMoreMessage({
-          data: roomId,
-          pagination,
-        })
+        loadMoreData()
       }
-      onEndReachedThreshold={0.2}
+      onEndReachedThreshold={0.4}
       // ListFooterComponent={loadingMore ? <ActivityIndicator size="small" color="gray" /> : null}
       keyExtractor={item => item.id}
       renderItem={({item, index}: {item: DisplayMessage, index: number}) => (
         <ItemMessage
           id={item.id}
           data={item.content}
-          source={'me'}
+          source={item.isSelfSent}
           type={'text'}
           status={item.status}
           time={
@@ -304,21 +356,42 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
           isDisplayTime={item.isDisplayTime}
           isDisplayHeart={item.isDisplayHeart}
           isDisplayAvatar={item.isDisplayAvatar}
-          isDisplayStatus={index == 0}
+          isDisplayStatus={item.isDisplayStatus}
         />
       )}
-      contentContainerStyle={{paddingHorizontal: 10}}
+      contentContainerStyle={{ marginVertical: 10, paddingHorizontal: 10}}
       />
-      
+      {isPartnerWrite && <Text style={styles.isChating}>Đang soạn tin...</Text>}
+      <View style={{ backgroundColor: 'white', width: '100%' , flexDirection: 'row', alignItems: 'center', padding: 10,paddingRight: 20, borderBottomColor: colors.gray_light, borderBottomWidth: 1, marginBottom: 2}}>
+        <View style={{backgroundColor: colors.secondary, width: 2, height: '100%', borderRadius: 10,
+        marginHorizontal: 10
+        }}>
+
+        </View>
+        {1>2 && <Image/>}
+        <View style={{height: 50, flex: 1, }}>
+          <Text style={textStyle.body_sm}>Nhân</Text>
+          <View style={{flexDirection: 'row'}}>
+            {1>2 && <Text> hình ảnh</Text>}
+            <Text style={textStyle.body_md}>Nội dung</Text>
+          </View>
+        </View>
+        <Image source={Assets.icons.back_gray} style={iconSize.medium}/>
+      </View>
+
+      </View>
+
       {/* BottomSheet */}
       <BottomSheet
         ref={bottomSheetRef}
         onChange={handleSheetChanges}
-        snapPoints={[WINDOW_WIDTH / 7.2, WINDOW_HEIGHT / 2.075]}
+        snapPoints={[WINDOW_WIDTH, WINDOW_HEIGHT / 14]}
         index={sheetIndex}
         handleComponent={() => null}
         enableContentPanningGesture={false}>
+
         <BottomSheetView style={styles.contentContainer}>
+
           {/* Bottom Bar */}
           <View style={styles.bottomBar}>
             <TouchableOpacity
@@ -382,14 +455,15 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
                   />
                 </TouchableOpacity>
               </Animated.View>
+              
             </View>
-          </View>
-
-          {renderEmojis && (
-            <EmojiList
-              handleInputChange={text => handleInputChange(text + ' ')}
-            />
-          )}
+            </View>
+            {renderEmojis && (
+              <EmojiList
+                handleInputChange={text => handleInputChange(text + ' ')}
+              />
+            )}
+          
         </BottomSheetView>
       </BottomSheet>
     </View>
@@ -426,8 +500,6 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     backgroundColor: colors.white,
-    margin: 0,
-    padding: 0,
     alignItems: 'center',
   },
 
@@ -450,6 +522,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexDirection: 'row',
   },
+  isChating:{
+    ...textStyle.body_sm,
+    backgroundColor: colors.gray,
+    color: colors.secondary,
+    position: 'absolute',
+    paddingHorizontal: 6,
+    borderTopRightRadius: 4,
+    bottom: 50,
+  }
 });
 
 export default ChatScreen;

@@ -89,6 +89,7 @@ export class MessageGateway
     @MessageBody() data: { roomId: string},
     @ConnectedSocket() client: Socket,
   ) {    
+
     //vào 1 phòng chat
     client.join(CHAT_ROOM + data.roomId);
 
@@ -107,6 +108,7 @@ export class MessageGateway
   async handleOutRoom(
     @MessageBody() data: { roomId: string },
     @ConnectedSocket() client: Socket,
+
   ) {
     //rời phòng chat
     client.leave(CHAT_ROOM + data.roomId);
@@ -124,6 +126,7 @@ export class MessageGateway
     @MessageBody() data: {roomId: string, status: boolean },
     @ConnectedSocket() client: Socket,
   ) {
+
     const memberId = await this.cacheManager.get(createCacheKey(CacheKey.JOIN_ROOM, client.id))
     const isWriting = await this.cacheManager.get('writing-msg:'+data.roomId)
     if (data.status && !isWriting) {
@@ -133,7 +136,6 @@ export class MessageGateway
       await this.cacheManager.del('writing-msg:'+data.roomId)
       this.server.to(SOCKET_ROOM + data.roomId).emit(SocketEmitKey.WRITING_MESSAGE, {memberId, status: data.status})
     }
-
     console.log(`member ${memberId} is writing message in room ${data.roomId}`);
   }
 
@@ -154,6 +156,7 @@ export class MessageGateway
     //     offineMembers.push(members[index])
     //   }
     // });
+
 
     //gửi đến các user đang online
     this.server.to(SOCKET_ROOM + roomId).emit(data)
