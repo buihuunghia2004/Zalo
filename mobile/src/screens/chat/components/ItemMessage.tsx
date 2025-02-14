@@ -96,7 +96,7 @@ const ItemMessage: React.FC<DisplayMessage> = ({
   const emojiTimeout = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
-    if (emojis && emojis.length > 0) {
+    if (emojis && emojis?.length > 0) {
       const slicedEmojis = emojis
         .slice(-3)
         .map(emoji => emoji.slice(emoji.indexOf('_') + 1));
@@ -177,7 +177,7 @@ const ItemMessage: React.FC<DisplayMessage> = ({
         style={[
           containerStyle,
           styles.messageContainer,
-          emojis && emojis.length > 0 && {marginBottom: 30},
+          emojis && emojis?.length > 0 && {marginBottom: 30},
         ]}>
         <View
           style={{flexDirection: 'row', alignItems: 'center', width: '100%'}}>
@@ -203,16 +203,16 @@ const ItemMessage: React.FC<DisplayMessage> = ({
             {/* Hiển thị emoji */}
             <TouchableOpacity
               onPress={() => {
-                if (emojis && emojis.length > 0) {
-                  const lastEmoji = emojis[emojis.length - 1];
+                if (emojis && emojis?.length > 0) {
+                  const lastEmoji = emojis[emojis?.length - 1];
                   handleEmojiPress(lastEmoji.split('_')[1]);
                 } else {
                   handleEmojiPress('❤️');
                 }
               }}>
-              {emojis && emojis.length > 0 ? (
+              {emojis && emojis?.length > 0 ? (
                 <Text style={[styles.emoji, {fontSize: 11}]}>
-                  {emojis[emojis.length - 1].split('_')[1]}
+                  {emojis[emojis?.length - 1].split('_')[1]}
                 </Text>
               ) : (
                 isDisplayHeart && (
@@ -231,7 +231,7 @@ const ItemMessage: React.FC<DisplayMessage> = ({
             </TouchableOpacity>
 
             {/* Hiển thị danh sách emoji */}
-            {emojis && emojis.length > 0 && (
+            {emojis && emojis?.length > 0 && (
               <>
                 <Pressable style={styles.emojis}>
                   {threeEmojis.map((emoji, index) => (
@@ -242,7 +242,7 @@ const ItemMessage: React.FC<DisplayMessage> = ({
             )}
 
             {/* count */}
-            {(emojis && emojis.length > 0) || isDisplayHeart ? (
+            {(emojis && emojis?.length > 0) || isDisplayHeart ? (
               <Animated.View
                 style={[
                   styles.countContainer,

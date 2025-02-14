@@ -6,6 +6,7 @@ import {Assets} from '../../../styles/Ui/assets';
 import {imagesStyle} from '../../../styles/Ui/image';
 import {textStyle} from '../../../styles/Ui/text';
 import { iconSize } from '../../../styles/Ui/icons';
+import GroupAvatar from '~/components/Common/GroupAvatar';
 
 
 type DiscriptionType =
@@ -37,25 +38,28 @@ export type Discription = {
 
 type Props = {
   id: string,
-  image?: string;
+  roomAvatarUrl?: string;
+  roomAvatarUrls: string[];
   name: string;
   description?: Discription;
   time?: string;
   notSeen?: number;
   isLike?: boolean;
   onPress?: () => void;
-  
+  onLongPress?: ()=> void
 };
 
 const MyComponent: React.FC<Props> = ({
   id,
-  image,
+  roomAvatarUrl,
+  roomAvatarUrls,
   name,
   description,
   time,
   notSeen,
   isLike = false,
-  onPress
+  onPress,
+  onLongPress
 }) => {
 
   const descriptionType: Record<DiscriptionType, DescriptionDetail> = {
@@ -87,7 +91,8 @@ const MyComponent: React.FC<Props> = ({
 
   return (
     <Pressable
-    onPress={onPress}
+      onLongPress={onLongPress}
+      onPress={onPress}
       style={({ pressed }) => ([ viewStyle.container_row_center,{
         height: 76,
         gap: 10,
@@ -96,7 +101,11 @@ const MyComponent: React.FC<Props> = ({
         backgroundColor: pressed ? 'rgba(0, 0, 0, 0.03)' : 'transparent'
       }])}
      >
-      <Image style={imagesStyle.avatar_50} source={{ uri: image }} />
+      {roomAvatarUrl ? 
+            <Image style={imagesStyle.avatar_50} source={{ uri: roomAvatarUrl }} />
+            :
+            <GroupAvatar roomAvatarUrls={roomAvatarUrls}/>
+      }
 
 
       <View

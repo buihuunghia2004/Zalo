@@ -35,8 +35,7 @@ export const loginUser =
 export const loginWithGoogle =
   (req: loginGoogleRequest) => async (dispatch: AppDispatch) => {
     dispatch(loginStart());
-    try {
-      
+    try {      
       const response: loginGoogleResponse = await axiosInstance.post(
         'auth/google-mobile',
         req,
