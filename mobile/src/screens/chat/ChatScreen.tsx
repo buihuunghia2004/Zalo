@@ -52,7 +52,6 @@ type DisplayMessage = _MessageSentRes & {
   isDisplayStatus?: boolean;
 };
 const ChatScreen: React.FC<ChatScreenProps> = () => {
-  console.log('re-render');
   
   const mainNav = useNavigation<MainNavProp>();
   const route = useTypedRoute<typeof StackNames.ChatScreen>();
