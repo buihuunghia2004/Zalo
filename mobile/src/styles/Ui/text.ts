@@ -112,7 +112,6 @@ export const textStyle = StyleSheet.create({
     fontWeight: '300',
   },
   body_md: {
-    textAlign: 'center',
     color: 'black',
     fontFamily: Fonts.NotoSans.regular,
     fontSize: 14,

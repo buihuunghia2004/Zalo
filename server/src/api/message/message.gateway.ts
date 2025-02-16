@@ -90,6 +90,7 @@ export class MessageGateway
     @MessageBody() data: { roomId: string},
     @ConnectedSocket() client: Socket,
   ) {    
+
     //vào 1 phòng chat
     client.join(CHAT_ROOM + data.roomId);
 
@@ -110,6 +111,7 @@ export class MessageGateway
   async handleOutRoom(
     @MessageBody() data: { roomId: string },
     @ConnectedSocket() client: Socket,
+
   ) {
     //rời phòng chat
     client.leave(CHAT_ROOM + data.roomId);
@@ -136,7 +138,6 @@ export class MessageGateway
       await this.cacheManager.del('writing-msg:'+data.roomId)
       this.server.to(SOCKET_ROOM + data.roomId).emit(SocketEmitKey.WRITING_MESSAGE, {memberId, status: data.status})
     }
-
     console.log(`member ${memberId} is writing message in room ${data.roomId}`);
   }
 
@@ -158,8 +159,6 @@ export class MessageGateway
     //   }
     // });
 
-    console.log('on',onlineMembers);
-    
 
     //gửi đến các user đang online
     this.server.to(SOCKET_ROOM + roomId).emit(data)

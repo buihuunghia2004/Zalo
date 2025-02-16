@@ -34,7 +34,7 @@ interface Message {
   id: string;
   data: string;
   status: MessageViewStatus,
-  source?: SourceMessageType;
+  source?: boolean;
   type: MessageType;
   time?: string;
   emojis?: string[];
@@ -65,20 +65,20 @@ const ItemMessage: React.FC<DisplayMessage> = ({
   let containerStyle = {};
   let textStyles = {};
   switch (source) {
-    case 'time':
-      containerStyle = styles.timeContainer;
-      textStyles = styles.timeText;
-      break;
-    case 'action':
-      containerStyle = styles.actionContainer;
-      textStyles = styles.actionText;
-      break;
-    case 'me':
+    // case 'time':
+    //   containerStyle = styles.timeContainer;
+    //   textStyles = styles.timeText;
+    //   break;
+    // case 'action':
+    //   containerStyle = styles.actionContainer;
+    //   textStyles = styles.actionText;
+    //   break;
+    case true:
       containerStyle = styles.meContainer;
       textStyles = styles.meText;
 
       break;
-    case 'people':
+    case false:
       containerStyle = styles.peopleContainer;
       textStyles = styles.peopleText;
 
@@ -182,7 +182,7 @@ const ItemMessage: React.FC<DisplayMessage> = ({
         <View
           style={{flexDirection: 'row', alignItems: 'center', width: '100%'}}>
           {/* Avatar */}
-          {source === 'people' && isDisplayAvatar && (
+          { isDisplayAvatar && (
             <Image style={styles.avatar} source={Assets.images.demo} />
           )}
           <View style={styles.textContainer}>
@@ -194,7 +194,7 @@ const ItemMessage: React.FC<DisplayMessage> = ({
               style={[
                 textStyle.body_xs,
                 {
-                  color: source === 'time' ? colors.white : colors.gray,
+                  // color: source === 'time' ? colors.white : colors.gray,
                 },
               ]}>
               {time}
@@ -292,7 +292,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 8,
     marginBottom: `2%`,
-    marginTop: 50,
   },
   countContainer: {
     position: 'absolute',
@@ -304,7 +303,6 @@ const styles = StyleSheet.create({
     width: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 1,
   },
   messageText: {
     ...textStyle.body_md,

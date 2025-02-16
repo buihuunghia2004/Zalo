@@ -7,19 +7,22 @@ import AppBar from '../../components/Common/AppBar';
 import { _GetAllRoomRes } from '~/features/room/dto/room.dto.parent';
 import { useRoomStore } from '~/stores/zustand/room.store';
 import { _MessageSentRes } from '~/features/message/dto/message.dto.parent';
-import useSocket from '~/hooks/useSocket ';
+import useSocketEvent from '~/hooks/useSocket ';
+import { useSelector } from 'react-redux';
+import { authSelector } from '~/features/auth/authSlice';
 
 const HomeScreen = () => {
   const mainNav = useNavigation<MainNavProp>();  
-
+  const { user } = useSelector(authSelector)
   const { rooms, fetchRooms, receiveNewMessage } = useRoomStore()
-  const { socket, newMessages } = useSocket();
 
-  useEffect(() => {
-   if (newMessages) {    
-    newMessages.map((message)=>receiveNewMessage(message))
-   }
-  }, [socket]);
+  useSocketEvent<_MessageSentRes[]>({
+    event: `event:notify:${user}:new_message`,
+    callback: (newMessages) => {            
+      newMessages.map((item)=>receiveNewMessage(item))
+    },
+  });
+
 
   useEffect(() => {
     fetchRooms()

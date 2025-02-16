@@ -43,6 +43,7 @@ const ConversationContent = ({ newMsg, partnerId }) => {
   const messagesEndRef = useRef(null)
   const messagesContainerRef = useRef(null)
 
+
   // if (roomId) {
   // useSocketEvent('writing_message', (data) => {
   //   setpartnerWriting(data)
