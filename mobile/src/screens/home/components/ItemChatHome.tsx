@@ -1,5 +1,5 @@
-import {View, Text, Image, ImageSourcePropType, TextStyle, Pressable} from 'react-native';
-import React from 'react';
+import {View, Text, Image, ImageSourcePropType, TextStyle, Pressable, GestureResponderEvent} from 'react-native';
+import React, { useRef } from 'react';
 import {viewStyle} from '../../../styles/Ui/views';
 import {colors} from '../../../styles/Ui/colors';
 import {Assets} from '../../../styles/Ui/assets';
@@ -46,10 +46,10 @@ type Props = {
   notSeen?: number;
   isLike?: boolean;
   onPress?: () => void;
-  onLongPress?: ()=> void
+  onLongPress?: ( pageY: number) => void;
 };
 
-const MyComponent: React.FC<Props> = ({
+const ItemChatHome: React.FC<Props> = ({
   id,
   roomAvatarUrl,
   roomAvatarUrls,
@@ -88,10 +88,22 @@ const MyComponent: React.FC<Props> = ({
 
   const currentDescription = descriptionType[description?.kind || 'text'];
   const call_or_video = description?.kind?.split('_')[0];
-
+  const itemRef = useRef<View>(null);
+  const handleLongPress = () => {    
+    if (itemRef.current) {
+      
+      itemRef.current.measure((x, y, width, height, pageX, pageY) => {
+        if (onLongPress) {          
+          onLongPress(pageY); 
+        }
+      });
+    }
+  };
   return (
     <Pressable
-      onLongPress={onLongPress}
+      key={id}
+      ref={itemRef}
+      onLongPress={handleLongPress}
       onPress={onPress}
       style={({ pressed }) => ([ viewStyle.container_row_center,{
         height: 76,
@@ -210,4 +222,4 @@ const MyComponent: React.FC<Props> = ({
   );
 };
 
-export default MyComponent;
+export default ItemChatHome;

@@ -15,6 +15,7 @@ import {iconSize} from '../../../styles/Ui/icons';
 import {textStyle} from '../../../styles/Ui/text';
 import AnimatedEmojis from './AnimatedEmojis';
 import { MessageViewStatus } from '~/features/message/dto/message.enum';
+import { PressableEvent } from 'react-native-gesture-handler/lib/typescript/components/Pressable/PressableProps';
 
 type SourceMessageType = 'time' | 'action' | 'me' | 'people';
 type MessageType =
@@ -40,16 +41,20 @@ interface Message {
   emojis?: string[];
   emojisCount?: number;
 }
-type DisplayMessage = Message & {
+type Props = Message & {
   isDisplayTime?: boolean;
   isDisplayHeart?: boolean;
   isDisplayAvatar?: boolean;
   isDisplayStatus?: boolean;
+  onLongPress?: ( pageY: number) => void;
+
 };
+
 const getUniqueId = () => {
   return Math.floor(Math.random() * Date.now()).toString();
 };
-const ItemMessage: React.FC<DisplayMessage> = ({
+const ItemMessage: React.FC<Props> = ({
+  id,
   data,
   source,
   type,
@@ -60,6 +65,7 @@ const ItemMessage: React.FC<DisplayMessage> = ({
   isDisplayHeart,
   isDisplayAvatar,
   isDisplayStatus,
+  onLongPress
 }) => {
   // Logic containerStyle và textstyle
   let containerStyle = {};
@@ -94,6 +100,7 @@ const ItemMessage: React.FC<DisplayMessage> = ({
   const [emojiCount, setEmojiCount] = useState(0);
   const emojisCountAnimatedValue = useRef(new Animated.Value(0)).current;
   const emojiTimeout = useRef<ReturnType<typeof setTimeout>>();
+  const itemRef = useRef<View>(null);
 
   useEffect(() => {
     if (emojis && emojis?.length > 0) {
@@ -137,6 +144,18 @@ const ItemMessage: React.FC<DisplayMessage> = ({
     );
   }, []);
 
+  const handleLongPress = () => {        
+    if (itemRef.current) {   
+      console.log('2');
+         
+      itemRef.current.measure((x, y, width, height, pageX, pageY) => {
+        if (onLongPress) {          
+          onLongPress(pageY); 
+        }
+      });
+    }
+  };
+
   const renderMessageByType = (type: MessageType, data: string) => {
     switch (type) {
       case 'text':
@@ -172,7 +191,7 @@ const ItemMessage: React.FC<DisplayMessage> = ({
   };
 
   return (
-    <View>
+    <Pressable key={id} ref={itemRef} onLongPress={handleLongPress}>
       <View
         style={[
           containerStyle,
@@ -201,7 +220,7 @@ const ItemMessage: React.FC<DisplayMessage> = ({
             </Text>
             {/* )} */}
             {/* Hiển thị emoji */}
-            <TouchableOpacity
+            <Pressable
               onPress={() => {
                 if (emojis && emojis?.length > 0) {
                   const lastEmoji = emojis[emojis?.length - 1];
@@ -228,7 +247,7 @@ const ItemMessage: React.FC<DisplayMessage> = ({
                   </View>
                 )
               )}
-            </TouchableOpacity>
+            </Pressable>
 
             {/* Hiển thị danh sách emoji */}
             {emojis && emojis?.length > 0 && (
@@ -277,7 +296,7 @@ const ItemMessage: React.FC<DisplayMessage> = ({
         </View>
       </View>
       {isDisplayStatus &&  <View style={{ alignSelf: "flex-end" }}><Text style={styles.status}> {`✓ ${StatusString[status]}`}</Text></View>}
-    </View>
+    </Pressable>
   );
 };
 
@@ -291,7 +310,7 @@ const styles = StyleSheet.create({
   messageContainer: {
     borderRadius: 10,
     paddingHorizontal: 8,
-    marginBottom: `2%`,
+    marginBottom: 8,
   },
   countContainer: {
     position: 'absolute',

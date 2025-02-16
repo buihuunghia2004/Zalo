@@ -6,6 +6,7 @@ import {
   Pressable,
 } from "react-native";
 import { colors } from "~/styles/Ui/colors";
+import { WINDOW_HEIGHT, WINDOW_WIDTH } from "~/utils/Ui/dimensions";
 
 interface UModalProps {
   visible: boolean;
@@ -36,19 +37,19 @@ const UModal: React.FC<UModalProps> = ({ visible, onClose, content }) => {
 
 const styles = StyleSheet.create({
   overlay: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.7)", // Nền tối mờ
+    position: 'absolute',
+    zIndex: 10,
+    width: WINDOW_WIDTH,
+    height: WINDOW_HEIGHT,
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
   },
   modalContainer: {
-    width: 300,
+    flex: 1,
     backgroundColor: colors.transparent,
-    padding: 20,
     borderRadius: 10,
   },
   content: {
-    width: "100%", 
+    flex: 1,
   },
 });
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, FlatList } from 'react-native';
+import { View, FlatList, GestureResponderEvent } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MainNavProp, StackNames } from '../../routers/types';
 import ItemChatHome from './components/ItemChatHome';
@@ -12,12 +12,14 @@ import { useSelector } from 'react-redux';
 import { authSelector } from '~/features/auth/authSlice';
 import UModal from '~/components/Common/modal/UModal';
 import ModalContent_Conversation from '~/components/Common/modal/content/ModalContent_Conversation';
+import ModalContent_MenuMessage from '~/components/Common/modal/content/ModelContent_MenuMessage';
 
 const HomeScreen = () => {
   const mainNav = useNavigation<MainNavProp>();  
   const { user } = useSelector(authSelector)
   const { rooms, fetchRooms, receiveNewMessage } = useRoomStore()
   const [visibleMenuRoom, setVisivleMenuRoom] = useState(false)
+  const [pageY, setPageY] = useState(0)
 
   useSocketEvent<_MessageSentRes[]>({
     event: `event:notify:${user}:new_message`,
@@ -39,9 +41,15 @@ const HomeScreen = () => {
     mainNav.navigate(StackNames.ChatScreen, {roomId: id});
   }
 
+  const handleLongItemPress = (pageY: number)=>{
+    setPageY(pageY)
+    setVisivleMenuRoom(true)
+  }
   return (
     <View style={{ backgroundColor: 'white', flex: 1 }}>
-    <UModal key={'a'} onClose={() => setVisivleMenuRoom(false)} visible={visibleMenuRoom} content={<ModalContent_Conversation/>}/>
+      <UModal key={'a'} onClose={() => setVisivleMenuRoom(false)}
+      visible={visibleMenuRoom} 
+      content={<ModalContent_MenuMessage pageY={pageY}/>}/>
       {/* AppBar */}
       <AppBar
         iconButtonLeft={['search']}
@@ -67,6 +75,7 @@ const HomeScreen = () => {
         keyExtractor={(item) => item.id} 
         renderItem={({ item }) => (
           <ItemChatHome
+            key={item.id}
             id={item.id}
             name={item.roomName}
             roomAvatarUrl={item.roomAvatarUrl}
@@ -76,9 +85,8 @@ const HomeScreen = () => {
             // isLike={item.isLike}
             // notSeen={item.notSeen}
             onPress={() => goToChatScreen(item.id)}
-            onLongPress={()=>console.log(setVisivleMenuRoom(true))
-            }
-          />
+            onLongPress={(pageY)=>handleLongItemPress(pageY)}
+            />
         )}
       />
     </View>

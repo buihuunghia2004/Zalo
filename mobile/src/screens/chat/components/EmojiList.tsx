@@ -1,18 +1,14 @@
 import React from 'react';
 import { FlatList, Pressable, Text, StyleSheet } from 'react-native';
-import { iconSize } from '~/styles/Ui/icons';
 import {emojiObjects} from '~/utils/Ui/emojis';
 
-interface EmojiObject {
-  id: number;
-  image: string;
-}
 
 interface EmojiListProps {
   handleInputChange: (text: string) => void;
 }
 
 const EmojiList = React.memo(({ handleInputChange }: EmojiListProps) => {
+  
   return (
     <FlatList
       data={emojiObjects}
