@@ -49,6 +49,7 @@ const roomSlice = createSlice({
        * type
        * memberCount
        * lastMsg
+       * unViewMsgCount
        * 
       /  */
     ],
@@ -79,16 +80,37 @@ const roomSlice = createSlice({
     },
     updateLastMsgForRoom: (state, action) => {
       const {roomId, lastMsg} = action.payload
-      state.rooms = state.rooms.map((room) => {
-        if (room.id === roomId) {
-          return {
+      state.data = state.data.map((room) => {
+        return room.id == roomId 
+          ? {
             ...room,
             lastMsg: lastMsg,
-          };
-        }
-        return room;
+            unViewMsgCount: room.unViewMsgCount ? (room.unViewMsgCount + 1) : 1
+          } 
+          : room
       });
     },
+    loadMoreMsgWhenConnect: (state, action) => {
+      const data = action.payload
+      const roomIds = Object.keys(data)
+      state.data = state.data.map(m => {
+        if (roomIds.includes(m.id)) {
+          return {
+            ...m,
+            lastMsg: data[m.id].lastMsg,
+            unViewMsgCount: data[m.id].count
+          }
+        }else{
+          return m
+        }
+      })
+    },
+    setViewAllMsg: (state, action) => {
+      const {roomId} = action.payload
+      state.data = state.data.map(r => 
+        r.id === roomId ? { ...r, unViewMsgCount: 0 } : r
+      );
+    }
   },
   extraReducers: (builder) => {
     builder.addCase(getAllRooms.pending, (state, action) => {      
@@ -110,7 +132,9 @@ const roomSlice = createSlice({
 export const { 
   addNewMsgToRoom,
   deleteAllReceivedMsg,
-  updateLastMsgForRoom
+  updateLastMsgForRoom,
+  loadMoreMsgWhenConnect,
+  setViewAllMsg
 } = roomSlice.actions;
 
 export default roomSlice.reducer;

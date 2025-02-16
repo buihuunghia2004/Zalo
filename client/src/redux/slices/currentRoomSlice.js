@@ -9,6 +9,8 @@ export const loadMoreMessages = createAsyncThunk(
     try {
       let q = `${messageUrl}?roomId=${roomId}`
       if (afterCursor) q += `&afterCursor=${afterCursor}`
+      console.log('q',q);
+      
       return await AxiosInstant.get(q)
     } catch (error) {
       return rejectWithValue(error.message)
@@ -77,6 +79,22 @@ const currentRoomSlice = createSlice({
     },
     loadMoreMessage: () => {
       
+    },
+    setReceiver: (state, action) => {
+      const { memerId, receivedAt } = action.payload
+      state.members = state.members.map(m => {
+        if (m.id == memerId) {          
+          return {
+            ...m,
+            msgRTime: receivedAt
+          }
+        } else {
+          return m
+        }
+      })
+    },
+    addNewMgs: (state, action) => {
+      state.messages = [action.payload,...state.messages]
     }
   },
   extraReducers: (builder) => {
@@ -121,7 +139,9 @@ const currentRoomSlice = createSlice({
 });
 
 export const { 
-  setCurrentRoom
+  setCurrentRoom,
+  setReceiver,
+  addNewMgs
 } = currentRoomSlice.actions;
 
 export default currentRoomSlice.reducer;

@@ -1,9 +1,11 @@
 export enum QueueName {
   EMAIL = 'email',
+  SOCKET = 'socket'
 }
 
 export enum QueuePrefix {
   AUTH = 'auth',
+  SOCKET = 'socket'
 }
 
 export enum JobName {

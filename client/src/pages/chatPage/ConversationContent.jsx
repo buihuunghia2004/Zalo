@@ -1,197 +1,131 @@
 import { useEffect, useRef, useState, memo } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { Assets } from '../../assets'
-import messageAPI from '../../service/messageAPI'
 import { useDispatch, useSelector } from 'react-redux'
 import SquareIcon from '../../components/icon/squareIcon'
 import useSocketEvent from '../../hooks/useSocket'
 import { useSocket } from '../../socket/SocketProvider'
-import { updateLastMsgForRoom } from '../../redux/slices/roomSlice'
 import Utils from '../../utils/utils'
-import { RoomRoleEnum, RoomTypeEnum } from '../../utils/enum'
-import ConversationInfo from './ConversationInfo'
 import {
   getRoomById,
   loadMoreMessages,
   sendTextMsg,
+  setReceiver,
 } from '../../redux/slices/currentRoomSlice'
 
-const ConversationContent = ({ newMsg, partnerId }) => {
+const ConversationContent = () => {
   const dispatch = useDispatch()
-  // const { emit } = useSocket()
-  const room = useSelector((state) => state.currentRoom)
+  const { emit } = useSocket()
+  const roomName = useSelector((state) => state.currentRoom.roomName)
+  const roomAvatarUrl = useSelector((state) => state.currentRoom.roomAvatarUrl)
   const roomId = useSelector((state) => state.currentRoom.roomId)
-  const memberId = useSelector((state) => state.currentRoom.memberId)
-  const messages = useSelector((state) => state.currentRoom.messages)
-  const meId = useSelector((state) => state.me.user?.id)
-  const members = useSelector((state) => state.currentRoom.members)
-  const pagination = useSelector((state) => state.currentRoom.pagination)
-  let membersObj = {}
-  members.forEach((mem) => {
-    membersObj[mem.id] = mem
-  })
-
-  const [isInputFocus, setIsInputFocus] = useState(false)
-  const [textContent, setTextContent] = useState('')
-  const [isWriting, setIsWriting] = useState(false)
-  const [messagess, setMessages] = useState([])
-  const [partnerWriting, setpartnerWriting] = useState({})
-  const [lastReceiveMsgIds, setLastReceiveMsgIds] = useState([])
-  const [lastRCV, setLastRCV] = useState(null)
-  const [msgRep, setMsgRep] = useState(null)
-  const [leader, setLeader] = useState()
-  const messagesEndRef = useRef(null)
-  const messagesContainerRef = useRef(null)
-
+  // const members = useSelector((state) => state.currentRoom.members)
+  // let membersObj = {}
+  // members.forEach((mem) => {
+  //   membersObj[mem.id] = mem
+  // })
+  console.log('re-render-ConversationContent')
 
   // if (roomId) {
   // useSocketEvent('writing_message', (data) => {
   //   setpartnerWriting(data)
   // })
-  // useSocketEvent('load_more_msgs_when_connect', (data) => {
-  //   console.log('after connect',data);
-  // })
+  useSocketEvent('load_more_msgs_when_connect', (data) => {
+    console.log('after connect', data)
+  })
+  useSocketEvent('received_msg', (data) => {
+    console.log('received_msg', data)
+    dispatch(setReceiver(data))
+  })
+  // const SendMessage = async ({ content, files, type, roomId }) => {
+  //   try {
+  //     let newMessage
+  //     const send = async (formData) => {
+  //       newMessage = await messageAPI.sentMessage(formData)
+  //       newMessage.isSelfSent = true
+  //     }
 
-  const scrollToBottom = () => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({
-        behavior: 'smooth',
-      })
-    }
-  }
-  const SendMessage = async ({
-    content,
-    parentMessage,
-    files,
-    type,
-    roomId,
-  }) => {
-    try {
-      let newMessage
-      const send = async (formData) => {
-        newMessage = await messageAPI.sentMessage(formData)
-        newMessage.isSelfSent = true
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          {
-            ...newMessage,
-            parentMessage,
-          },
-        ])
-      }
+  //     switch (type) {
+  //       case 'text':
+  //         break
+  //       case 'file':
+  //         break
+  //       case 'image':
+  //         break
+  //       case 'video':
+  //         break
+  //       default:
+  //         break
+  //     }
 
-      switch (type) {
-        case 'text':
-          break
-        case 'file':
-          break
-        case 'image':
-          break
-        case 'video':
-          break
-        default:
-          break
-      }
+  //     if (files && files.length > 0) {
+  //       for (const file of files) {
+  //         const form = new FormData()
+  //         if (partnerId) {
+  //           form.append('receiverId', partnerId)
+  //         }
+  //         form.append('roomId', roomId)
+  //         form.append('contentType', 'image')
+  //         form.append('file', file)
+  //         await send(form)
+  //       }
+  //     } else {
+  //       const formData = new FormData()
+  //       if (partnerId) {
+  //         formData.append('receiverId', partnerId)
+  //       } else {
+  //         formData.append('roomId', roomId)
+  //       }
+  //       formData.append('contentType', 'text')
+  //       formData.append('content', content)
+  //       if (msgRep) {
+  //         formData.append('replyMessageId', msgRep.id)
+  //       }
+  //       await send(formData)
+  //     }
 
-      if (files && files.length > 0) {
-        for (const file of files) {
-          const form = new FormData()
-          if (partnerId) {
-            form.append('receiverId', partnerId)
-          }
-          form.append('roomId', room.id)
-          form.append('contentType', 'image')
-          form.append('file', file)
-          await send(form)
-        }
-      } else {
-        const formData = new FormData()
-        if (partnerId) {
-          formData.append('receiverId', partnerId)
-        } else {
-          formData.append('roomId', room.id)
-        }
-        formData.append('contentType', 'text')
-        formData.append('content', content)
-        if (msgRep) {
-          formData.append('replyMessageId', msgRep.id)
-        }
-        await send(formData)
-      }
+  //     scrollToBottom()
+  //     setTextContent('')
+  //     dispatch(
+  //       updateLastMsgForRoom({
+  //         roomId: roomId,
+  //         lastMsg: {
+  //           content: newMessage.content,
+  //           type: newMessage.type,
+  //           createdAt: newMessage.createdAt,
+  //           isSelfSent: newMessage.isSelfSent,
+  //         },
+  //       })
+  //     )
+  //     setMsgRep(null)
+  //   } catch (error) {}
+  // }
 
-      scrollToBottom()
-      setTextContent('')
-      dispatch(
-        updateLastMsgForRoom({
-          roomId: roomId,
-          lastMsg: {
-            content: newMessage.content,
-            type: newMessage.type,
-            createdAt: newMessage.createdAt,
-            isSelfSent: newMessage.isSelfSent,
-          },
-        })
-      )
-      setMsgRep(null)
-    } catch (error) {}
-  }
-  const sendTextMessage = async ({ roomId, content }) => {
-    dispatch(sendTextMsg({ roomId, data: { content } }))
-    scrollToBottom()
-    setTextContent('')
-    setMsgRep(null)
-  }
-  const handleFileChange = async (event) => {
-    SendMessage({ files: event.target.files })
-  }
-
-  const fetchMoreMessages = ({ roomId, afterCursor }) => {
-    dispatch(loadMoreMessages({ roomId, afterCursor }))
-  }
+  
 
   //load message
   useEffect(() => {
     if (roomId) {
       dispatch(getRoomById({ roomId }))
       dispatch(loadMoreMessages({ roomId }))
-      // emit('join-room', { roomId })
+      emit('join-roomm', { roomId })
     }
 
     return () => {
-      // emit('leave-room', { roomId: roomId })
+      emit('leave-room', { roomId: roomId })
     }
   }, [roomId])
 
-  useEffect(() => {
-    if (newMsg) {
-      setMessages((prevMessages) => [...prevMessages, newMsg])
-    }
-  }, [newMsg])
+  
 
-  useEffect(() => {
-    // if (textContent && !isWriting) {
-    //   emit('writing-message', {
-    //     roomId: room?.id || roomId,
-    //     status: true,
-    //   })
-    //   setIsWriting(true)
-    // } else if (!textContent && isWriting) {
-    //   emit('writing-message', {
-    //     roomId: room?.id || roomId,
-    //     status: false,
-    //   })
-    //   setIsWriting(false)
-    // }
-  }, [textContent])
-
-  useEffect(() => {
-    if (room?.type == RoomTypeEnum.GROUP) {
-      const leader = members.filter((m) => m.role == RoomRoleEnum.LEADER)[0]
-      if (leader) {
-        setLeader(leader)
-      }
-    }
-  }, [])
+  // useEffect(() => {
+  //   if (room?.type == RoomTypeEnum.GROUP) {
+  //     const leader = members.filter((m) => m.role == RoomRoleEnum.LEADER)[0]
+  //     if (leader) {
+  //       setLeader(leader)
+  //     }
+  //   }
+  // }, [])
 
   useEffect(() => {
     const div = document.getElementById('scrollableDiv')
@@ -212,11 +146,11 @@ const ConversationContent = ({ newMsg, partnerId }) => {
           <div className="flex w-full flex-row items-center">
             <img
               className="size-12 rounded-full"
-              src={room?.roomAvatarUrl}
+              src={roomAvatarUrl}
               alt="Placeholder"
             />
             <div className="mx-3 flex w-full flex-col justify-between py-1">
-              <p className="text-lg font-bold">{room?.roomName}</p>
+              <p className="text-lg font-bold">{roomName}</p>
               <p className="text-sm text-slate-400">Truy cập 1 giờ trước</p>
             </div>
           </div>
@@ -226,32 +160,66 @@ const ConversationContent = ({ newMsg, partnerId }) => {
         </div>
         <div className="h-0.5 w-full bg-slate-400" />
         {/* nội dung hội thoại */}
-        <div
-          id="scrollableDiv"
-          className="flex h-full flex-col-reverse overflow-auto bg-slate-100"
+        <MsgContent roomId={roomId} />
+        {/* nhập tin nhắn */}
+        <MsgInput roomId={roomId} />
+      </div>
+      <div className="h-full w-0.5 bg-slate-400" />
+      {/* {room && <ConversationInfo room={room} />} */}
+    </div>
+  )
+}
+
+const MsgContent = ({ roomId }) => {
+  const dispatch = useDispatch()
+  const messages = useSelector((state) => state.currentRoom.messages)
+  const pagination = useSelector((state) => state.currentRoom.pagination)
+  const members = useSelector((state) => state.currentRoom.members)
+  const memberId = useSelector((state) => state.currentRoom.memberId)
+
+  let membersObj = {}
+  members.forEach((mem) => {
+    membersObj[mem.id] = mem
+  })
+
+  const fetchMoreMessages = ({ roomId, afterCursor }) => {
+    console.log('fetch');
+    
+    dispatch(loadMoreMessages({ roomId, afterCursor }))
+  }
+
+  useSocketEvent('writing_message', (data) => {
+    setpartnerWriting(data)
+  })
+  return (
+    <>
+      <div
+        id="scrollableDiv"
+        className="flex h-full flex-col-reverse overflow-auto bg-slate-100"
+      >
+        {/*Put the scroll bar always on the bottom*/}
+        <InfiniteScroll
+          dataLength={messages.length}
+          next={() =>
+            fetchMoreMessages({
+              roomId,
+              afterCursor: pagination.afterCursor,
+            })
+          }
+          style={{ display: 'flex', flexDirection: 'column-reverse' }} //To put endMessage and loader to the top.
+          inverse={true} //
+          hasMore={pagination.afterCursor}
+          loader={<h4>Loading...</h4>}
+          scrollableTarget="scrollableDiv"
         >
-          {/*Put the scroll bar always on the bottom*/}
-          <InfiniteScroll
-            dataLength={messages.length}
-            next={() =>
-              fetchMoreMessages({
-                roomId,
-                afterCursor: pagination.afterCursor,
-              })
-            }
-            style={{ display: 'flex', flexDirection: 'column-reverse' }} //To put endMessage and loader to the top.
-            inverse={true} //
-            hasMore={pagination.afterCursor}
-            loader={<h4>Loading...</h4>}
-            scrollableTarget="scrollableDiv"
-          >
-            {messages.map((item, index) => {
-              const senderId = item.sender.id
-              const isLastMsgEachMember = senderId != messages[index - 1]?.sender.id
-              const isSelfSent = senderId == memberId
-              
-              return (
-                <>
+          {messages.map((item, index) => {
+            const senderId = item.sender.id
+            const isLastMsgEachMember =
+              senderId != messages[index - 1]?.sender.id
+            const isSelfSent = senderId == memberId
+
+            return (
+              <>
                 <MessageItem
                   key={item.id}
                   data={item}
@@ -262,106 +230,151 @@ const ConversationContent = ({ newMsg, partnerId }) => {
                   status={members.some(
                     (m) =>
                       new Date(m?.msgRTime).getTime() >=
-                      new Date(item.createdAt).getTime()
-                      && m.id != memberId
+                        new Date(item.createdAt).getTime() && m.id != memberId
                   )}
                   avatarUrl={membersObj[senderId].user.avatarUrl}
-                  isLeader={senderId == leader?.id}
-                  setMsgRep={setMsgRep}
+                  // isLeader={senderId == leader?.id}
+                  // setMsgRep={setMsgRep}
                   msgRep={item.parentMessage}
                 />
-                </>
-              )
-            })}
-          </InfiniteScroll>
-        </div>
-        {partnerWriting?.status && memberId != partnerWriting?.memberId && (
-          <div className="flex">
-            <p className="bg-dark-5 px-2">{`Đang soạn tin nhắn`}</p>
-          </div>
-        )}
-
-        {/* nhập tin nhắn */}
-        <div className={`flex flex-col gap-0.5`}>
-          <div className="h-0.5 w-full bg-slate-400" />
-          <div
-            className="relative w-full p-1"
-            onClick={() => document.getElementById('fileInput').click()} // Kích hoạt input
-          >
-            <input
-              id="fileInput"
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleFileChange}
-              style={{ display: 'none' }} // Ẩn input
-            />
-            <SquareIcon
-              src={Assets.icons.image}
-              className="size-8 cursor-pointer"
-            />
-          </div>
-          {msgRep && (
-            <div className="flex flex-row justify-between px-2">
-              <p className="">{msgRep.content}</p>
-              <p
-                onClick={() => setMsgRep(null)}
-                className="font-medium text-red-600"
-              >
-                Hủy
-              </p>
-            </div>
-          )}
-          <div className="h-0.5 w-full bg-slate-400" />
-          <div className="flex h-12 flex-row items-center justify-center px-4">
-            <input
-              className="w-full text-base focus:outline-none"
-              placeholder="Nhập @, tin nhắn..."
-              maxLength={100}
-              value={Utils.convertMsgContent(textContent)}
-              onChange={(e) => setTextContent(e.target.value)}
-              onFocus={() => setIsInputFocus(true)}
-              onBlur={() => setIsInputFocus(false)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  const data = {
-                    content: textContent,
-                  }
-                  if (msgRep) {
-                    data.parentMessage = {
-                      id: msgRep.id,
-                      content: msgRep.content,
-                    }
-                  }
-                  sendTextMessage({ roomId, content })
-                }
-              }}
-            />
-            <img
-              className="size-6"
-              src={
-                textContent.length > 0 ? Assets.icons.send : Assets.icons.like
-              }
-              onClick={() => {
-                if (textContent.length > 0) {
-                  const data = {
-                    content: textContent,
-                  }
-                  if (msgRep) {
-                    data.parentMessage = {
-                      id: msgRep.id,
-                      content: msgRep.content,
-                    }
-                  }
-                  sendTextMessage({ roomId, content: data.content })
-                }
-              }}
-            />
-          </div>
-        </div>
+              </>
+            )
+          })}
+        </InfiniteScroll>
       </div>
-      <div className="h-full w-0.5 bg-slate-400" />
-      {room && <ConversationInfo room={room} />}
+      <WritingCompoent memberId={memberId}/>
+    </>
+  )
+}
+
+const WritingCompoent = ({memberId}) => {
+  const [partnerWriting, setPartnerWriting] = useState({})
+  useSocketEvent('writing_message', (data) => {
+    setPartnerWriting(data)
+  })
+  
+  return (
+    <>
+      {partnerWriting?.status && memberId != partnerWriting?.memberId && (
+        <div className="flex">
+          <p className="bg-dark-5 px-2">{`Đang soạn tin nhắn`}</p>
+        </div>
+      )}
+    </>
+  )
+}
+
+const MsgInput = ({ roomId }) => {
+  const dispatch = useDispatch()
+  const { emit } = useSocket()
+
+  const [textContent, setTextContent] = useState('')
+  const [msgRep, setMsgRep] = useState(null)
+  const [isWriting, setIsWriting] = useState(false)
+
+
+  const handleFileChange = async (event) => {
+    // SendMessage({ files: event.target.files })
+  }
+
+  const sendTextMessage = async ({ roomId, content }) => {
+    dispatch(sendTextMsg({ roomId, data: { content } }))
+    // scrollToBottom()
+    setTextContent('')
+    // setMsgRep(null)
+  }
+
+  // useEffect(() => {
+  //   if (textContent && !isWriting) {
+  //     emit('writing-message', {
+  //       roomId: roomId,
+  //       status: true,
+  //     })
+  //     setIsWriting(true)
+  //   } else if (!textContent && isWriting) {
+  //     emit('writing-message', {
+  //       roomId: roomId,
+  //       status: false,
+  //     })
+  //     setIsWriting(false)
+  //   }
+  // }, [textContent])
+
+  return (
+    <div className={`flex flex-col gap-0.5`}>
+      <div className="h-0.5 w-full bg-slate-400" />
+      <div
+        className="relative w-full p-1"
+        onClick={() => document.getElementById('fileInput').click()} // Kích hoạt input
+      >
+        <input
+          id="fileInput"
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handleFileChange}
+          style={{ display: 'none' }} // Ẩn input
+        />
+        <SquareIcon
+          src={Assets.icons.image}
+          className="size-8 cursor-pointer"
+        />
+      </div>
+      {msgRep && (
+        <div className="flex flex-row justify-between px-2">
+          <p className="">{msgRep.content}</p>
+          <p
+            onClick={() => setMsgRep(null)}
+            className="font-medium text-red-600"
+          >
+            Hủy
+          </p>
+        </div>
+      )}
+      <div className="h-0.5 w-full bg-slate-400" />
+      <div className="flex h-12 flex-row items-center justify-center px-4">
+        <input
+          className="w-full text-base focus:outline-none"
+          placeholder="Nhập @, tin nhắn..."
+          maxLength={100}
+          value={Utils.convertMsgContent(textContent)}
+          onChange={(e) => setTextContent(e.target.value)}
+          // onFocus={() => setIsInputFocus(true)}
+          // onBlur={() => setIsInputFocus(false)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              const data = {
+                content: textContent,
+              }
+              if (msgRep) {
+                data.parentMessage = {
+                  id: msgRep.id,
+                  content: msgRep.content,
+                }
+              }
+              sendTextMessage({ roomId, content })
+            }
+          }}
+        />
+        <img
+          className="size-6"
+          src={textContent.length > 0 ? Assets.icons.send : Assets.icons.like}
+          onClick={() => {
+            if (textContent.length > 0) {
+              const data = {
+                content: textContent,
+              }
+              if (msgRep) {
+                data.parentMessage = {
+                  id: msgRep.id,
+                  content: msgRep.content,
+                }
+              }
+              sendTextMessage({ roomId, content: data.content })
+            }
+          }}
+        />
+      </div>
     </div>
   )
 }

@@ -51,10 +51,9 @@ export class NotificationGateway
       const {id}: JwtPayloadType =
       await this.authService.verifyAccessToken(accessToken);
 
-      await this.cacheManager.set(createCacheKey(CacheKey.NOTI_SOCKET_CONNECT, client.id), id);
-      await this.cacheManager.set(id, client.id);
+      // await this.cacheManager.set(createCacheKey(CacheKey.NOTI_SOCKET_CONNECT, client.id), id || 'con cặt');
 
-      console.log(`client ${client.id} connected notification socket`);
+      // console.log(`client ${client.id} connected notification socket`);
     } catch (error) {
     }
   }

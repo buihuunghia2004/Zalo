@@ -11,6 +11,8 @@ import { LoggerMiddleware } from 'src/middleware/guard-socket.middleware';
 import { AuthModule } from '../auth/auth.module';
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 import { ChatRoomModule } from '../chat-room/chat-room.module';
+import { BullModule } from '@nestjs/bullmq';
+import { QueueName, QueuePrefix } from '@/constants/job.constant';
 
 @Module({
   imports:[
@@ -23,6 +25,15 @@ import { ChatRoomModule } from '../chat-room/chat-room.module';
       MemberEntity, 
       MessageEntity,
     ]),
+    BullModule.registerQueue({
+          name: QueueName.EMAIL,
+          prefix: QueuePrefix.AUTH,
+          streams: {
+            events: {
+              maxLen: 1000,
+            },
+          },
+        }),
   ],
   controllers: [MessageController],
   providers: [MessageService, MessageGateway],

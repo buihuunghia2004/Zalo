@@ -7,6 +7,8 @@ import Utils from '../../utils/utils'
 import { AddGroupModal } from '../../components/modal/AddGroupModal'
 import GroupAvatar from '../../components/GroupAvatar'
 import { setCurrentRoom } from '../../redux/slices/currentRoomSlice'
+import useSocketEvent from '../../hooks/useSocket'
+import { loadMoreMsgWhenConnect, setViewAllMsg } from '../../redux/slices/roomSlice'
 
 export default function ConversationList({ rooms }) {
   const dispatch = useDispatch()
@@ -14,8 +16,14 @@ export default function ConversationList({ rooms }) {
   const [isAGModalOpen, setIsAGModalOpen] = useState(false)
   const currentRoomId = useSelector(state => state.currentRoom.id)
 
+  useSocketEvent('load_more_msgs_when_connect', (data) => {
+    console.log('after connect', data)
+    dispatch(loadMoreMsgWhenConnect(data))
+  })
+
   const onItemClick = (item) => {
     dispatch(setCurrentRoom(item))
+    dispatch(setViewAllMsg({roomId: item.id}))
   }
 
   return (
@@ -51,6 +59,7 @@ export default function ConversationList({ rooms }) {
             msgReceived={item.receivedMsgs}
             isSelfSent={item?.lastMsg?.isSelfSent}
             onClick={() => onItemClick(item)}
+            unViewMsgCount={item?.unViewMsgCount}
           />
         ))}
       </div>
@@ -108,6 +117,7 @@ const ConversationItem = ({
   messLasted,
   msgReceived,
   onClick,
+  unViewMsgCount
 }) => {
   const [isHover, setIsHover] = useState(false)
   const [timeDifference, setTimeDifference] = useState('')
@@ -162,15 +172,20 @@ const ConversationItem = ({
             {(isSelfSent ? 'Bạn: ' : '') +
               (lastMsg?.type == 'text' ? lastMsg?.content : 'Hình ảnh')}
           </span>
-          {msgReceived &&
+          {
+            (unViewMsgCount || (unViewMsgCount > 0)) && <p className="size-5 rounded-full bg-red-600 text-center text-sm text-white">
+            {unViewMsgCount}
+          </p>
+          }
+          {/* {msgReceived &&
             Array.isArray(msgReceived) &&
             msgReceived.length > 0 && (
               <>
                 <p className="size-5 rounded-full bg-red-600 text-center text-sm text-white">
-                  {msgReceived.length}
+                  {unViewMsgCount}
                 </p>
               </>
-            )}
+            )} */}
         </div>
       </div>
     </div>

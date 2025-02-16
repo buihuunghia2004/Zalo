@@ -118,8 +118,8 @@ export class MessageService {
   
     //lọc danh sách member online và offline
     const members = room.members.filter(member => member.userId != senderId)
-    const userIdKeys = members.map(m => createCacheKey(CacheKey.EVENT_CONNECT,m.userId))
-    const userCacheIds = await this.cacheManager.store.mget(...userIdKeys)
+    const userClientKeys = members.map(m => createCacheKey(CacheKey.USER_CLIENT,m.userId))
+    const userCacheIds = await this.cacheManager.store.mget(...userClientKeys)
     let onlineMembers = []
     let offineMembers = []
     userCacheIds.forEach((id, index) => {
@@ -131,22 +131,26 @@ export class MessageService {
       }
     });
 
+    console.log('onlineMembers',onlineMembers);
+    console.log('offineMembers',offineMembers);
+    
+
     const result = {
       ...newMessage,
       receivedMembers: onlineMembers.map(m => m.id)
     }
 
     // Gửi thông báo sự kiện
-    this.eventEmitter.emit(EventEmitterKey.NEW_MESSAGE, {
-      id:newMessage.id,
-      content: contentType == MessageContentType.TEXT ? content : resultFile.secure_url,
-      type: contentType,
-      roomId: room.id,
-      memberSentId: memberSent.id,
-      sender: memberSent,
-      createdAt: newMessage.createdAt,
-      members: room.members.filter(member => member.userId != senderId),
-    });
+    // this.eventEmitter.emit(EventEmitterKey.NEW_MESSAGE, {
+    //   id:newMessage.id,
+    //   content: contentType == MessageContentType.TEXT ? content : resultFile.secure_url,
+    //   type: contentType,
+    //   roomId: room.id,
+    //   memberSentId: memberSent.id,
+    //   sender: memberSent,
+    //   createdAt: newMessage.createdAt,
+    //   members: room.members.filter(member => member.userId != senderId),
+    // });
 
     return plainToInstance(MessageResDto, result)
   }
@@ -183,9 +187,16 @@ export class MessageService {
     const newMsg = await this.messageRepository.save(newMessageData)
     const {
       onlineMembers,
-      offineMembers
+      offlineMembers
     } = await this.getMemberOnAndOfByRoomId(room, meId)
+    console.log('on',onlineMembers);
+    
     // Gửi thông báo sự kiện
+    
+    const msgData = {
+      ...newMsg,
+      receivedMemberIds: onlineMembers.map(m => m.id)
+    }
     this.eventEmitter.emit(EventEmitterKey.NEW_MESSAGE, {
       id:newMsg.id,
       content: data.content,
@@ -193,16 +204,13 @@ export class MessageService {
       isSelfSent: member.id == meId,
       roomId,
       onlineMembers,
-      offineMembers,
+      offlineMembers,
+      msgData,
       createdAt: new Date()
     });
     
-    const result = {
-      ...newMsg,
-      receivedMemberIds: onlineMembers.map(m => m.id)
-    }
 
-    return plainToInstance(MessageResDto, result)
+    return plainToInstance(MessageResDto, msgData)
   }
 
   async loadMoreMessage(reqDto: LoadMoreMessagesReqDto, meId: Uuid): Promise<CursorPaginatedDto<MessageResDto>> {    
@@ -325,11 +333,10 @@ export class MessageService {
   private async getMemberOnAndOfByRoomId (room: ChatRoomEntity, senderId: Uuid): Promise<any>{
     //lọc danh sách member online và offline
     const members = room.members.filter(member => member.userId != senderId)
-    const clientIdKeys = members.map(m => createCacheKey(CacheKey.EVENT_CONNECT,m.userId))
+    const clientIdKeys = members.map(m => createCacheKey(CacheKey.USER_CLIENT,m.userId))
     const cientCacheIds = await this.cacheManager.store.mget(...clientIdKeys)
-    const userIdKeys = cientCacheIds.map(m => createCacheKey(CacheKey.EVENT_CONNECT,m as string))
+    const userIdKeys = cientCacheIds.map(m => createCacheKey(CacheKey.MSG_SOCKET_CONNECT,m as string))
     const userCacheIds = await this.cacheManager.store.mget(...userIdKeys)
-    console.log('a',userCacheIds);
     
     let onlineMembers = []
     let offlineMembers = []
