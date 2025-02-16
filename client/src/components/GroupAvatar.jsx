@@ -128,15 +128,15 @@
 
 import React from "react";
 
-const GroupAvatar = ({ members }) => {
-  const maxAvatars = 4; // Giới hạn số avatar hiển thị
+const GroupAvatar = ({ roomAvatarUrls }) => {  
+  const maxAvatars = 4; 
 
   return (
     <div className="relative grid grid-cols-2 grid-rows-2 w-12 h-12">
-      {members.slice(0, maxAvatars).map((member, index) => (
+      {roomAvatarUrls.slice(0, maxAvatars).map((image, index) => (
         <img
           key={index}
-          src={member.avatarUrl}
+          src={image}
           alt={`Avatar ${index}`}
           className="absolute w-6 h-6 rounded-full object-cover border-2 border-gray-900"
           style={{
@@ -146,19 +146,6 @@ const GroupAvatar = ({ members }) => {
           }}
         />
       ))}
-      {members.length > maxAvatars && (
-        <div
-          className="absolute w-8 h-8 rounded-full bg-gray-700 text-white flex items-center justify-center text-sm font-medium border-2 border-gray-900"
-          style={{
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            zIndex: 0,
-          }}
-        >
-          +{members.length - maxAvatars}
-        </div>
-      )}
     </div>
   );
 };

@@ -37,28 +37,30 @@ const AppRouters = () => {
 
     if (auth) {
       const parsedAuth = JSON.parse(auth) as loginGoogleResponse;
+      console.log(parsedAuth.accessToken);
+      
       dispatch(setAuth(parsedAuth));
       setAuthorizationToken(parsedAuth.accessToken);
     }
   };
 
   return (
-    <UModal
-      visible={true}
-      onClose={() => console.log('a')}
-      content={<ModalContent_Conversation />}
-    />
-    // <SocketProvider namespace={''}>
-    //   <SocketProvider namespace={"message"}>
-    //     {isShowSplash ? (
-    //       <SplashScreen />
-    //     ) : authData?.accessToken ? (
-    //       <MainNavigator />
-    //     ) : (
-    //       <AuthNavigator />
-    //     )}
-    //   </SocketProvider>
-    // </SocketProvider>
+    // <UModal
+    //   visible={true}
+    //   onClose={() => console.log('a')}
+    //   content={<ModalContent_Conversation />}
+    // />
+    <SocketProvider namespace={''}>
+      <SocketProvider namespace={"message"}>
+        {isShowSplash ? (
+          <SplashScreen />
+        ) : authData?.accessToken ? (
+          <MainNavigator />
+        ) : (
+          <AuthNavigator />
+        )}
+      </SocketProvider>
+    </SocketProvider>
   );
 };
 

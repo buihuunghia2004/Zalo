@@ -1,48 +1,55 @@
+import React from "react";
+import {
+  Modal,
+  View,
+  StyleSheet,
+  Pressable,
+} from "react-native";
+import { colors } from "~/styles/Ui/colors";
+import { WINDOW_HEIGHT, WINDOW_WIDTH } from "~/utils/Ui/dimensions";
 
-import { Modal, View, StyleSheet } from 'react-native';
-import React from 'react';
-import { colors } from '~/styles/Ui/colors';
-
-interface CustomModalProps {
+interface UModalProps {
   visible: boolean;
   onClose: () => void;
   content: React.ReactNode;
 }
 
-const UModal: React.FC<CustomModalProps> = ({
-  visible,
-  onClose,
-  content
-}) => {
+const UModal: React.FC<UModalProps> = ({ visible, onClose, content }) => {
   return (
     <Modal
-      animationType="slide"
+      animationType="fade"
       transparent={true}
       visible={visible}
-      onRequestClose={onClose}
+      onRequestClose={onClose} // Đóng modal khi nhấn Back trên Android
     >
-      {/* Overlay background mờ */}
-      <View style={styles.overlay}>
+      {/* Bắt sự kiện nhấn vào nền để đóng modal */}
+      <Pressable style={styles.overlay} onPress={onClose}>
+        {/* Chặn sự kiện nhấn vào nội dung bị lan ra ngoài */}
         <View style={styles.modalContainer}>
-          {content}
+          <Pressable onPress={() => {}} style={styles.content}>
+            {content}
+          </Pressable>
         </View>
-      </View>
+      </Pressable>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
   overlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    position: 'absolute',
+    zIndex: 10,
+    width: WINDOW_WIDTH,
+    height: WINDOW_HEIGHT,
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
   },
   modalContainer: {
-    width: 300,
-    padding: 20,
+    flex: 1,
+    backgroundColor: colors.transparent,
     borderRadius: 10,
-    color: colors.transparent
+  },
+  content: {
+    flex: 1,
   },
 });
 
