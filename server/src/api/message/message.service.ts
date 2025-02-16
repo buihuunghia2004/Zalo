@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 // import { UpdateMessageDto } from './dto/update-message.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../user/entities/user.entity';
@@ -30,6 +30,8 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { createCacheKey } from '@/utils/cache.util';
 import { CacheKey } from '@/constants/cache.constant';
+import { SendTextMsgReqDto } from './dto/send-text-msg.req.dto';
+import { MessageType } from '@/constants/entity-enum/message.enum';
 
 
 @Injectable()
@@ -108,7 +110,6 @@ export class MessageService {
       content: contentType == MessageContentType.TEXT ? content : resultFile.secure_url,
       type: contentType,
       replyMessageId: dto.replyMessageId,
-      status: MessageViewStatus.SENT,
       createdBy: senderId,
       updatedBy: senderId,
     });
@@ -149,7 +150,60 @@ export class MessageService {
 
     return plainToInstance(MessageResDto, result)
   }
-  
+
+  async sendTextMsg (
+    roomId: Uuid,
+    data:SendTextMsgReqDto,
+    meId: Uuid
+  ) {
+    //Kiểm tra phòng có tồn tại ko
+    const room = await this.chatRoomRepository.findOneOrFail({
+      where:{id: roomId},
+      select:['id','members'],
+      relations:['members']
+    })
+
+    const member = await this.memberRepository.findOneOrFail({
+      where:{
+        roomId: roomId,
+        userId: meId
+      },
+      select:['id']
+    })
+    const newMessageData = new MessageEntity({
+      content: data.content,
+      sender: member,
+      roomId,
+      type: MessageContentType.TEXT,
+      createdBy: meId,
+      updatedBy: meId,
+    })
+    if (data?.replyMessageId) newMessageData.replyMessageId = data.replyMessageId
+    
+    const newMsg = await this.messageRepository.save(newMessageData)
+    const {
+      onlineMembers,
+      offineMembers
+    } = await this.getMemberOnAndOfByRoomId(room, meId)
+    // Gửi thông báo sự kiện
+    this.eventEmitter.emit(EventEmitterKey.NEW_MESSAGE, {
+      id:newMsg.id,
+      content: data.content,
+      type: MessageContentType.TEXT,
+      isSelfSent: member.id == meId,
+      roomId,
+      onlineMembers,
+      offineMembers,
+      createdAt: new Date()
+    });
+    
+    const result = {
+      ...newMsg,
+      receivedMemberIds: onlineMembers.map(m => m.id)
+    }
+
+    return plainToInstance(MessageResDto, result)
+  }
 
   async loadMoreMessage(reqDto: LoadMoreMessagesReqDto, meId: Uuid): Promise<CursorPaginatedDto<MessageResDto>> {    
     const queryBuilder = this.messageRepository
@@ -158,7 +212,6 @@ export class MessageService {
         'message.id',
         'message.type',
         'message.content',
-        'message.status',
         'message.createdAt',
       ])
       .leftJoin('message.parentMessage','replyMsg')
@@ -166,7 +219,6 @@ export class MessageService {
         'replyMsg.id',
         'replyMsg.type',
         'replyMsg.content',
-        'replyMsg.status',
         'replyMsg.createdAt',
       ])
       .leftJoin('message.sender','sender')
@@ -268,6 +320,35 @@ export class MessageService {
     await this.chatRoomRepository.save(room);
   
     return room;
+  }
+
+  private async getMemberOnAndOfByRoomId (room: ChatRoomEntity, senderId: Uuid): Promise<any>{
+    //lọc danh sách member online và offline
+    const members = room.members.filter(member => member.userId != senderId)
+    const clientIdKeys = members.map(m => createCacheKey(CacheKey.EVENT_CONNECT,m.userId))
+    const cientCacheIds = await this.cacheManager.store.mget(...clientIdKeys)
+    const userIdKeys = cientCacheIds.map(m => createCacheKey(CacheKey.EVENT_CONNECT,m as string))
+    const userCacheIds = await this.cacheManager.store.mget(...userIdKeys)
+    console.log('a',userCacheIds);
+    
+    let onlineMembers = []
+    let offlineMembers = []
+    userCacheIds.forEach((id, index) => {
+      if (id) {
+        if (members[index]) {
+          onlineMembers.push(members[index])
+        }
+      }else{
+        if (members[index]) {
+          offlineMembers.push(members[index])
+        }
+      }
+    });
+
+    return {
+      onlineMembers,
+      offlineMembers
+    }
   }
   
 }

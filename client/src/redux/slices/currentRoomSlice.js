@@ -1,17 +1,14 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import roomAPI from '../../service/roomAPI';
-import messageAPI from '../../service/messageAPI';
 import AxiosInstant from '../../config/axiosInstant';
-
 const roomUrl = 'rooms'
 const messageUrl = 'messages'
 
 export const loadMoreMessages = createAsyncThunk(
   'rooms/load-more-messages',
-  async ( {roomId, affterCursor}, {rejectWithValue}) => {    
+  async ( {roomId, afterCursor}, {rejectWithValue}) => {    
     try {
       let q = `${messageUrl}?roomId=${roomId}`
-      if (affterCursor) q += `&affterCursor=${affterCursor}`
+      if (afterCursor) q += `&afterCursor=${afterCursor}`
       return await AxiosInstant.get(q)
     } catch (error) {
       return rejectWithValue(error.message)
@@ -29,10 +26,11 @@ export const getRoomById = createAsyncThunk(
   }
 )
 export const sendTextMsg = createAsyncThunk(
-  'rooms/get-room-by-id',
-  async ( {roomId}, {rejectWithValue}) => {
+  'rooms/send-text-msg',
+  async ( {roomId, data}, {rejectWithValue}) => {
     try {
-      return await AxiosInstant.get(`${roomUrl}/${roomId}`)
+      const q = `${messageUrl}/${roomId}/text`
+      return await AxiosInstant.post(q,data)
     } catch (error) {
       return rejectWithValue(error.message)
     }
@@ -54,6 +52,9 @@ const currentRoomSlice = createSlice({
     messages:[],
     pagination:{},
     isWritingMsg:[],
+    membersObj: {},
+    // receivedMemberIds: [],
+    // viewedMemberIds: [],
     memberWritingMsg:null,
 
     isLoading: false
@@ -74,6 +75,9 @@ const currentRoomSlice = createSlice({
       state.roomAvatarUrl = partnerAvatarUrl
       state.roomName = roomName
     },
+    loadMoreMessage: () => {
+      
+    }
   },
   extraReducers: (builder) => {
     builder.addCase(loadMoreMessages.pending, (state, action) => {
@@ -81,7 +85,7 @@ const currentRoomSlice = createSlice({
     }),
     builder.addCase(loadMoreMessages.fulfilled, (state, action) => {
       const {data, pagination} = action.payload
-      state.messages = data
+      state.messages = [...state.messages,...data]
       state.pagination = pagination
       state.isLoading = false
     }),
@@ -92,7 +96,26 @@ const currentRoomSlice = createSlice({
       const {memberId, members} = action.payload
       state.memberId = memberId
       state.members = members
+      state.members.forEach(mem => {
+        state.membersObj[mem.id] = mem
+      });
       state.isLoading = false
+    }),
+    builder.addCase(sendTextMsg.fulfilled, (state, action) => {      
+      state.messages = [action.payload,...state.messages]
+      const receivedMemberIds = action.payload.receivedMemberIds      
+      receivedMemberIds.forEach(id => {
+        state.membersObj[id] = {
+          ...state.membersObj[id],
+          msgRTime: action.payload.createdAt
+        }
+      });
+      state.members = state.members.map(m => {
+        return {
+          ...m,
+          ...(receivedMemberIds.includes(m.id) && {msgRTime: action.payload.createdAt})
+        }
+      })      
     })
   }
 });

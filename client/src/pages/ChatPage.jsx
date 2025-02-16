@@ -15,6 +15,8 @@ const ChatPage = () => {
   const { emit } = useSocket();
 
   const meId = useSelector((state) => state.me.user?.id)
+  console.log('re-render');
+  
   
   useSocketEvent(
     `new_message`,(data) => {           

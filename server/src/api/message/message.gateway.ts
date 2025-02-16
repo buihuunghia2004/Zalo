@@ -50,14 +50,15 @@ export class MessageGateway
     private readonly cacheManager: Cache,
   ) {}
 
-  async handleConnection(@ConnectedSocket() client: Socket) {    
+  async handleConnection(@ConnectedSocket() client: Socket) {   
     try {
       const accessToken = this.extractTokenFromHeader(client);      
       const {id}: JwtPayloadType =
         await this.authService.verifyAccessToken(accessToken);
       
-      //caching lại userId bằng clientId  
+      //caching lại userId bằng clientId và ngược lại
       await this.cacheManager.set(createCacheKey(CacheKey.EVENT_CONNECT, client.id), id);
+      await this.cacheManager.set(createCacheKey(CacheKey.EVENT_CONNECT, id), client.id);
 
       //client join tất cả các phòng chat
       const roomIds = await this.chatRoomService.getAllRoomIdsByUserId(id)
@@ -97,8 +98,10 @@ export class MessageGateway
       where:{roomId: data.roomId as Uuid, userId: userId as Uuid},
       select:['id']
     })    
-    //cache memberId bằng clientId
+    //cache memberId bằng clientId    
     await this.cacheManager.set(createCacheKey(CacheKey.JOIN_ROOM, client.id), member.id);
+    console.log('key',createCacheKey(CacheKey.JOIN_ROOM, client.id));
+    
 
     //console.log(`client ${client.id} has join room ${data.roomId}`);
   }
@@ -114,9 +117,9 @@ export class MessageGateway
     const memberId = await this.cacheManager.get(createCacheKey(CacheKey.JOIN_ROOM, client.id))
 
     //set thời gian rời phòng cho member
-    await this.memberRepository.update({id: memberId as Uuid},{msgVTime: new Date().getMilliseconds()})
+    await this.memberRepository.update({id: memberId as Uuid},{msgVTime: new Date()})
     
-    console.log(`client ${client.id} has leave room ${data.roomId}`);
+    //console.log(`client ${client.id} has leave room ${data.roomId}`);
   }
 
   @SubscribeMessage('writing-message')
@@ -124,7 +127,7 @@ export class MessageGateway
     @MessageBody() data: {roomId: string, status: boolean },
     @ConnectedSocket() client: Socket,
   ) {
-    const memberId = await this.cacheManager.get(createCacheKey(CacheKey.JOIN_ROOM, client.id))
+    const memberId = await this.cacheManager.get(createCacheKey(CacheKey.JOIN_ROOM, client.id))    
     const isWriting = await this.cacheManager.get('writing-msg:'+data.roomId)
     if (data.status && !isWriting) {
       await this.cacheManager.set('writing-msg:'+data.roomId,memberId)
@@ -139,7 +142,7 @@ export class MessageGateway
 
   @OnEvent(EventEmitterKey.NEW_MESSAGE)
   async newMessage(data: any) {
-    const { onlineMembers, offineMembers,  roomId, createdAt } = data;
+    const { onlineMembers, offineMembers,  roomId, createdAt, content } = data;    
 
     //lọc danh sách member online và offline
     // const userIdKeys = members.map(m => createCacheKey(CacheKey.EVENT_CONNECT,m.userId))
@@ -148,12 +151,15 @@ export class MessageGateway
     // let offineMembers = []
     // userCacheIds.forEach((id, index) => {
     //   if (id) {
-    //     //member.msgRTime = new Date(createdAt).getMilliseconds()
+    //     //member.msgRTime = new Date(createdAt)
     //     onlineMembers.push(members[index])
     //   }else{
     //     offineMembers.push(members[index])
     //   }
     // });
+
+    console.log('on',onlineMembers);
+    
 
     //gửi đến các user đang online
     this.server.to(SOCKET_ROOM + roomId).emit(data)
@@ -161,8 +167,11 @@ export class MessageGateway
     //lưu trạng thái đã nhận tin nhắn cho các user đang online
     await this.memberRepository.update(
       {id: In(onlineMembers.map(m => m.id))},
-      {msgRTime: new Date(createdAt).getMilliseconds()}
+      {msgRTime: new Date(createdAt)}
     )
+
+    console.log('offf',offineMembers);
+    
 
     /**
      * Khi user offline
@@ -176,12 +185,19 @@ export class MessageGateway
      * }
      * trong đó xxx-yyy là roomId
      */
+
+    //tạo danh sách keys member offline chưa nhận tin nhắn bằng userId
     const mKeys: string[] = offineMembers.map(m => createCacheKey(CacheKey.UNRECEIVE_MSG, m.userId))
+    console.log('mkeyss',mKeys);
+    
+    //lấy danh sách members chưa nhận tin nhắn lần trước
     let mOldOffData = await this.cacheManager.store.mget(...mKeys)
+    console.log('mOldOffData',mOldOffData);
+    //Tạo danh sách members chưa nhận tin nhắn mới
     const mNewOffData: Array<[string, any]> = mOldOffData.map((m, index)=> {
       const value = {}
       value[roomId] = {
-        lastMsg: data.content,
+        lastMsg: content,
         count: m[roomId] ? m[roomId].count + 1 : 1
       }
       return [
@@ -189,15 +205,20 @@ export class MessageGateway
         value
       ]
     })
+    console.log('3',mNewOffData);
+    
+    //caching lại danh sách members chưa nhận tin nhắn
     await this.cacheManager.store.mset(mNewOffData)
   }
 
-  async loadMsgWhenConnect(userId: string,  clientSocketId: string) {
+  async loadMsgWhenConnect(userId: string,  clientSocketId: string) {    
     //Lấy danh sách các phòng có tin nhắn mới
     const unReceiveMsgRooms = await this.cacheManager.get(createCacheKey(CacheKey.UNRECEIVE_MSG, userId))
+    console.log('unReceiveMsgRooms',unReceiveMsgRooms);
+    
     if (unReceiveMsgRooms) {
       //Emit socket về client
-      this.server.to(clientSocketId).emit(
+      this.server.emit(
         SocketEmitKey.LOAD_MORE_MSGS_WHEN_CONNECT,
         unReceiveMsgRooms
       )
@@ -209,10 +230,9 @@ export class MessageGateway
           where: {roomId: id as Uuid, userId: userId as Uuid}
         })
         this.server.to(id).emit(SocketEmitKey.RECEIVED_MSG,member.id)
-      }))
-
-      await this.memberRepository.update({userId: userId as Uuid},{msgRTime: new Date().getMilliseconds()})
+      })) 
     }
+    await this.memberRepository.update({userId: userId as Uuid},{msgRTime: new Date()})
   }
 
   private  extractTokenFromHeader(request: Socket): string | undefined {
