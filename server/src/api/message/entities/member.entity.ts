@@ -31,11 +31,11 @@ export class MemberEntity extends AbstractEntity{
   @Column({name: 'viewed_msg_id', nullable: true})
   viewedMsgId?: Uuid
 
-  @Column({name: 'msg_r_time', nullable:true, default: 0})
-  msgRTime?: number
+  @Column({name: 'msg_r_time', nullable:true, default: new Date()})
+  msgRTime?: Date
 
-  @Column({name: 'msg_v_time', nullable: true, default: 0})
-  msgVTime?: number
+  @Column({name: 'msg_v_time', nullable: true, default: new Date()})
+  msgVTime?: Date
 
   @OneToMany(()=>MessageEntity,(message)=>message.sender)
   messages: MessageEntity[]

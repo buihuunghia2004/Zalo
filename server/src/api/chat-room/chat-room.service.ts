@@ -131,7 +131,7 @@ export class ChatRoomService {
         id: room.id,
         roomName,
         type: room.type,
-        lastMsg: {...room.messages[0], isSelfSent: memberMe.id == room.messages[0].senderId  },
+        lastMsg: {...room.messages[0], isSelfSent: memberMe.id == room.messages[0]?.senderId  },
         ...(isGroup && {memberCount: room.members.length}),
         ...(isGroup ? {roomAvatarUrls: roomAvatarUrl} : {roomAvatarUrl})
       }

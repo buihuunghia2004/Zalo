@@ -51,7 +51,7 @@ export class MessageResDto {
 
   @StringField({each: true})
   @Expose()
-  receivedMembers: string;
+  receivedMemberIds: string;
 
   @ClassField(()=> RoomResDto)
   @Expose()

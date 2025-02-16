@@ -11,6 +11,7 @@ import { MessageResDto } from './dto/message.res.dto';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { SendTextMsgReqDto } from './dto/send-text-msg.req.dto';
 // import { UpdateMessageDto } from './dto/update-message.dto';
 
 @ApiTags('messages')
@@ -40,6 +41,15 @@ export class MessageController {
     @CurrentUser('id') id: Uuid
   ) {
     return this.messageService.sendMessage(dto, file, id);
+  }
+
+  @Post(':roomId/text')
+  sendTextMsg(
+    @Param('roomId') roomId: Uuid,
+    @Body() dto: SendTextMsgReqDto,
+    @CurrentUser('id') id: Uuid
+  ) {
+    return this.messageService.sendTextMsg(roomId, dto, id);
   }
 
   @Get()
