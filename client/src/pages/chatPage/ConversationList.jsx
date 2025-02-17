@@ -151,7 +151,7 @@ const ConversationItem = ({
       ) : (
         <div className='relative z-0'>
           <GroupAvatar
-            members={data.members.map(member=>member.user)}
+            roomAvatarUrls={data.roomAvatarUrls}
           />
         </div>
       )}

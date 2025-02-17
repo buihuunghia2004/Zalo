@@ -2,9 +2,10 @@ import axiosInstance from '~/configs/axiosInstance';
 import {_GetAllRoomRes, _GetRoomIdByUserIdRes, _GetRoomRes} from './dto/room.dto.parent';
 
 const getAllRoom = async (): Promise<_GetAllRoomRes> => {
-  try {
-    const res = await axiosInstance.get('rooms');
-    return res.data;
+  try {  
+
+    const res = await axiosInstance.get('rooms');      
+    return res.data
   } catch (error: any) {
     console.error('Error while searching user:', error);
     throw error;

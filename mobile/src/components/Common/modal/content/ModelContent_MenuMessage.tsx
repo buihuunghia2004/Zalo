@@ -13,14 +13,19 @@ import {colors} from '~/styles/Ui/colors';
 import {Assets} from '~/styles/Ui/assets';
 import {textStyle} from '~/styles/Ui/text';
 import RNHapticFeedback from 'react-native-haptic-feedback';
+import { WINDOW_HEIGHT } from '~/utils/Ui/dimensions';
+import { logout } from '~/features/auth/authSlice';
 
 interface MenuItem {
   id: string;
   title: string;
   icon: ImageSourcePropType;
 }
+type Props = {
+  pageY: number
+};
 
-const ModalContent_MenuMessage: React.FC = () => {
+const ModalContent_MenuMessage:React.FC<Props> = ({pageY}) => {
   const menuItems: MenuItem[] = [
     {id: '1', title: 'Trả lời', icon: Assets.icons.reply_message},
     {id: '2', title: 'Chuyển tiếp', icon: Assets.icons.reply_message},
@@ -44,7 +49,7 @@ const ModalContent_MenuMessage: React.FC = () => {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   // Xử lý khi long press
-  const handleLongPress = (index: number) => {
+  const handleLongPress = (index: number) => {    
     RNHapticFeedback.trigger('impactMedium');
     Animated.timing(scales[index], {
       toValue: 1.8,
@@ -102,8 +107,8 @@ const ModalContent_MenuMessage: React.FC = () => {
   ).current;
 
   return (
-    <>
-      <View style={styles.modalContainer}>
+    <View style={styles.container}>
+       <View style={styles.modalContainer}>
         <Text>aaaaa</Text>
       </View>
 
@@ -127,6 +132,8 @@ const ModalContent_MenuMessage: React.FC = () => {
                   ],
                 },
               ]}
+              onPress={()=>console.log('99')
+              }
               onLongPress={() => handleLongPress(index)}>
               {emoji}
             </Animated.Text>
@@ -151,13 +158,17 @@ const ModalContent_MenuMessage: React.FC = () => {
           />
         </View>
       </View>
-    </>
+    </View>
   );
 };
 
 export default ModalContent_MenuMessage;
 
 const styles = StyleSheet.create({
+  container: {
+    backgroundColor: colors.transparent, 
+    flex: 1
+  },
   modalContainer: {
     flex: 1,
     padding: 10,

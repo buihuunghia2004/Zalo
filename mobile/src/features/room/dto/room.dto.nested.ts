@@ -6,11 +6,13 @@ import { _MessageSentRes } from '~/features/message/dto/message.dto.parent';
 export interface Room {
   id: string;
   roomAvatarUrl: string;
+  roomAvatarUrls: string[];
   roomName: string;
   type: RoomTypeEnum;
-  members: MemberDto[];
-  lastMsg: _MessageSentRes
-  quantityUnReadMessages: number
+  members?: MemberDto[];
+  lastMsg: LastMsg
+  memberCount: number
+  quantityUnReadMessages?: number
 }
 export interface MemberDto {
   id: string;

@@ -1,7 +1,7 @@
 import { Room } from "./room.dto.nested";
-import { ApiResHasPagination, PaginationRes } from "~/features/common/pagination/paginationDto";
+import { CursorPaginatedRes } from "~/features/common/pagination/paginationDto";
 
-export interface _GetAllRoomRes extends ApiResHasPagination<Room[]>{}
+export interface _GetAllRoomRes extends CursorPaginatedRes<Room[]>{}
 
 export interface _GetRoomRes extends Room{}
 
