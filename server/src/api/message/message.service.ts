@@ -31,7 +31,7 @@ import { Cache } from 'cache-manager';
 import { createCacheKey } from '@/utils/cache.util';
 import { CacheKey } from '@/constants/cache.constant';
 import { SendTextMsgReqDto } from './dto/send-text-msg.req.dto';
-import { MessageType } from '@/constants/entity-enum/message.enum';
+import { LoadMessagesFromReqDto } from './dto/load-messages-from.req.dto';
 
 
 @Injectable()
@@ -131,10 +131,6 @@ export class MessageService {
       }
     });
 
-    console.log('onlineMembers',onlineMembers);
-    console.log('offineMembers',offineMembers);
-    
-
     const result = {
       ...newMessage,
       receivedMembers: onlineMembers.map(m => m.id)
@@ -172,7 +168,7 @@ export class MessageService {
         roomId: roomId,
         userId: meId
       },
-      select:['id']
+      select:['id','userId']
     })
     const newMessageData = new MessageEntity({
       content: data.content,
@@ -184,7 +180,11 @@ export class MessageService {
     })
     if (data?.replyMessageId) newMessageData.replyMessageId = data.replyMessageId
     
-    const newMsg = await this.messageRepository.save(newMessageData)
+    const newMessage = await this.messageRepository.save(newMessageData)
+    const newMsg = await this.messageRepository.findOne({
+      where:{id: newMessage.id},
+      relations:['parentMessage','sender']
+    })
     const {
       onlineMembers,
       offlineMembers
@@ -270,6 +270,88 @@ export class MessageService {
     return new CursorPaginatedDto(plainToInstance(MessageResDto, result), metaDto);
   }
 
+  async loadMessageFrom(reqDto: LoadMessagesFromReqDto, meId: Uuid): Promise<CursorPaginatedDto<MessageResDto>> {    
+    const msg = await this.messageRepository.findOne({
+      where:{id: reqDto.messageId as Uuid},
+      select:['createdAt']
+    })    
+    const queryBuilder = this.messageRepository
+      .createQueryBuilder('message')
+      .select([
+        'message.id',
+        'message.type',
+        'message.content',
+        'message.createdAt',
+      ])
+      .leftJoin('message.parentMessage','replyMsg')
+      .addSelect([
+        'replyMsg.id',
+        'replyMsg.type',
+        'replyMsg.content',
+        'replyMsg.createdAt',
+      ])
+      .leftJoin('message.sender','sender')
+      .addSelect([
+        'sender.id',
+      ])
+      .leftJoin('sender.user','user')
+      .addSelect([
+        'user.id',
+        'user.username',
+        'user.avatarUrl',
+      ])
+      .where('message.roomId = :room_id', { room_id: reqDto.roomId });
+
+    const beforeMsgsQuery = queryBuilder.clone().andWhere('message.createdAt >= :createdAt',{createdAt: msg.createdAt})
+    const afterMsgsQuery = queryBuilder.clone().andWhere('message.createdAt <= :createdAt',{createdAt: msg.createdAt})
+
+    const afterPaginator = buildPaginator({
+      entity: MessageEntity,
+      alias: 'message',
+      paginationKeys: ['createdAt'],
+      query: {
+        limit: reqDto.limit,
+        order: SortEnum.DESC,
+        afterCursor: reqDto.afterCursor,
+        beforeCursor: reqDto.beforeCursor,
+      },
+    });
+    const beforePaginator = buildPaginator({
+      entity: MessageEntity,
+      alias: 'message',
+      paginationKeys: ['createdAt'],
+      query: {
+        limit: reqDto.limit,
+        order: SortEnum.ASC,
+        afterCursor: reqDto.afterCursor,
+        beforeCursor: reqDto.beforeCursor,
+      },
+    });  
+
+    const beforeData = await beforePaginator.paginate(beforeMsgsQuery)    
+    const afterData = await afterPaginator.paginate(afterMsgsQuery)
+
+    const data = [...beforeData.data.reverse(),...afterData.data]
+    const cursor = {
+      beforeCursor: beforeData.cursor.afterCursor,
+      afterCursor: afterData.cursor.afterCursor
+    }
+    const result = data.map(item => {
+      return {
+        ...item,
+        isSelfSent: item.sender.user.id == meId
+      }
+    })
+    
+    const metaDto = new CursorPaginationDto(
+      result.length,
+      cursor.afterCursor,
+      cursor.beforeCursor,
+      reqDto,
+    );
+
+    return new CursorPaginatedDto(plainToInstance(MessageResDto, result), metaDto);
+  }
 
   async findAllMemberByRoomId(roomId: Uuid){
     const queryBuilder = await this.memberRepository

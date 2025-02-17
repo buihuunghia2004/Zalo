@@ -14,6 +14,50 @@ export default {
   			'dark-4': '#2D3136',
   			'dark-5': '#595B5F',
   			'blue-1': '#0068FF',
+				// Nền của danh sách chat, khung nhập tin nhắn
+        'gray-zalo-lightest': '#F7F7F7', 
+
+        // Nền tin nhắn nhận, phân tách nội dung
+        'gray-zalo-lighter': '#F1F1F1', 
+
+        // Viền khung nhập, đường kẻ phân cách
+        'gray-zalo-light': '#E5E5E5', 
+
+        // Viền avatar, viền nút bấm phụ
+        'gray-zalo-medium': '#D1D1D1', 
+
+        // Màu chữ mô tả, thời gian tin nhắn
+        'gray-zalo-secondary': '#A1A1A1', 
+
+        // Màu chữ phụ trong danh sách chat
+        'gray-zalo-dark': '#666666', 
+
+        // Màu chữ tiêu đề, thông tin quan trọng
+        'gray-zalo-darker': '#444444',
+
+				// Màu chủ đạo (Primary)
+        'zalo-primary': '#0068FF', // Xanh dương chính của Zalo
+
+        // Màu nền chính
+        'zalo-background': '#FFFFFF', // Trắng
+
+        // Màu chữ chính
+        'zalo-text': '#222222', // Màu chữ đậm
+
+        // Màu chữ phụ
+        'zalo-text-secondary': '#A1A1A1', // Mô tả, thời gian
+
+        // Màu tin nhắn gửi đi
+        'zalo-message-sent': '#E2EEFF', // Xanh nhạt
+
+        // Màu tin nhắn nhận
+        'zalo-message-received': '#F1F1F1', // Xám nhạt
+
+        // Màu thông báo
+        'zalo-notification': '#FF424F', // Đỏ cảnh báo
+
+        // Màu liên kết
+        'zalo-link': '#007AFF', // Xanh dương sáng
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {

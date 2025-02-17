@@ -8,8 +8,10 @@ import { useSocket } from '../../socket/SocketProvider'
 import Utils from '../../utils/utils'
 import {
   getRoomById,
+  loadMessagesFrom,
   loadMoreMessages,
   sendTextMsg,
+  setMsgReply,
   setReceiver,
 } from '../../redux/slices/currentRoomSlice'
 
@@ -26,10 +28,11 @@ const ConversationContent = () => {
   // })
   console.log('re-render-ConversationContent')
 
-  // if (roomId) {
-  // useSocketEvent('writing_message', (data) => {
-  //   setpartnerWriting(data)
-  // })
+  //   if (roomId) {
+  //   useSocketEvent('writing_message', (data) => {
+  //     // setpartnerWriting(data)
+  //   })
+  // }
   useSocketEvent('load_more_msgs_when_connect', (data) => {
     console.log('after connect', data)
   })
@@ -101,8 +104,6 @@ const ConversationContent = () => {
   //   } catch (error) {}
   // }
 
-  
-
   //load message
   useEffect(() => {
     if (roomId) {
@@ -115,8 +116,6 @@ const ConversationContent = () => {
       emit('leave-room', { roomId: roomId })
     }
   }, [roomId])
-
-  
 
   // useEffect(() => {
   //   if (room?.type == RoomTypeEnum.GROUP) {
@@ -176,36 +175,67 @@ const MsgContent = ({ roomId }) => {
   const pagination = useSelector((state) => state.currentRoom.pagination)
   const members = useSelector((state) => state.currentRoom.members)
   const memberId = useSelector((state) => state.currentRoom.memberId)
+  const itemRefs = useRef([]); 
+  const [msgScroll, setMsgScroll] = useState(false)
 
   let membersObj = {}
   members.forEach((mem) => {
     membersObj[mem.id] = mem
   })
 
-  const fetchMoreMessages = ({ roomId, afterCursor }) => {
-    console.log('fetch');
-    
-    dispatch(loadMoreMessages({ roomId, afterCursor }))
-  }
-
   useSocketEvent('writing_message', (data) => {
     setpartnerWriting(data)
   })
+
+  const onReplyItemClick = ({ messageId }) => {
+    const index = messages.findIndex(m => m.id == messageId)
+    
+    //nếu index ko có thì load và scroll
+    if (index == -1) {
+      dispatch(loadMessagesFrom({ roomId, messageId }))
+      setMsgScroll(messageId)
+    }else if ((index + 7) < messages.length) {
+      itemRefs.current[index]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  const loadOlderMessages = () => {
+    if (pagination.afterCursor) {
+      dispatch(loadMoreMessages({ roomId, afterCursor: pagination.afterCursor }))
+    }
+  };
+
+  const loadNewerMessages = () => {
+    if (pagination.beforeCursor) {
+      dispatch(loadMoreMessages({ roomId, beforeCursor: pagination.beforeCursor }))
+    }
+  };
+  const handleScroll = (e) => {
+    if (e.target.scrollTop == 0) loadNewerMessages()
+  };
+
+  useEffect(() => {
+    if (msgScroll) {
+      const index = messages.findIndex(m => m.id == msgScroll)
+      if (index !== -1) {
+        itemRefs.current[index]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+    setMsgScroll(null)
+  }, [messages])
+  
+
   return (
     <>
       <div
         id="scrollableDiv"
+        onScroll={handleScroll}
         className="flex h-full flex-col-reverse overflow-auto bg-slate-100"
       >
         {/*Put the scroll bar always on the bottom*/}
         <InfiniteScroll
           dataLength={messages.length}
-          next={() =>
-            fetchMoreMessages({
-              roomId,
-              afterCursor: pagination.afterCursor,
-            })
-          }
+          next={loadOlderMessages}
           style={{ display: 'flex', flexDirection: 'column-reverse' }} //To put endMessage and loader to the top.
           inverse={true} //
           hasMore={pagination.afterCursor}
@@ -217,11 +247,9 @@ const MsgContent = ({ roomId }) => {
             const isLastMsgEachMember =
               senderId != messages[index - 1]?.sender.id
             const isSelfSent = senderId == memberId
-
             return (
-              <>
+              <div key={item.id} ref={(el) => (itemRefs.current[index] = el)}>
                 <MessageItem
-                  key={item.id}
                   data={item}
                   isShowTime={index == 0 || isLastMsgEachMember}
                   isShowAvatar={isLastMsgEachMember && !isSelfSent}
@@ -232,27 +260,28 @@ const MsgContent = ({ roomId }) => {
                       new Date(m?.msgRTime).getTime() >=
                         new Date(item.createdAt).getTime() && m.id != memberId
                   )}
+                  onReplyItemClick={onReplyItemClick}
                   avatarUrl={membersObj[senderId].user.avatarUrl}
                   // isLeader={senderId == leader?.id}
                   // setMsgRep={setMsgRep}
                   msgRep={item.parentMessage}
                 />
-              </>
+              </div>
             )
           })}
         </InfiniteScroll>
       </div>
-      <WritingCompoent memberId={memberId}/>
+      <WritingCompoent memberId={memberId} />
     </>
   )
 }
 
-const WritingCompoent = ({memberId}) => {
+const WritingCompoent = ({ memberId }) => {
   const [partnerWriting, setPartnerWriting] = useState({})
   useSocketEvent('writing_message', (data) => {
     setPartnerWriting(data)
   })
-  
+
   return (
     <>
       {partnerWriting?.status && memberId != partnerWriting?.memberId && (
@@ -266,22 +295,24 @@ const WritingCompoent = ({memberId}) => {
 
 const MsgInput = ({ roomId }) => {
   const dispatch = useDispatch()
-  const { emit } = useSocket()
+  const msgReply = useSelector((state) => state.currentRoom.msgReply)
 
   const [textContent, setTextContent] = useState('')
   const [msgRep, setMsgRep] = useState(null)
   const [isWriting, setIsWriting] = useState(false)
 
-
   const handleFileChange = async (event) => {
     // SendMessage({ files: event.target.files })
   }
 
-  const sendTextMessage = async ({ roomId, content }) => {
-    dispatch(sendTextMsg({ roomId, data: { content } }))
-    // scrollToBottom()
+  const cancelReply = () => {
+    dispatch(setMsgReply(null))
+  }
+
+  const sendTextMessage = async ({ roomId, data }) => {
+    dispatch(sendTextMsg({ roomId, data }))
     setTextContent('')
-    // setMsgRep(null)
+    cancelReply(null)
   }
 
   // useEffect(() => {
@@ -320,12 +351,21 @@ const MsgInput = ({ roomId }) => {
           className="size-8 cursor-pointer"
         />
       </div>
-      {msgRep && (
-        <div className="flex flex-row justify-between px-2">
-          <p className="">{msgRep.content}</p>
+      {msgReply && (
+        <div className="m-4 flex flex-row gap-4 rounded-md bg-gray-zalo-lighter p-2">
+          <div className="h-12 w-1 rounded-md bg-zalo-primary" />
+          <div className="flex flex-1 flex-col">
+            <div className="flex flex-row gap-1">
+              <p className="text-gray-zalo-dark">{`Trả lời`}</p>
+              <p className="font-bold text-gray-zalo-darker">
+                {msgReply.sender.user.username}
+              </p>
+            </div>
+            <p className="text-gray-zalo-dark">{msgReply.content}</p>
+          </div>
           <p
-            onClick={() => setMsgRep(null)}
-            className="font-medium text-red-600"
+            onClick={cancelReply}
+            className="cursor-pointer font-medium text-red-600"
           >
             Hủy
           </p>
@@ -345,14 +385,9 @@ const MsgInput = ({ roomId }) => {
             if (e.key === 'Enter') {
               const data = {
                 content: textContent,
+                ...(msgReply && { replyMessageId: msgReply.id }),
               }
-              if (msgRep) {
-                data.parentMessage = {
-                  id: msgRep.id,
-                  content: msgRep.content,
-                }
-              }
-              sendTextMessage({ roomId, content })
+              sendTextMessage({ roomId, data })
             }
           }}
         />
@@ -363,14 +398,9 @@ const MsgInput = ({ roomId }) => {
             if (textContent.length > 0) {
               const data = {
                 content: textContent,
+                ...(msgReply && { replyMessageId: msgReply.id }),
               }
-              if (msgRep) {
-                data.parentMessage = {
-                  id: msgRep.id,
-                  content: msgRep.content,
-                }
-              }
-              sendTextMessage({ roomId, content: data.content })
+              sendTextMessage({ roomId, data })
             }
           }}
         />
@@ -391,11 +421,17 @@ const MessageItem = memo(
     status,
     isSelfSent,
     isShowStatus,
+    onReplyItemClick,
   }) => {
+    const dispatch = useDispatch()
     const { content, type, sender, createdAt } = data
 
     const [isHovered, setIsHovered] = useState(false) // Trạng thái hover
     const ref = useRef(null)
+
+    const setMessageReply = () => {
+      dispatch(setMsgReply(data))
+    }
 
     useEffect(() => {
       const element = ref.current
@@ -436,24 +472,30 @@ const MessageItem = memo(
             )}
           </div>
           <div
-            className={`rounded border-2 border-slate-300 bg-white p-2 ${!isSelfSent ? 'ml-2' : 'mr-2'}`}
+            className={`rounded border-2 border-slate-300 p-2 ${isSelfSent ? 'mr-2 bg-blue-100' : 'ml-2'}`}
           >
             {msgRep && (
-              <div className="rounded-md p-2">
-                <p className="font-bold">Nghĩa</p>
-                {msgRep.type == 'text' ? (
-                  <p className="">{msgRep?.content || ''}</p>
-                ) : (
-                  <div class="max-w-lg p-4">
-                    <div class="relative overflow-hidden">
-                      <img
-                        src={msgRep.content}
-                        alt="Dynamic Image"
-                        class="max-h-[300px] max-w-full rounded-md border object-contain shadow-lg"
-                      />
+              <div
+                className={`flex cursor-pointer flex-row gap-2 rounded-md pr-2 ${isSelfSent ? 'bg-blue-200' : 'bg-gray-200'}`}
+                onClick={() => onReplyItemClick({ messageId: msgRep.id })}
+              >
+                <div className="h-14 w-1 rounded-md bg-blue-600" />
+                <div className="flex flex-col">
+                  <p className="items-end font-bold">Nghĩa</p>
+                  {msgRep.type == 'text' ? (
+                    <p className="">{msgRep?.content || ''}</p>
+                  ) : (
+                    <div class="max-w-lg p-4">
+                      <div class="relative overflow-hidden">
+                        <img
+                          src={msgRep.content}
+                          alt="Dynamic Image"
+                          class="max-h-[300px] max-w-full rounded-md border object-contain shadow-lg"
+                        />
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             )}
             {type == 'text' ? (
@@ -475,11 +517,22 @@ const MessageItem = memo(
             )}
           </div>
           {isHovered && (
-            <div onClick={() => setMsgRep(data)}>
-              <img
-                className="size-4 rounded-full"
-                src={sender?.user?.avatarUrl}
-                alt="Placeholder"
+            <div
+              className="mx-2 flex flex-row items-end gap-2"
+              onClick={() => setMsgRep(data)}
+            >
+              <IconOptionMsg
+                onClick={setMessageReply}
+                url={Assets.icons.quotesSecond}
+                hoverUrl={Assets.icons.quotesPrimary}
+              />
+              <IconOptionMsg
+                url={Assets.icons.forwardSecond}
+                hoverUrl={Assets.icons.forwardPrimary}
+              />
+              <IconOptionMsg
+                url={Assets.icons.moreSecond}
+                hoverUrl={Assets.icons.morePrimary}
               />
             </div>
           )}
@@ -495,5 +548,37 @@ const MessageItem = memo(
     )
   }
 )
+
+const IconOptionMsg = ({ url, hoverUrl, onClick }) => {
+  const [isHovered, setIsHovered] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    const element = ref.current
+
+    const handleMouseEnter = () => setIsHovered(true) // Đang hover
+    const handleMouseLeave = () => setIsHovered(false) // Không hover
+
+    // Gắn sự kiện
+    element.addEventListener('mouseenter', handleMouseEnter)
+    element.addEventListener('mouseleave', handleMouseLeave)
+
+    // Dọn dẹp sự kiện khi component bị unmount
+    return () => {
+      element.removeEventListener('mouseenter', handleMouseEnter)
+      element.removeEventListener('mouseleave', handleMouseLeave)
+    }
+  }, [])
+
+  return (
+    <img
+      className="size-6 cursor-pointer rounded-full border border-gray-200 bg-white p-1"
+      ref={ref}
+      onClick={onClick}
+      src={isHovered ? hoverUrl : url}
+      alt="Placeholder"
+    />
+  )
+}
 
 export default ConversationContent

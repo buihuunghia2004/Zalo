@@ -41,20 +41,20 @@ export const AddFriendModalSearchContent = ({
         {/* Friend Suggestions */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span>Nhân (+84) 0389 857 738</span>
-            <button className="rounded-md border border-blue-600 px-3 py-1 text-sm text-blue-600 hover:bg-blue-600 hover:text-white">
+            <span className="text-black">Nhân (+84) 0389 857 738</span>
+            <button className="rounded-md border border-blue-600 px-3 py-1 text-sm text-blue-600 hover:bg-blue-300 font-bold">
               Kết bạn
             </button>
           </div>
           <div className="flex items-center justify-between">
-            <span>Khánh Linh (+84) 0327 056 892</span>
-            <button className="rounded-md border border-blue-600 px-3 py-1 text-sm text-blue-600 hover:bg-blue-600 hover:text-white">
+            <span className="text-black">Khánh Linh (+84) 0327 056 892</span>
+            <button className="rounded-md border border-blue-600 px-3 py-1 text-sm text-blue-600 hover:bg-blue-300 font-bold">
               Kết bạn
             </button>
           </div>
           <div className="flex items-center justify-between">
-            <span>Hà Đăng Mobile (+84) 0903 930 000</span>
-            <button className="rounded-md border border-blue-600 px-3 py-1 text-sm text-blue-600 hover:bg-blue-600 hover:text-white">
+            <span className="text-black">Hà Đăng Mobile (+84) 0903 930 000</span>
+            <button className="rounded-md border border-blue-600 px-3 py-1 text-sm text-blue-600 hover:bg-blue-300 font-bold">
               Kết bạn
             </button>
           </div>
@@ -65,14 +65,14 @@ export const AddFriendModalSearchContent = ({
       <div className="mt-6 flex justify-end space-x-3">
         <button
           onClick={onCancel}
-          className="rounded-md  px-4 py-2 bg-dark-3 hover:bg-dark-4"
+          className="rounded-md  px-4 py-2 bg-gray-zalo-light hover:bg-gray-zalo-secondary"
         >
           Hủy
         </button>
         <button 
           disabled={email.length == 0}
           onClick={handleSearch} 
-          className={`cursor-pointer rounded-md bg-blue-600 px-4 py-2 text-white ${email.length == 0 ? 'bg-dark-5 text-dark-4' : 'hover:bg-blue-500' } `}>
+          className={`cursor-pointer rounded-md bg-zalo-primary px-4 py-2 text-white ${email.length == 0 ? 'bg-dark-5 text-dark-4' : 'hover:bg-blue-800' } `}>
           Tìm kiếm
         </button>
       </div>

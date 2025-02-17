@@ -21,6 +21,12 @@ export const Assets = {
     settingOutLine: uriIcons + 'settings-out-line.png',
     roomLeaderKey: uriIcons + 'room-leader-key.png',
     roomVicerKey: uriIcons + 'room-vicer-key.png',
+    forwardPrimary: uriIcons + 'forward-primary.png',
+    forwardSecond: uriIcons + 'forward-second.png',
+    morePrimary: uriIcons + 'more-primary.png',
+    moreSecond: uriIcons + 'more-second.png',
+    quotesPrimary: uriIcons + 'quotes-primary.png',
+    quotesSecond: uriIcons + 'quotes-second.png',
   },
   images:{
     avatarDefault: uriImages + 'avatar-default.png'
