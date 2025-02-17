@@ -1,19 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UploadedFiles, UseInterceptors, BadRequestException, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Query, UseInterceptors, BadRequestException, UploadedFile } from '@nestjs/common';
 import { MessageService } from './message.service';
 import { ApiTags } from '@nestjs/swagger';
 import { SendMessageReqDto } from './dto/send-message.req.dto';
 import { CurrentUser } from '@/decorators/current-user.decorator';
 import { Uuid } from '@/common/types/common.type';
-import { CursorPaginationDto } from '@/common/dto/cursor-pagination/cursor-pagination.dto';
 import { CursorPaginatedDto } from '@/common/dto/cursor-pagination/paginated.dto';
 import { LoadMoreMessagesReqDto } from './dto/load-more-messages.req.dto';
 import { MessageResDto } from './dto/message.res.dto';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { SendTextMsgReqDto } from './dto/send-text-msg.req.dto';
-// import { UpdateMessageDto } from './dto/update-message.dto';
-
+import { LoadMessagesFromReqDto } from './dto/load-messages-from.req.dto';
 @ApiTags('messages')
 @Controller({
     path: 'messages',
@@ -59,6 +55,15 @@ export class MessageController {
   ): Promise<CursorPaginatedDto<MessageResDto>> {
     
     return this.messageService.loadMoreMessage(reqDto, meId);
+  }
+
+  @Get('from')
+  loadMessagesFrom(
+    @Query() reqDto: LoadMessagesFromReqDto,
+    @CurrentUser('id') meId: Uuid
+  ): Promise<CursorPaginatedDto<MessageResDto>> {
+    
+    return this.messageService.loadMessageFrom(reqDto, meId);
   }
 
   @Get(':id')

@@ -5,13 +5,26 @@ const messageUrl = 'messages'
 
 export const loadMoreMessages = createAsyncThunk(
   'rooms/load-more-messages',
-  async ( {roomId, afterCursor}, {rejectWithValue}) => {    
+  async ( {roomId, afterCursor, beforeCursor}, {rejectWithValue}) => {    
     try {
       let q = `${messageUrl}?roomId=${roomId}`
       if (afterCursor) q += `&afterCursor=${afterCursor}`
-      console.log('q',q);
-      
-      return await AxiosInstant.get(q)
+      if (beforeCursor) q += `&beforeCursor=${beforeCursor}`      
+      const result =  await AxiosInstant.get(q)
+      return {
+        ...result,
+        load: beforeCursor ? 'new' : 'old'
+      }
+    } catch (error) {
+      return rejectWithValue(error.message)
+    }
+  }
+)
+export const loadMessagesFrom = createAsyncThunk(
+  'rooms/load-messages-from',
+  async ( {roomId, messageId}, {rejectWithValue}) => {        
+    try {
+      return await AxiosInstant.get(`${messageUrl}/from?roomId=${roomId}&messageId=${messageId}`)
     } catch (error) {
       return rejectWithValue(error.message)
     }
@@ -33,6 +46,15 @@ export const sendTextMsg = createAsyncThunk(
     try {
       const q = `${messageUrl}/${roomId}/text`
       return await AxiosInstant.post(q,data)
+      // return {
+      //   ...result,
+      //   parentMessage:{
+      //     id:data.replyMessageId,
+      //     content: 'con cặc',
+      //     type:'text',
+      //     createdAt: new Date()
+      //   }
+      // }
     } catch (error) {
       return rejectWithValue(error.message)
     }
@@ -55,9 +77,10 @@ const currentRoomSlice = createSlice({
     pagination:{},
     isWritingMsg:[],
     membersObj: {},
-    // receivedMemberIds: [],
-    // viewedMemberIds: [],
     memberWritingMsg:null,
+
+    //thao tác trong room
+    msgReply:null,
 
     isLoading: false
   },
@@ -78,7 +101,6 @@ const currentRoomSlice = createSlice({
       state.roomName = roomName
     },
     loadMoreMessage: () => {
-      
     },
     setReceiver: (state, action) => {
       const { memerId, receivedAt } = action.payload
@@ -95,22 +117,40 @@ const currentRoomSlice = createSlice({
     },
     addNewMgs: (state, action) => {
       state.messages = [action.payload,...state.messages]
-    }
+    },
+    setMsgReply: (state, action) => {
+      state.msgReply = action.payload
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(loadMoreMessages.pending, (state, action) => {
       state.isLoading = true
-    }),
-    builder.addCase(loadMoreMessages.fulfilled, (state, action) => {
-      const {data, pagination} = action.payload
-      state.messages = [...state.messages,...data]
-      state.pagination = pagination
+    })
+    .addCase(loadMoreMessages.fulfilled, (state, action) => {
+      const {data, pagination, load} = action.payload
+      
+      if (load == 'old') {
+        state.messages = [...state.messages,...data]
+        state.pagination.afterCursor = pagination.afterCursor
+      }else{
+        state.messages = [...data,...state.messages]
+        state.pagination.beforeCursor = pagination.beforeCursor
+      }
       state.isLoading = false
-    }),
-    builder.addCase(getRoomById.pending, (state, action) => {
+    })
+    .addCase(loadMessagesFrom.pending, (state, action) => {
       state.isLoading = true
-    }),
-    builder.addCase(getRoomById.fulfilled, (state, action) => {
+    })
+    .addCase(loadMessagesFrom.fulfilled, (state, action) => {
+      state.messages = []
+      state.messages = action.payload.data
+      state.pagination = action.payload.pagination
+      state.isLoading = false
+    })
+    .addCase(getRoomById.pending, (state, action) => {
+      state.isLoading = true
+    })
+    .addCase(getRoomById.fulfilled, (state, action) => {
       const {memberId, members} = action.payload
       state.memberId = memberId
       state.members = members
@@ -118,8 +158,8 @@ const currentRoomSlice = createSlice({
         state.membersObj[mem.id] = mem
       });
       state.isLoading = false
-    }),
-    builder.addCase(sendTextMsg.fulfilled, (state, action) => {      
+    })
+    .addCase(sendTextMsg.fulfilled, (state, action) => {      
       state.messages = [action.payload,...state.messages]
       const receivedMemberIds = action.payload.receivedMemberIds      
       receivedMemberIds.forEach(id => {
@@ -141,7 +181,8 @@ const currentRoomSlice = createSlice({
 export const { 
   setCurrentRoom,
   setReceiver,
-  addNewMgs
+  addNewMgs,
+  setMsgReply
 } = currentRoomSlice.actions;
 
 export default currentRoomSlice.reducer;

@@ -7,6 +7,7 @@ import useSocketEvent from '../hooks/useSocket'
 import { addNewMgs } from '../redux/slices/currentRoomSlice'
 
 const ChatPage = () => {
+  const meId = useSelector(state => state.me.user.id)
   const rooms = useSelector((state) => state.rooms.data)
   const currentRoomId = useSelector(state => state.currentRoom.roomId)
   const distpatch = useDispatch()
@@ -21,15 +22,18 @@ const ChatPage = () => {
       console.log(currentRoomId == data.roomId);
       console.log(currentRoomId);
       console.log(data.roomId);
-      
-      if (currentRoomId == data.roomId) {
-        distpatch(addNewMgs(data))
-      }else{
-        distpatch(updateLastMsgForRoom({
-          roomId: data.roomId,
-          lastMsg: data
-        }))
+      if (data.sender.userId != meId) {
+        if (currentRoomId == data.roomId) {
+          distpatch(addNewMgs(data))
+        }else{
+          distpatch(updateLastMsgForRoom({
+            roomId: data.roomId,
+            lastMsg: data
+          }))
+        }
       }
+      
+      
       
       
       // if (!currentRoom || (data.roomId != currentRoom.id)) {
