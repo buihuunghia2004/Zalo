@@ -1,8 +1,12 @@
+
 import axios, {
   AxiosResponse,
   AxiosError,
   InternalAxiosRequestConfig,
 } from 'axios';
+import { useSelector } from 'react-redux';
+import { authSelector } from '~/features/auth/authSlice';
+import store from '~/stores/redux/store';
 import {ACCESS_TOKEN} from '~/utils/Constants/authConstant';
 import localStorage from '~/utils/localStorage';
 
@@ -14,15 +18,18 @@ const axiosInstance = axios.create({
   },
 });
 
-let accessToken = '';
+let accessTokenFast = '';
 
 export const setAuthorizationToken = (token: string) => {
-  accessToken = token;  
+  accessTokenFast = token;  
 };
 
 axiosInstance.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    if (accessToken) {      
+    const { accessToken } = store .getState().auth;
+    if (accessTokenFast) {
+      config.headers['Authorization'] = `Bearer ${accessToken}`;
+    }else{
       config.headers['Authorization'] = `Bearer ${accessToken}`;
     }
     return config;

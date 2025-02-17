@@ -8,12 +8,9 @@ import {AUTH_ASYNC_STORAGE_KEY} from '~/utils/Constants/authConstant';
 import {useAuthDispatch, useAuthSelector} from '~/stores/redux/store';
 import {setAuth, authSelector} from '~/features/auth/authSlice';
 import {loginGoogleResponse} from '~/features/auth/authDto';
-import {setAuthorizationToken} from '~/configs/axiosInstance';
 import {SocketProvider} from '~/socket/SocketProvider';
-import MenuMessDetailModal from '~/components/Common/modal/UModal';
-import UModal from '~/components/Common/modal/UModal';
-import ModalContent_MenuMessage from '~/components/Common/modal/content/ModelContent_MenuMessage';
-import ModalContent_Conversation from '~/components/Common/modal/content/ModalContent_Conversation';
+import { setAuthorizationToken } from '~/configs/axiosInstance';
+ 
 
 const AppRouters = () => {
   const authData = useAuthSelector(authSelector);
@@ -31,16 +28,13 @@ const AppRouters = () => {
 
     return () => clearTimeout(timeout);
   }, []);
-
   const checkLogin = async () => {
     const auth = await getItem();
 
     if (auth) {
-      const parsedAuth = JSON.parse(auth) as loginGoogleResponse;
-      console.log(parsedAuth.accessToken);
-      
+      const parsedAuth = JSON.parse(auth) as loginGoogleResponse;   
+      setAuthorizationToken(parsedAuth.accessToken)
       dispatch(setAuth(parsedAuth));
-      setAuthorizationToken(parsedAuth.accessToken);
     }
   };
 

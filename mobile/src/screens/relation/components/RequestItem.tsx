@@ -16,21 +16,28 @@ import {
   RelationStatus,
 } from '~/features/relation/dto/relation.dto.enum';
 import {Assets} from '~/styles/Ui/assets';
+import { useRelationStore } from '~/stores/zustand/relation.store';
 
 export interface RequestItemProps {
   relation: Relation;
   itemOnPress: (id: string, status: RelationStatus) => void; 
 }
 
-const RequestItem = ({ relation, itemOnPress }: RequestItemProps) => {
+const RequestItem = React.memo(({ relation, itemOnPress }: RequestItemProps) => {
+
   const mainNav = useNavigation<MainNavProp>();
+  const { relations_Changing, changingStatusRelation } = useRelationStore();
 
   const [_send, _setSend] = useState<boolean>(true);
   const [_received, _setReceived] = useState<any>(null);
-  
 
   useEffect(() => {    
     if (relation) {
+      relations_Changing.map((r) => {
+        if (relation.id === r.id) {
+          relation.status = r.status;
+        }
+      });
       setOptionUi();
     }
   }, [relation]);
@@ -63,9 +70,10 @@ const RequestItem = ({ relation, itemOnPress }: RequestItemProps) => {
       }
     }
   };
-  const handleWithAction = (action: RelationAction) => {
+  const handleWithAction = (action: RelationAction) => {   
     switch (action) {
       case RelationAction.ACCEPT:
+        changingStatusRelation(relation.id, RelationStatus.FRIEND)
         itemOnPress(relation.id, RelationStatus.FRIEND)
         _setReceived(true);
 
@@ -75,16 +83,19 @@ const RequestItem = ({ relation, itemOnPress }: RequestItemProps) => {
         break;
 
       case RelationAction.DECLINE:
+        changingStatusRelation(relation.id, RelationStatus.NOTTHING)
         itemOnPress(relation.id, RelationStatus.NOTTHING)
         _setReceived(false);
         break;
 
       case RelationAction.REVOKE:
+        changingStatusRelation(relation.id, RelationStatus.NOTTHING)
         itemOnPress(relation.id, RelationStatus.NOTTHING)
         _setSend(false);
         break;
 
       case RelationAction.SENT:
+        changingStatusRelation(relation.id, RelationStatus.PENDING)
         itemOnPress(relation.id, RelationStatus.PENDING)
         _setSend(true);
 
@@ -96,7 +107,9 @@ const RequestItem = ({ relation, itemOnPress }: RequestItemProps) => {
   };
 
   const handleItemOnpress = (action: RelationAction) => {
+    
     const relationId = relation.id;
+    
     const req = {relationId, action};
 
     relationApi.handleRequest(req).then(() => {
@@ -211,7 +224,7 @@ const RequestItem = ({ relation, itemOnPress }: RequestItemProps) => {
       )}
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   item: {

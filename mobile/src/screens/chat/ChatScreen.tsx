@@ -64,7 +64,7 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
   const mainNav = useNavigation<MainNavProp>();
   const route = useTypedRoute<typeof StackNames.ChatScreen>();
   const {roomId: roomIdPagram, userId} = route.params;
-
+  
   const inputRef = useRef<TextInput>(null);
 
   const [roomId, setRoomId] = useState(roomIdPagram);
@@ -76,8 +76,7 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
     fetchMember,
     fetchRoom,
     loadMoreMessage,
-    addMessage,
-    setMessages,
+    sendMessage,
     clearData,
   } = useChatStore();
   const {user} = useSelector(authSelector);
@@ -88,23 +87,14 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
   const [visibleMenuRoom, setVisivleMenuRoom] = useState(false);
   const [pageY, setPageY] = useState(0);
 
-  useSocketEvent<_MessageSentRes>({
-    event: `event:notify:${user}:new_message`,
-    callback: newMessage => {
-      addMessage({...newMessage, isSelfSent: false});
+  useSocketEvent<_MessageSentRes[]>({
+    event: `received_msg`,
+    callback: (newMessages) => {
+      console.log(newMessages);
     },
   });
-  if (roomId) {
-    useSocketEvent<{id: string; status: boolean}>({
-      event: `event:${roomId}:writing_message`,
-      callback(data) {
-        setIsPartnerWrite(data.status);
-      },
-    });
-  }
-
   // Fetch messages and set myId
-  useEffect(() => {
+  useEffect(() => {    
     const setData = async (): Promise<void> => {
       try {
         let roomIdTemp: any;
@@ -114,10 +104,9 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
         } else {
           if (userId) {
             const res = await RoomService.findOneByPartnerId(userId);
-            roomIdTemp = res.roomId;
+            roomIdTemp = res.roomId;            
           }
         }
-
         //emit join-room
         emit('join-room', {roomId: roomIdTemp, userId: user});
 
@@ -142,7 +131,7 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
       clearData();
       emit('out-room', {roomId: roomId});
     };
-  }, [roomId]);
+  }, []);
 
   useEffect(() => {
     const i = setTimeout(() => {
@@ -168,48 +157,11 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
   }, []);
 
   const handleSendMessage = async () => {
-    const msgIdTemp = `temp-${Date.now()}`;
-    const msgsTemp = messages;
-
-    const tempMessage: MessageBase = {
-      id: msgIdTemp,
-      content: inputText,
-      isSelfSent: true,
-      type: MessageContentEnum.TEXT,
-      status: MessageViewStatus.SENDING,
-    };
-    addMessage(tempMessage);
-    msgsTemp.unshift(tempMessage);
-    setInputText('');
-
-    const newMessage: _MessageSentReq = {
-      content: inputText,
-      contentType: MessageContentEnum.TEXT,
-      ...(userId && {receiverId: userId}),
-      ...(roomId != '' && {roomId: roomId}),
-    };
-    try {
-      const mesRes = await MessageService.SentMessage(newMessage);
-
-      if (mesRes.roomId) {
-        setRoomId(mesRes.roomId);
-      }
-
-      const newMsgs = msgsTemp.map(message => {
-        if (message.id == msgIdTemp) {
-          return {...mesRes, status: MessageViewStatus.SENT, isSelfSent: true};
-        }
-        return message;
-      });
-      setMessages(newMsgs);
-    } catch (error) {}
+    sendMessage(inputText, userId, roomId)
   };
 
   const loadMoreData = () => {
-    loadMoreMessage({
-      data: roomId ?? '',
-      pagination,
-    });
+    loadMoreMessage({data: roomId ?? '',pagination,});
   };
   const handleLongItemPress = (pageY: number) => {
     setPageY(pageY);
@@ -217,7 +169,7 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
   };
 
   const messagesDisplay: DisplayMessage[] = React.useMemo(() => {
-    return messages.map((message, index, array) => ({
+    return (messages ?? []).map((message, index, array) => ({
       ...message,
       // isDisplayTime:
       //   index === array.length - 1 ||
@@ -247,7 +199,7 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
       />
       {/* AppBar */}
       <AppBar
-        title={member?.username ?? room?.roomName}
+        title={room?.roomName ?? member?.username}
         description="1 giờ trước"
         iconButtonLeft={['back']}
         iconButtonRight={['call', 'video_call', 'menu']}

@@ -22,18 +22,18 @@ const HomeScreen = () => {
   const [pageY, setPageY] = useState(0)
 
   useSocketEvent<_MessageSentRes[]>({
-    event: `event:notify:${user}:new_message`,
-    callback: (newMessages) => {            
+    event: `load_more_msgs_when_connect`,
+    callback: (newMessages) => {
+      console.log(newMessages);
+              
       newMessages.map((item)=>receiveNewMessage(item))
     },
   });
-
 
   useEffect(() => {
     fetchRooms()
   }, []);
 
-  
   const goToSearchScreen = () => {
     mainNav.navigate(StackNames.SearchScreen);
   };

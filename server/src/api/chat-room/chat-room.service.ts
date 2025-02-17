@@ -15,6 +15,7 @@ import { MessageEntity } from '../message/entities/message.entity';
 import { CreateGroupReqDto } from './dto/create-group.req.dto';
 import { SYSTEM_USER_ID } from '@/constants/app.constant';
 import assert from 'assert';
+import { create } from 'domain';
 
 @Injectable()
 export class ChatRoomService {
@@ -68,18 +69,22 @@ export class ChatRoomService {
       type: RoomType.PERSONAL,
       memberLimit: 2,
     })
-    const newRoom = await this.roomRepository.save(room)
+    const newRoom = await this.roomRepository.save({...room, createdBy: userId1, updatedBy: userId1})
 
     // Thêm member vào room
     const member1 = new MemberEntity({
       userId: userId1,
       roomId: newRoom.id,
-      role: MemberRole.MEMBER
+      role: MemberRole.MEMBER,
+      createdBy: SYSTEM_USER_ID,
+      updatedBy: SYSTEM_USER_ID
     })
     const member2 = new MemberEntity({
       userId: userId2,
       roomId: newRoom.id,
-      role: MemberRole.MEMBER
+      role: MemberRole.MEMBER,
+      createdBy: SYSTEM_USER_ID,
+      updatedBy: SYSTEM_USER_ID
     })
     await this.memberRepository.save([member1, member2])
 

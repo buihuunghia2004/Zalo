@@ -16,7 +16,7 @@ const ChatPage = () => {
   
   
   useSocketEvent(
-    `new_message`,(data) => {           
+    `new_message`,(data) => {      
       console.log('có tin nhắn mới: ', data);
       console.log(currentRoomId == data.roomId);
       console.log(currentRoomId);

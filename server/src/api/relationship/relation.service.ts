@@ -81,12 +81,12 @@ export class RelationService {
     if (
       dto.action === RelationAction.DECLINE ||  //Từ chối kết bạn
       dto.action === RelationAction.REVOKE      //Thu hồi lời mời
-    ) {
+    ) {      
       await this.relationRepository.remove(relation)
       relation.status = RelationStatus.NOTTHING
     }else{
       relation.status = RelationStatus.FRIEND     //Đồng ý kết bạn
-      await this.relationRepository.save(relation)
+      await this.relationRepository.save({...relation, createdBy: SYSTEM_USER_ID, updatedBy: SYSTEM_USER_ID})
       await this.chatRoomService.createPersonalRoom(relation.requesterId, myId);
 
       //gửi thống báo đến cho người gửi yêu cầu
@@ -98,7 +98,7 @@ export class RelationService {
       )
     }
 
-    return plainToInstance(RelationResDto, relation)
+    return plainToInstance(RelationResDto, {...relation, createdBy: SYSTEM_USER_ID, updatedBy: SYSTEM_USER_ID})
   }
 
   async getAllRelations(currentUserId: Uuid, status: RelationStatus) : Promise<any[]>{        

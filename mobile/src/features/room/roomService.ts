@@ -7,7 +7,7 @@ const getAllRoom = async (): Promise<_GetAllRoomRes> => {
     const res = await axiosInstance.get('rooms');      
     return res.data
   } catch (error: any) {
-    console.error('Error while searching user:', error);
+    console.error('Error get All room', error);
     throw error;
   }
 };
