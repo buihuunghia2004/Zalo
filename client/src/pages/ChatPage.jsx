@@ -7,7 +7,7 @@ import useSocketEvent from '../hooks/useSocket'
 import { addNewMgs } from '../redux/slices/currentRoomSlice'
 
 const ChatPage = () => {
-  const meId = useSelector(state => state.me.user.id)
+  const meId = useSelector(state => state.user.id)
   const rooms = useSelector((state) => state.rooms.data)
   const currentRoomId = useSelector(state => state.currentRoom.roomId)
   const distpatch = useDispatch()
@@ -67,7 +67,7 @@ const ChatPage = () => {
   }, [rooms])
 
   return (
-    <div className="flex size-full flex-row">
+    <div className="flex size-full flex-row overflow-hidden">
       {/* danh sách hội thoại */}
       <ConversationList
         rooms={rooms}

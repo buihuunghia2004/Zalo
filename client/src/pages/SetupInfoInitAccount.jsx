@@ -14,7 +14,7 @@ export default function SetupInitAccount() {
   const [dob, setDob] = useState(null)
   const [gender, setGender] = useState(null)
   const navigate = useNavigate()
-  const email = useSelector(state => state.me.user?.email)  
+  const email = useSelector(state => state.user?.email)  
 
   const handleSubmit = async () => {
     try {

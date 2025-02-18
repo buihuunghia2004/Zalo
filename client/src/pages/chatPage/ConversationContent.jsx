@@ -138,7 +138,7 @@ const ConversationContent = () => {
   }, [])
 
   return (
-    <div className="flex w-full flex-row">
+    <div className="flex-1 flex-row">
       <div className="flex w-full flex-col">
         {/* header */}
         <div className="flex h-20 flex-row items-center p-4">

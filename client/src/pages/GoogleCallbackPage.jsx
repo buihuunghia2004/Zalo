@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { getMe, setAuth } from '../redux/slices/userSlice';
+import { getMe } from '../redux/slices/userSlice';
+import { setAuth } from '../redux/slices/authSlice';
 
 const GoogleCallbackPage = () => {
   const navigate = useNavigate();

@@ -21,7 +21,7 @@ export const AddFriendModalInfoContent = ({
   const [status, setStatus] = useState(data.status) 
   const [whoSent, setWhoSent] = useState(data.whoSent)
   const [relationId, setRelationId] = useState(data.id)
-  const me = useSelector((state) => state.me.user)
+  const me = useSelector((state) => state.user)
 
   const getStatusName = ({status, whoSent}) => {    
     if (status == RelationStatus.NOTTHING) {

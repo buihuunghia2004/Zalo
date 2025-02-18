@@ -6,7 +6,7 @@ export default function LoginPage() {
   }
   return (
     <div className="w-screen h-screen bg-blue-500 items-center flex flex-col gap-10 justify-center">
-      <p className="text-8xl font-bold text-white">ZALO FAKE</p>
+      <p className="text-8xl font-bold text-white">LAZO</p>
       <div
         onClick={()=>handleLogin()}
         className="flex flex-row bg-white w-96 p-4 rounded-2xl items-center gap-4"

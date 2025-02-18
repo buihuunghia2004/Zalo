@@ -16,7 +16,7 @@ import { useEffect } from "react";
 import userAPI from "../../service/userAPI";
 
 export function ProfileDialog() {
-  const user = useSelector((state) => state.me.user)
+  const user = useSelector((state) => state.user)
   const [isUpdate, setIsUpdate] = useState(false)
   return (
       <DialogContent className="sm:max-w-[425px] ">
