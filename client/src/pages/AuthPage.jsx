@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Toaster, toast } from "sonner";
+import { toast } from "sonner";
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -65,7 +65,7 @@ const AuthPage = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-blue-700 gap-10 p-5">
-      <Toaster richColors />
+      {/* <Toaster richColors /> */}
       <p className="text-7xl font-extrabold text-white">LA</p>
       <div className="bg-white p-10 rounded-3xl shadow-2xl w-96">
         <h2 className="text-3xl font-bold text-center text-blue-600">Lazo</h2>

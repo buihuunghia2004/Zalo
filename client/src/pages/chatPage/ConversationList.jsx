@@ -33,7 +33,7 @@ export default function ConversationList({ rooms }) {
   }
 
   return (
-    <div className="flex w-[22rem] flex-col overflow-hidden">
+    <div className="flex w-[22rem] flex-col">
       {/* header */}
       <SearchComponent />
       <div className="flexflex-col px-4">

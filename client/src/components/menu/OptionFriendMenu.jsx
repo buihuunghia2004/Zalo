@@ -10,7 +10,7 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog"
 import { ProfileDialog } from "../modal/ProfileModal"
-export function ClickMeMenu({username,onLogoutClick}) {
+export function OptionFriendMenu({username,onLogoutClick}) {
   return (
     <>
       <DropdownMenuContent className="w-56 shadow-lg">

@@ -25,7 +25,7 @@ const FriendInviteTab = () => {
   }, [])
   
   return (
-    <div className="p-4 flex flex-col">
+    <div className="p-4 flex-1 flex-col bg-slate-200 ">
       <p className="">{`Lời mời đã nhận ( ${receivRequests.length} )`}</p>
       <div className="flex flex-row gap-4 mt-4">
         {

@@ -9,6 +9,9 @@ import { PublicRoute } from "./public-route"
 import PrivateRoute from "./private-route"
 import AuthPage from "../pages/AuthPage"
 import { Toaster } from "sonner"
+import ContactLayout from "../layouts/ContactLayout"
+import FriendListTab from "../pages/ContactPage/FriendListTab"
+import FriendInviteTab from "../pages/ContactPage/FriendInviteTab"
 
 export const AppRoutes = () => {  
   return(
@@ -22,7 +25,10 @@ export const AppRoutes = () => {
         <Route element={<PrivateRoute />}>
           <Route path="/" element={<HomeLayout />}>
             <Route path="messages" element={<ChatPage />} />
-            <Route path="contacts" element={<ContactPage/>}/>
+            <Route path="contacts" element={<ContactLayout/>}>
+              <Route path="friends" element={<FriendListTab/>}/>
+              <Route path="invites" element={<FriendInviteTab/>}/>
+            </Route>
           </Route>
         </Route>
 

@@ -2,6 +2,7 @@ import { useState } from "react"
 import relationAPI from "../../service/relationAPI"
 import { ActionHandleAddFriend } from "../../constants/appConstant"
 import { useSelector } from 'react-redux'
+import { toast } from "sonner"
 
 const RelationStatus = {
   NOTTHING: 'notthing',
@@ -19,15 +20,15 @@ export const AddFriendModalInfoContent = ({
 }) => {
   const {user} = data
   const [status, setStatus] = useState(data.status) 
-  const [whoSent, setWhoSent] = useState(data.whoSent)
+  const [inviter, setInviter] = useState(data.inviter)
   const [relationId, setRelationId] = useState(data.id)
   const me = useSelector((state) => state.user)
 
-  const getStatusName = ({status, whoSent}) => {    
+  const getStatusName = ({status, inviter}) => {    
     if (status == RelationStatus.NOTTHING) {
       return 'Kết bạn'
     }else if (status == RelationStatus.PENDING) {
-      return whoSent == WhoSent.ME ? 'Hủy kết bạn' : 'Đồng ý'
+      return inviter == 'self' ? 'Hủy kết bạn' : 'Đồng ý'
     }else{
       return 'Gọi điện'
     }
@@ -39,8 +40,12 @@ export const AddFriendModalInfoContent = ({
         receiverId: user.id
       })
       setRelationId(data.id)
-      setWhoSent(WhoSent.ME)
+      setInviter('self')
       setStatus(data.status)
+      toast.success("Gửi yêu cầu kết bạn thành công!", {
+        position: "top-center",
+        duration: 2000,
+      });
     } catch (error) {
       
     }
@@ -48,16 +53,14 @@ export const AddFriendModalInfoContent = ({
 
   const handleRequestAddFriend = async (relationId) => {
     try {
-      await relationAPI.handleRequestAddFriendAPI({relationId, action: whoSent === WhoSent.ME ? ActionHandleAddFriend.REJECT : ActionHandleAddFriend.ACCEPT})
-      setStatus(whoSent == WhoSent.ME ? RelationStatus.NOTTHING : RelationStatus.ACCEPTED)
+      await relationAPI.handleRequestAddFriendAPI({relationId, action: inviter === 'self' ? ActionHandleAddFriend.REVOKE : ActionHandleAddFriend.ACCEPT})
+      setStatus(inviter == 'self' ? RelationStatus.NOTTHING : RelationStatus.ACCEPTED)
     } catch (error) {
       
     }
   }
 
-  const isMe = () => {
-    console.log(me);
-    
+  const isMe = () => {    
     return me.id == user.id
   }
 
@@ -88,12 +91,12 @@ export const AddFriendModalInfoContent = ({
               }else{//accepted
                 //có thể gọi điện
               }
-            }} className="rounded-md bg-gray-600 px-4 py-2 hover:bg-gray-700">
-              {getStatusName({status, whoSent})}
+            }} className="rounded-md bg-gray-400 px-4 py-2 hover:bg-gray-500 font-medium">
+              {getStatusName({status, inviter})}
             </button>
             <button 
               onClick={()=> {}}
-              className="rounded-md bg-blue-600 px-4 py-2 hover:bg-blue-700"
+              className="rounded-md bg-blue-600 px-4 py-2 hover:bg-blue-700 text-white font-medium"
             >
               Nhắn tin
             </button>

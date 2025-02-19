@@ -2,6 +2,7 @@ import { useState } from "react"
 import FriendInviteTab from "./FriendInviteTab"
 import FriendListTab from "./FriendListTab"
 import GroupListTab from "./GroupListTab"
+import { Link } from "react-router-dom"
 
 const menus = [
   'Danh sách bạn bè',
@@ -19,34 +20,37 @@ const ItemMenuContact = ({ text, onClick, isActive }) => {
 
 export default function ContactPage() {
   const [activeItem, setActiveItem] = useState(menus[0])
-  const getContent = () => {
-    if (activeItem == menus[0]) {
-      return <FriendListTab/>
-    }else if (activeItem == menus[1]) {
-      return <GroupListTab/>
-    }else if (activeItem == menus[2]) {
-      return <FriendInviteTab/>
-    }
-  }
+  // const getContent = () => {
+  //   if (activeItem == menus[0]) {
+  //     return <FriendListTab/>
+  //   }else if (activeItem == menus[1]) {
+  //     return <GroupListTab/>
+  //   }else if (activeItem == menus[2]) {
+  //     return <FriendInviteTab/>
+  //   }
+  // }
   return (
     <div className="flex size-full flex-row">
       <div className="flex w-[28rem] flex-col flex-grow">
-        {menus.map((item, index) => (
+        {/* {menus.map((item, index) => (
           <ItemMenuContact
             key={index}
             isActive={activeItem == item}
             text={item}
             onClick={() => setActiveItem(item)}
           />
-        ))}
+        ))} */}
+        <Link to={`/contacts/friends`}>Xem thông tin</Link>
+        <Link to={`/contacts/invites`}>Xem thông tin</Link>
       </div>
 
       {/* nội dung */}
       <div className="h-full w-0.5 bg-slate-400"/>
       <div className="flex w-full flex-row">
-        {
+        {/* {
           getContent()
-        }
+        } */}
+        <FriendInviteTab/>
       </div>
     </div>
   )

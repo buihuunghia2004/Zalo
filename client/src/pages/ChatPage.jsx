@@ -60,10 +60,7 @@ const ChatPage = () => {
 
   useEffect(() => {    
     const s = [...rooms].sort((a, b) => new Date(b.lastMsg?.createdAt) - new Date(a.lastMsg?.createdAt));
-    setSortedRooms(s)
-
-    console.log('rrr',rooms);
-    
+    setSortedRooms(s)    
   }, [rooms])
 
   return (

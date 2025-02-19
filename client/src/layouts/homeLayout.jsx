@@ -51,7 +51,7 @@ export default function HomeLayout() {
         {/* menu */}
         <nav className="mt-8 flex h-full flex-col gap-2">
           <MenuNav
-            to={"/messages"}
+            to={"messages"}
             imgActive={Assets.icons.chatActive}
             imgInActive={Assets.icons.chatInActive}
           />
