@@ -6,6 +6,9 @@ export default function ContactLayout() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  console.log('contact-layout-re-render');
+  
+
   const friendsPathName = `/contacts/friends`
   const invitesPathName = `/contacts/invites`
 

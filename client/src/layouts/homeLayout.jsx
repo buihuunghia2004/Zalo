@@ -18,6 +18,9 @@ export default function HomeLayout() {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
   const dispatch = useDispatch()
 
+  console.log('HomeLayout re-render');
+  
+
   const onLogout = async () => {
     try {
       dispatch(logout())

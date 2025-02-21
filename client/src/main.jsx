@@ -13,7 +13,7 @@ createRoot(document.getElementById('root')).render(
   <ErrorBoundary>
     {/* <BrowserRouter> */}
       <Provider store={store}>
-        <SocketProvider namespace={''}>
+        <SocketProvider namespace={'message'}>
           <PersistGate loading={<p>Loading...</p>} persistor={persistor}>
             <App />
           </PersistGate>

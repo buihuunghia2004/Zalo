@@ -48,7 +48,13 @@ const roomSlice = createSlice({
        * roomName
        * type
        * memberCount
-       * lastMsg
+       * lastMsg:{
+       *  content: 8,
+          type,
+          senderId,
+          isSelfSent,
+          createdAt
+       * }
        * unViewMsgCount
        * 
       /  */
@@ -80,15 +86,25 @@ const roomSlice = createSlice({
     },
     updateLastMsgForRoom: (state, action) => {
       const {roomId, lastMsg} = action.payload
-      state.data = state.data.map((room) => {
-        return room.id == roomId 
-          ? {
-            ...room,
-            lastMsg: lastMsg,
-            unViewMsgCount: room.unViewMsgCount ? (room.unViewMsgCount + 1) : 1
-          } 
-          : room
-      });
+      const roomsClone = state.data
+      const roomIndexHasLastMsgChanged = roomsClone.findIndex(r => r.id == roomId)
+      if (roomIndexHasLastMsgChanged != -1) {
+        roomsClone.slice(roomIndexHasLastMsgChanged, 1, {
+          ...roomsClone[roomIndexHasLastMsgChanged],
+          lastMsg,
+          unViewMsgCount: room.unViewMsgCount ? (room.unViewMsgCount + 1) : 1
+        })
+      }
+      state.data = roomsClone
+      // state.data = state.data.map((room) => {
+      //   return room.id == roomId 
+      //     ? {
+      //       ...room,
+      //       lastMsg: lastMsg,
+      //       unViewMsgCount: room.unViewMsgCount ? (room.unViewMsgCount + 1) : 1
+      //     } 
+      //     : room
+      // });
     },
     loadMoreMsgWhenConnect: (state, action) => {
       const data = action.payload

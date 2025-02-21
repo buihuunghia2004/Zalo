@@ -1,36 +1,35 @@
 import { useEffect, useState } from 'react'
 import SquareIcon from '../../components/icon/squareIcon'
-import { AddFriendModal } from '../../components/modal/AddFriendModal'
 import { Assets } from '../../assets'
 import { useDispatch, useSelector } from 'react-redux'
 import Utils from '../../utils/utils'
-import { AddGroupModal } from '../../components/modal/AddGroupModal'
 import GroupAvatar from '../../components/GroupAvatar'
 import { setCurrentRoom } from '../../redux/slices/currentRoomSlice'
 import useSocketEvent from '../../hooks/useSocket'
 import {
+  getAllRooms,
   loadMoreMsgWhenConnect,
   setViewAllMsg,
 } from '../../redux/slices/roomSlice'
 import { SearchComponent } from '../../components/SearchComponent'
+import { Link } from 'react-router-dom'
 
-export default function ConversationList({ rooms }) {
+export default function ConversationList() {
   const dispatch = useDispatch()
-  const [isAFModalOpen, setIsAFModelOpen] = useState(false)
-  const [isAGModalOpen, setIsAGModalOpen] = useState(false)
+  const rooms = useSelector((state) => state.rooms.data)
   const currentRoomId = useSelector((state) => state.currentRoom.id)
   const items = ['Tất cả', 'Chưa đọc']
   const [isSelected, setIsSelected] = useState(items[0])
 
-  useSocketEvent('load_more_msgs_when_connect', (data) => {
-    console.log('after connect', data)
-    dispatch(loadMoreMsgWhenConnect(data))
-  })
 
-  const onItemClick = (item) => {
-    dispatch(setCurrentRoom(item))
-    dispatch(setViewAllMsg({ roomId: item.id }))
-  }
+  // const onItemClick = (item) => {
+  //   dispatch(setCurrentRoom(item))
+  //   dispatch(setViewAllMsg({ roomId: item.id }))
+  // }
+
+  useEffect(() => {    
+    dispatch(getAllRooms())
+  }, [])
 
   return (
     <div className="flex w-[22rem] flex-col">
@@ -66,7 +65,7 @@ export default function ConversationList({ rooms }) {
             messLasted={item?.lastMsg?.createdAt}
             msgReceived={item.receivedMsgs}
             isSelfSent={item?.lastMsg?.isSelfSent}
-            onClick={() => onItemClick(item)}
+            // onClick={() => onItemClick(item)}
             unViewMsgCount={item?.unViewMsgCount}
           />
         ))}
@@ -144,11 +143,12 @@ const ConversationItem = ({
   }, [messLasted])
 
   return (
-    <div
+    <Link
+      to={`/messages/${data.id}?type=room`}
       className={`flex h-20 w-full flex-row items-center p-2 pr-4 hover:bg-slate-200 ${isFocus && 'bg-blue-300'}`}
       onMouseEnter={() => setIsHover(true)}
       onMouseLeave={() => setIsHover(false)}
-      onClick={onClick}
+      // onClick={onClick}
     >
       {data.roomAvatarUrl ? (
         <img
@@ -198,6 +198,6 @@ const ConversationItem = ({
             )} */}
         </div>
       </div>
-    </div>
+    </Link>
   )
 }

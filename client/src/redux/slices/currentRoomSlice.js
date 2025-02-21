@@ -40,32 +40,32 @@ export const getRoomById = createAsyncThunk(
     }
   }
 )
+export const getRoomByPartnerId = createAsyncThunk(
+  'rooms/get-room-by-partner-id',
+  async ( {partnerId}, {rejectWithValue}) => {
+    try {
+      return await AxiosInstant.get(`${roomUrl}/partner/${partnerId}`)
+    } catch (error) {
+      return rejectWithValue(error.message)
+    }
+  }
+)
 export const sendTextMsg = createAsyncThunk(
   'rooms/send-text-msg',
   async ( {roomId, data}, {rejectWithValue}) => {
+    console.log('daaaaaa',data);
+    
     try {
       const q = `${messageUrl}/${roomId}/text`
       return await AxiosInstant.post(q,data)
-      // return {
-      //   ...result,
-      //   parentMessage:{
-      //     id:data.replyMessageId,
-      //     content: 'con cặc',
-      //     type:'text',
-      //     createdAt: new Date()
-      //   }
-      // }
     } catch (error) {
       return rejectWithValue(error.message)
     }
   }
 )
 
-
-const currentRoomSlice = createSlice({
-  name: 'currentRoom',
-  initialState: {
-    roomId:'',
+const initialState = {
+  roomId:'',
     partnerId:'',
     memberId: '',
     roomAvatarUrl: '',
@@ -83,7 +83,11 @@ const currentRoomSlice = createSlice({
     msgReply:null,
 
     isLoading: false
-  },
+}
+
+const currentRoomSlice = createSlice({
+  name: 'currentRoom',
+  initialState: initialState,
   reducers: {
     setCurrentRoom: (state, action) => {      
       const {id,roomAvatarUrl,roomAvatarUrls,roomName,type,memberCount} = action.payload
@@ -121,6 +125,9 @@ const currentRoomSlice = createSlice({
     setMsgReply: (state, action) => {
       state.msgReply = action.payload
     },
+    resetRoom: (state, action) => {
+      return initialState
+    }
   },
   extraReducers: (builder) => {
     builder.addCase(loadMoreMessages.pending, (state, action) => {
@@ -150,13 +157,33 @@ const currentRoomSlice = createSlice({
     .addCase(getRoomById.pending, (state, action) => {
       state.isLoading = true
     })
-    .addCase(getRoomById.fulfilled, (state, action) => {
-      const {memberId, members} = action.payload
+    .addCase(getRoomByPartnerId.fulfilled, (state, action) => {
+      const {memberId, members, roomAvatarUrl, roomName, id} = action.payload
+      state.roomId = id
+      state.roomAvatarUrl = roomAvatarUrl
+      state.roomName = roomName
       state.memberId = memberId
       state.members = members
-      state.members.forEach(mem => {
-        state.membersObj[mem.id] = mem
+      let membersObj = {}
+      members.forEach((mem) => {
+        membersObj[mem.id] = mem
       });
+      state.membersObj = membersObj
+      state.isLoading = false
+    })
+    .addCase(getRoomById.fulfilled, (state, action) => {
+      const {memberId, members, roomAvatarUrl, roomName, id} = action.payload
+      state.roomId = id
+      state.roomAvatarUrl = roomAvatarUrl
+      state.roomName = roomName
+      state.memberId = memberId
+      state.members = members
+      let membersObj = {}
+      members.forEach((mem) => {
+        membersObj[mem.id] = mem
+      });
+      state.membersObj = membersObj
+
       state.isLoading = false
     })
     .addCase(sendTextMsg.fulfilled, (state, action) => {      
@@ -182,7 +209,8 @@ export const {
   setCurrentRoom,
   setReceiver,
   addNewMgs,
-  setMsgReply
+  setMsgReply,
+  resetRoom
 } = currentRoomSlice.actions;
 
 export default currentRoomSlice.reducer;

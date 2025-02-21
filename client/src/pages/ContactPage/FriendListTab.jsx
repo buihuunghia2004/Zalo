@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react'
+import { Link } from "react-router-dom"
+
 import relationAPI from '../../service/relationAPI'
 import { Assets } from '../../assets'
 import {
@@ -61,9 +63,9 @@ const FriendListTab = () => {
       >
         Sắp xếp: {sortOrder === 'asc' ? 'A-Z' : 'Z-A'}
       </button>
-      <ul>
+      <div>
         {friends.map((friend) => (
-          <li key={friend.id} className="flex items-center border-b p-2">
+          <Link to={`/contacts/friends/${friend.user.id}?type=friend`} key={friend.id} onClick={()=>{}} className="flex items-center border-b p-2 hover:bg-slate-300 rounded-md">
             <img
               src={friend.user.avatarUrl}
               alt={friend.name}
@@ -88,9 +90,9 @@ const FriendListTab = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </li>
+          </Link>
         ))}
-      </ul>
+      </div>
 
       {
         selectedFriend &&
