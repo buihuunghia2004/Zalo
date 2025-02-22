@@ -1,4 +1,4 @@
-import { Image, ImageSourcePropType, StyleSheet, Text, View } from 'react-native'
+import { Image, ImageSourcePropType, Pressable, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import { colors } from '~/styles/Ui/colors'
 import { Assets } from '~/styles/Ui/assets'
@@ -30,8 +30,7 @@ const ModalContent_Conversation:React.FC<PositionType> = ({pageY}) => {
      : pageY + itemConvertationHeight+ gap;
 
   return (
-    <View style={styles.container}>
-
+    <Pressable style={styles.container}>
         <View style={[styles.itemContainer, {top: pageY}]}>
             <Image source={Assets.images.demo} style= {{height: 50, width: 50, borderRadius: 40}}/>
             <View style={{flex: 1, }}>
@@ -49,7 +48,7 @@ const ModalContent_Conversation:React.FC<PositionType> = ({pageY}) => {
             </View>)}
         </View>
 
-    </View>
+    </Pressable>
   )
 }
 

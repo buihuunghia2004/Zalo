@@ -1,4 +1,5 @@
 import {create} from 'zustand';
+import {produce} from 'immer';
 import {
   CursorPaginatedReq,
   PageOptionsDto,
@@ -8,7 +9,7 @@ import {
   _MessageSentRes,
 } from '~/features/message/dto/message.dto.parent';
 import {
-  MessageContentEnum,
+  MessageContentType,
   MessageViewStatus,
 } from '~/features/message/dto/message.enum';
 import {MessageService} from '~/features/message/messageService';
@@ -16,9 +17,13 @@ import {Room} from '~/features/room/dto/room.dto.nested';
 import {RoomService} from '~/features/room/roomService';
 import {UserBase, UserFriend} from '~/features/user/dto/user.dto.nested';
 import {userApi} from '~/features/user/userService';
+import {MessagParente} from '~/features/message/dto/message.dto.nested';
 
 interface ChatStore {
+  curentMessageSelected: _MessageSentRes | undefined;
+  curentMessageRepling: MessagParente | undefined;
   messages: _MessageSentRes[];
+  replyMessages: _MessageSentRes[];
   pagination: PageOptionsDto;
   member: UserFriend | UserBase | null;
   room: Room | null;
@@ -26,8 +31,12 @@ interface ChatStore {
   fetchMember: (userId: string) => Promise<void>;
   fetchRoom: (roomId: string) => Promise<void>;
   addMessage: (message: _MessageSentRes) => void;
+  getReplyMessageById: (id: string) => _MessageSentRes | undefined;
+  setCurentMessageSelected: (message: _MessageSentRes) => void;
+  setCurentMessageRepling: (message: MessagParente) => void;
   sendMessage: (
     text: string,
+    replyMessage?: MessagParente | _MessageSentRes,
     userId?: string,
     roomId?: string,
   ) => Promise<void>;
@@ -38,8 +47,11 @@ interface ChatStore {
 }
 
 const initialState = {
+  curentMessageSelected: undefined,
+  curentMessageRepling: undefined,
   messages: [],
-  pagination: {}, // Khởi tạo giá trị hợp lệ
+  replyMessages: [],
+  pagination: {},
   member: null,
   room: null,
   loadingMore: false,
@@ -59,14 +71,15 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       const res = await MessageService.loadMoreMessage(dto);
       const {data, pagination} = res;
 
-      if (!pagination?.afterCursor) {
-        set({hasMore: false});
-      }
-
       set(state => ({
         messages: [...state.messages, ...data],
         pagination: pagination,
       }));
+      
+      
+      if (!pagination?.afterCursor) {
+        set({hasMore: false});
+      }
     } catch (error) {
       console.error('❌ Lỗi khi tải tin nhắn:', error);
     } finally {
@@ -93,49 +106,72 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       console.error('Lỗi khi tải thông tin phòng:', error);
     }
   },
-
-  sendMessage: async (text: string, userId?: string, roomId?: string) => {
+  getReplyMessageById(id: string) {
+    return get().messages.find(message => message.id === id);
+  },
+  sendMessage: async (
+    text: string,
+    parentMessage?: MessagParente,
+    userId?: string,
+    roomId?: string,
+  ) => {
     const msgIdTemp = `temp-${Date.now()}`;
 
     // Tạo tin nhắn tạm thời
-    const tempMessage: _MessageSentRes = {
+    const tempMessage: any = {
       id: msgIdTemp,
       content: text,
+      parentMessage: parentMessage,
       isSelfSent: true,
-      type: MessageContentEnum.TEXT,
-      status: MessageViewStatus.SENDING,
+      type: MessageContentType.TEXT,
+      createdAt: new Date(),
     };
 
     // Thêm tin nhắn tạm vào danh sách
-    get().addMessage(tempMessage);
+    set(
+      produce(state => {
+        state.messages.unshift(tempMessage);
+      }),
+    );
 
     // Tạo đối tượng tin nhắn cần gửi
     const newMessage: _MessageSentReq = {
       content: text,
-      contentType: MessageContentEnum.TEXT,
+      contentType: MessageContentType.TEXT,
+      ...(parentMessage && {parentMessageId: parentMessage?.id}),
       ...(userId && {receiverId: userId}),
-      ...(roomId != '' && {roomId: roomId}),
+      ...(roomId && {roomId}),
     };
 
     try {
       // Gửi tin nhắn và nhận phản hồi
       const mesRes = await MessageService.SentMessage(newMessage);
-      console.log(mesRes);
-      
-      // Cập nhật tin nhắn trong danh sách
-      set(state => {
-        const updatedMessages = state.messages.map(message =>
-          message.id === msgIdTemp
-            ? {...mesRes, status: 'SENT', isSelfSent: true}
-            : message,
-        ) as _MessageSentRes[];
-        return {messages: updatedMessages};
-      });
+
+      // Cập nhật tin nhắn đã gửi thành công
+      set(
+        produce(state => {
+          const index = state.messages.findIndex(m => m.id === msgIdTemp);
+          if (index !== -1) {
+            state.messages[index] = {
+              ...mesRes,
+              status: MessageViewStatus.SENT,
+              isSelfSent: true,
+            };
+          }
+        }),
+      );
     } catch (error) {
       console.error('Lỗi khi gửi tin nhắn:', error);
     }
   },
 
+  setCurentMessageSelected: (message: _MessageSentRes) => {
+    set({curentMessageSelected: message});
+  },
+
+  setCurentMessageRepling: (message: MessagParente) => {
+    set({curentMessageRepling: message});
+  },
   // Thêm tin nhắn mới vào danh sách
   addMessage: (message: _MessageSentRes) => {
     set(state => ({messages: [message, ...state.messages]}));

@@ -1,24 +1,32 @@
-import {useAsyncStorage} from '@react-native-async-storage/async-storage';
-import React, {useEffect, useState} from 'react';
+import {userApi} from '~/features/user/userService';
+import AsyncStorage, {
+  useAsyncStorage,
+} from '@react-native-async-storage/async-storage';
+import {SplashScreen} from '~/screens/SplashScreen';
+import {SocketProvider} from '~/socket/SocketProvider';
+import {useEffect, useState} from 'react';
+import {loginGoogleResponse} from '~/features/auth/authDto';
+import {setAuthorizationToken} from '~/configs/axiosInstance';
+import {setAuth, authSelector, setMe} from '~/features/auth/authSlice';
+import {useAuthDispatch, useAuthSelector} from '~/stores/redux/store';
+import {
+  AUTH_ASYNC_STORAGE_KEY,
+  ME_ASYNC_STORAGE_KEY,
+} from '~/utils/Constants/authConstant';
 import AuthNavigator from './AuthNavigator';
 import MainNavigator from './main/MainNavigator';
-
-import {SplashScreen} from '~/screens/SplashScreen';
-import {AUTH_ASYNC_STORAGE_KEY} from '~/utils/Constants/authConstant';
-import {useAuthDispatch, useAuthSelector} from '~/stores/redux/store';
-import {setAuth, authSelector} from '~/features/auth/authSlice';
-import {loginGoogleResponse} from '~/features/auth/authDto';
-import {SocketProvider} from '~/socket/SocketProvider';
-import { setAuthorizationToken } from '~/configs/axiosInstance';
- 
+import {UserEntity} from '~/features/user/userEntity';
+import useSocketEvent from '~/hooks/useSocket ';
 
 const AppRouters = () => {
+  
   const authData = useAuthSelector(authSelector);
   const dispatch = useAuthDispatch();
 
   const [isShowSplash, setIsShowSplash] = useState(true);
 
-  const {getItem} = useAsyncStorage(AUTH_ASYNC_STORAGE_KEY);
+  const {getItem: getAuth} = useAsyncStorage(AUTH_ASYNC_STORAGE_KEY);
+  const {getItem: getMe} = useAsyncStorage(ME_ASYNC_STORAGE_KEY);
 
   useEffect(() => {
     checkLogin();
@@ -29,32 +37,36 @@ const AppRouters = () => {
     return () => clearTimeout(timeout);
   }, []);
   const checkLogin = async () => {
-    const auth = await getItem();
+    const auth = await getAuth();
+    const me = await getMe();
 
     if (auth) {
-      const parsedAuth = JSON.parse(auth) as loginGoogleResponse;   
-      setAuthorizationToken(parsedAuth.accessToken)
+      const parsedAuth = JSON.parse(auth) as loginGoogleResponse;
+      setAuthorizationToken(parsedAuth.accessToken);
       dispatch(setAuth(parsedAuth));
+    }
+    if (me) {
+      const parsedMe = JSON.parse(me) as UserEntity;
+      dispatch(setMe(parsedMe));
+    } else {
+      const me = await userApi.getCurrentUser();
+      dispatch(setMe(me));
+      await AsyncStorage.setItem(ME_ASYNC_STORAGE_KEY, JSON.stringify(me));
     }
   };
 
   return (
-    // <UModal
-    //   visible={true}
-    //   onClose={() => console.log('a')}
-    //   content={<ModalContent_Conversation />}
-    // />
-    <SocketProvider namespace={''}>
-      <SocketProvider namespace={"message"}>
-        {isShowSplash ? (
-          <SplashScreen />
-        ) : authData?.accessToken ? (
+    <>
+      {isShowSplash ? (
+        <SplashScreen />
+      ) : authData?.accessToken ? (
+        <SocketProvider namespace={'message'}>
           <MainNavigator />
-        ) : (
-          <AuthNavigator />
-        )}
-      </SocketProvider>
-    </SocketProvider>
+        </SocketProvider>
+      ) : (
+        <AuthNavigator />
+      )}
+    </>
   );
 };
 

@@ -1,11 +1,12 @@
 // src/features/auth/authSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { loginGoogleResponse } from './authDto';
+import { UserEntity } from '../user/userEntity';
 
 interface AuthState {
   accessToken: string | null;
   refreshToken: string | null
-  user: any | null;
+  user: UserEntity | null;
   isLoading: boolean;
   error: string | null;
 }
@@ -31,7 +32,6 @@ const authSlice = createSlice({
     loginSuccess: (state, action: PayloadAction<loginGoogleResponse>) => {  
       state.accessToken = action.payload.accessToken; 
       state.refreshToken = action.payload.refreshToken;
-      state.user = action.payload.userId; 
       state.isLoading = false; 
     },
     // Đăng nhập thất bại
@@ -53,11 +53,16 @@ const authSlice = createSlice({
     ) => {
       state.accessToken = action.payload.accessToken;
       state.refreshToken = action.payload.refreshToken;
-      state.user = action.payload.userId;
     },
+    setMe: (
+      state,
+      action: PayloadAction<UserEntity>
+    ) => {      
+      state.user = action.payload      
+    }
   },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout, setAuth } = authSlice.actions;
+export const { loginStart, loginSuccess, loginFailure, logout, setAuth, setMe } = authSlice.actions;
 export const authReducer =  authSlice.reducer;
 export const authSelector = (state: { auth: AuthState }) => state.auth;

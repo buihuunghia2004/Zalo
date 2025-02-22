@@ -9,11 +9,12 @@ import { colors } from '../../styles/Ui/colors';
 import { Assets } from '../../styles/Ui/assets';
 import { textStyle } from '../../styles/Ui/text';
 import { iconSize } from '../../styles/Ui/icons';
+import useSocketEvent from '~/hooks/useSocket ';
 
 type RouteName = 'HomeTab' | 'ContactsTab' | 'DinaryTab' | 'PersonalTab';
 
 const TabNavigator = () => {
-
+  
   const labels: Record<RouteName, string> = {
     HomeTab: 'Tin nhắn',
     ContactsTab: 'Danh bạ',

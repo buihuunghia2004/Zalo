@@ -16,7 +16,6 @@ const App = () => {
       <GestureHandlerRootView>
         <NavigationContainer>
           <AppRouters />
-          
         </NavigationContainer>
       </GestureHandlerRootView>
     </Provider>
