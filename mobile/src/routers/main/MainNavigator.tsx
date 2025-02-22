@@ -9,11 +9,12 @@ import ProfilePersonalScreen from '~/screens/personal/ProfilePersonalScreen'
 import SendAddFriendScreen from '~/screens/relation/SendAddFriendScreen'
 import HandleReqScreen from '~/screens/relation/HandleReqScreen'
 import OptionalFriendScreen from '~/screens/relation/OptionalFriendScreen'
+import useSocketEvent from '~/hooks/useSocket '
 
 
 
 const MainNavigator = () => {
-
+  
   const Stack = createNativeStackNavigator<MainStackParamList>();
 
   return (

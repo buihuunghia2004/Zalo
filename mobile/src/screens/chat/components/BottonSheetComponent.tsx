@@ -1,4 +1,4 @@
-import React, {memo, useEffect, useRef, useState} from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import {
   View,
   TouchableOpacity,
@@ -8,115 +8,91 @@ import {
   Animated,
   Keyboard,
 } from 'react-native';
-import {Assets} from '~/styles/Ui/assets';
-import {colors} from '~/styles/Ui/colors';
-import {iconSize} from '~/styles/Ui/icons';
+import { Assets } from '~/styles/Ui/assets';
+import { colors } from '~/styles/Ui/colors';
+import { iconSize } from '~/styles/Ui/icons';
 import EmojiList from './EmojiList';
-import {textStyle} from '~/styles/Ui/text';
 
-// Định nghĩa type cho props
 interface BottomSheetProps {
+  inputRef: React.RefObject<TextInput>
   inputText: string;
-  setInputText: (text: string) => void;
+  onTextChange: (text: string) => void;
+  onEmojiChange: (text: string) => void
   handleSendMessage: () => void;
-  handleInputChange: (text: string) => void;
-  inputRef: React.RefObject<TextInput>;
 }
 
 const BottomSheetComponent: React.FC<BottomSheetProps> = memo(
-  ({
-    inputText,
-    setInputText,
-    handleSendMessage,
-    handleInputChange,
-    inputRef,
-  }) => {
-   
-    const [keyboard, setKeyboard] = useState<boolean>(false);
-    const [renderEmojis, setReanderEmojis] = useState<boolean>(false);
+  ({ inputRef, inputText, onTextChange, onEmojiChange, handleSendMessage }) => {
+    const [text, setText] = useState(inputText)
+    const [keyboard, setKeyboard] = useState(false);
+    const [renderEmojis, setRenderEmojis] = useState(false);
     const scaleIcons = useRef(new Animated.Value(1)).current;
     const scaleSend = useRef(new Animated.Value(0)).current;
 
-    const handleIconPress = (icon: string) => {
-      switch (icon) {
-        case 'ghost':
-          if (!keyboard) {
-            setReanderEmojis(true);
-          } else {
-            Keyboard.dismiss();
-            setKeyboard(false);
-            setReanderEmojis(true);
-          }
-          break;
-
-        default:
-          break;
-      }
-    };
-    const handleAnimation = (text: string) => {
-      if (text === '') {
-        Animated.parallel([
-          Animated.timing(scaleSend, {
-            toValue: 0,
-            duration: 150,
-            useNativeDriver: true,
-          }),
-          Animated.timing(scaleIcons, {
-            toValue: 1,
-            duration: 150,
-            useNativeDriver: true,
-          }),
-        ]).start();
+    const handleIconPress = useCallback(() => {
+      if (!keyboard) {
+        setRenderEmojis((prev) => !prev);
       } else {
-        Animated.parallel([
-          Animated.timing(scaleIcons, {
-            toValue: 0,
-            duration: 150,
-            useNativeDriver: true,
-          }),
-          Animated.timing(scaleSend, {
-            toValue: 1,
-            duration: 150,
-            useNativeDriver: true,
-          }),
-        ]).start();
+        Keyboard.dismiss();
+        setRenderEmojis(true);
       }
-    };
+    }, [keyboard]);
+
+    const handleAnimation = useCallback((text: string) => {
+      Animated.parallel([
+        Animated.timing(scaleIcons, {
+          toValue: text ? 0 : 1,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleSend, {
+          toValue: text ? 1 : 0,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }, []);
+
     useEffect(() => {
-        const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
-          setKeyboard(true);
-          setReanderEmojis(false);
-        });
-      
-        const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
-          setKeyboard(false);
-        });
-      
-        return () => {
-          showSubscription.remove();
-          hideSubscription.remove();
-        };
-      }, []);
-      
-    
+      const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+        setKeyboard(true);
+        setRenderEmojis(false);
+      });
+
+      const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+        setKeyboard(false);
+      });
+
+      return () => {
+        showSubscription.remove();
+        hideSubscription.remove();
+      };
+    }, []);
+
+    const handleEmojiChange = useCallback((emoji: string) => {   
+      setText((prev)=>prev+emoji)   
+      onEmojiChange(emoji)
+    }, []);
+
+    const handleTextChange = useCallback((newText: string) => {
+      setText(newText)
+      onTextChange(newText);
+      handleAnimation(newText);      
+    }, []);
+
     return (
       <>
         <View style={styles.bottomBar}>
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => handleIconPress('ghost')}>
+          <TouchableOpacity style={styles.iconButton} onPress={handleIconPress}>
             <Image source={Assets.icons.ghost_gray} style={iconSize.large} />
           </TouchableOpacity>
 
-          <View style={{flex: 1, flexDirection: 'row'}}>
-            <Animated.View style={{flex: 1}}>
+          <View style={{ flex: 1, flexDirection: 'row' }}>
+            <Animated.View style={{ flex: 1 }}>
               <TextInput
                 ref={inputRef}
-                value={inputText}
-                onChangeText={newText => {
-                  setInputText(newText);
-                  handleAnimation(newText);
-                }}
+                defaultValue={text}
+                onChangeText={handleTextChange}
                 placeholder="Tin nhắn"
                 placeholderTextColor={colors.gray_icon}
                 style={styles.input}
@@ -126,11 +102,10 @@ const BottomSheetComponent: React.FC<BottomSheetProps> = memo(
             <Animated.View
               style={[
                 styles.btnSend,
-                {transform: [{scale: scaleSend}], opacity: scaleSend},
-              ]}>
-              <TouchableOpacity
-                style={styles.iconButton}
-                onPress={handleSendMessage}>
+                { transform: [{ scale: scaleSend }], opacity: scaleSend },
+              ]}
+            >
+              <TouchableOpacity style={styles.iconButton} onPress={handleSendMessage}>
                 <Image source={Assets.icons.send_blue} style={iconSize.large} />
               </TouchableOpacity>
             </Animated.View>
@@ -138,32 +113,25 @@ const BottomSheetComponent: React.FC<BottomSheetProps> = memo(
             <Animated.View
               style={[
                 styles.btns,
-                {transform: [{scale: scaleIcons}], opacity: scaleIcons},
-              ]}>
+                { transform: [{ scale: scaleIcons }], opacity: scaleIcons },
+              ]}
+            >
               <TouchableOpacity style={styles.iconButton}>
-                <Image
-                  source={Assets.icons.menu_row_gray}
-                  style={iconSize.large}
-                />
+                <Image source={Assets.icons.menu_row_gray} style={iconSize.large} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.iconButton}>
                 <Image source={Assets.icons.mic_gray} style={iconSize.large} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.iconButton}>
-                <Image
-                  source={Assets.icons.image_gray}
-                  style={iconSize.large}
-                />
+                <Image source={Assets.icons.image_gray} style={iconSize.large} />
               </TouchableOpacity>
             </Animated.View>
           </View>
         </View>
 
         {renderEmojis && !keyboard && (
-          <View style={{height: 294}}>
-            <EmojiList
-              handleInputChange={text => handleInputChange(text + ' ')}
-            />
+          <View style={{ height: 294 }}>
+            <EmojiList onEmojisTextChange={handleEmojiChange} />
           </View>
         )}
       </>
@@ -172,10 +140,6 @@ const BottomSheetComponent: React.FC<BottomSheetProps> = memo(
 );
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background_mess,
-  },
   bottomBar: {
     flexDirection: 'row',
     height: 50,
@@ -188,28 +152,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: 5,
   },
-
   input: {
     flex: 1,
     fontSize: 16,
     backgroundColor: colors.white,
     borderRadius: 20,
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingRight: 40,
     marginHorizontal: 5,
-  },
-  contentContainer: {
-    width: '100%',
-    backgroundColor: colors.white,
-    alignItems: 'center',
-  },
-
-  itemEmojiContainer: {
-    margin: 8,
-    alignItems: 'center',
-  },
-  emoji: {
-    fontSize: 32,
   },
   btnSend: {
     position: 'absolute',
@@ -222,15 +172,6 @@ const styles = StyleSheet.create({
     bottom: 5,
     justifyContent: 'center',
     flexDirection: 'row',
-  },
-  isChating: {
-    ...textStyle.body_sm,
-    backgroundColor: colors.gray,
-    color: colors.secondary,
-    position: 'absolute',
-    paddingHorizontal: 6,
-    borderTopRightRadius: 4,
-    bottom: 50,
   },
 });
 

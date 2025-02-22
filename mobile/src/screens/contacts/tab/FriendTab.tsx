@@ -37,14 +37,17 @@ const FriendTab = ({ onScrollY }) => {
     {icon: Assets.icons.birth_white, label: 'Lịch sinh nhật'},
   ];
 
-  const renderFriend = (item: UserBase) => (
-    <TouchableOpacity
-      style={[styles.userItem, {gap: 10, backgroundColor: 'white'}]}
-      onPress={() => mainNav.navigate(StackNames.ChatScreen, {userId: item.id})}>
+  const renderFriend = (item: UserBase) => {
+    return(
+      <TouchableOpacity
+        style={[styles.userItem, {gap: 10, backgroundColor: 'white'}]}
+        onPress={() => mainNav.navigate(StackNames.ChatScreen, {userId: item.id})}>
       <Image source={{uri: item.avatarUrl}} style={imagesStyle.avatar_50} />
       <Text style={textStyle.body_md}>{item.username}</Text>
     </TouchableOpacity>
-  );
+    )
+  }
+  
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const scrollY = event.nativeEvent.contentOffset.y;

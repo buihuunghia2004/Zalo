@@ -1,7 +1,6 @@
 import {MemberBase} from './message.dto.nested';
 import {messageEntity} from '../messageEntity';
 import { MessageContentEnum } from './message.enum';
-import { Room } from '~/features/room/dto/room.dto.nested';
 
 export interface _MessageSentReq {
   receiverId?: string;
@@ -12,10 +11,10 @@ export interface _MessageSentReq {
 export interface _MessageSentRes
   extends Pick<
     messageEntity,
-    'id' | 'content' | 'type' | 'status' | 'replyMessageId'
+    'id' | 'content' | 'type' | 'parentMessage'
   > {
   sender?: MemberBase;
   roomId?: string;
   isSelfSent?: boolean;
-  createdAt?: Date;
+  createdAt: Date;
 }

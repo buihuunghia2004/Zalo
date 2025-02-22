@@ -1,21 +1,23 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { FlatList, Pressable, Text, StyleSheet } from 'react-native';
-import {emojiObjects} from '~/utils/Ui/emojis';
-
+import { emojiObjects } from '~/utils/Ui/emojis';
 
 interface EmojiListProps {
-  handleInputChange: (text: string) => void;
+  onEmojisTextChange: (emoji: string) => void;
 }
 
-const EmojiList = React.memo(({ handleInputChange }: EmojiListProps) => {
-  
+const EmojiList: React.FC<EmojiListProps> = React.memo(({ onEmojisTextChange }) => {
+  const handleEmojiPress = useCallback((emoji: string) => {
+    onEmojisTextChange(emoji);
+  }, []);
+
   return (
     <FlatList
       data={emojiObjects}
       keyExtractor={(item) => item.id.toString()}
       renderItem={({ item }) => (
         <Pressable
-          onPress={() => handleInputChange(item.image)}
+          onPress={() => handleEmojiPress(item.image)}
           style={({ pressed }) => [
             styles.pressable,
             { backgroundColor: pressed ? 'rgba(24, 157, 252, 0.1)' : 'transparent' },
@@ -28,7 +30,7 @@ const EmojiList = React.memo(({ handleInputChange }: EmojiListProps) => {
       initialNumToRender={7}
       maxToRenderPerBatch={7}
       windowSize={5}
-      removeClippedSubviews={true}
+      removeClippedSubviews
     />
   );
 });

@@ -5,6 +5,7 @@ export const colors = {
     secondary: '#004E6D',
     secondary_dark: '#001A2D',
     secondary_light: '#7BA6B3',
+    secondary_bright: '#0088FF',
     secondary_transparent: 'rgba(184, 212, 222, 0.4)',
     gray_light: '#DFE3E4',
     gray_icon: '#727272',

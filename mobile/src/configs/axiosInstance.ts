@@ -1,28 +1,35 @@
+
 import axios, {
   AxiosResponse,
   AxiosError,
   InternalAxiosRequestConfig,
 } from 'axios';
+import { useSelector } from 'react-redux';
+import { authSelector } from '~/features/auth/authSlice';
+import store from '~/stores/redux/store';
 import {ACCESS_TOKEN} from '~/utils/Constants/authConstant';
 import localStorage from '~/utils/localStorage';
 
 const axiosInstance = axios.create({
-  baseURL: 'http://192.168.1.16:7777/api/v1/',//pham thi thi 5g
+  baseURL: 'http://192.168.1.10:7777/api/v1/',//pham thi thi 5g
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-let accessToken = '';
+let accessTokenFast = '';
 
 export const setAuthorizationToken = (token: string) => {
-  accessToken = token;  
+  accessTokenFast = token;  
 };
 
 axiosInstance.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    if (accessToken) {      
+    const { accessToken } = store .getState().auth;
+    if (accessTokenFast) {
+      config.headers['Authorization'] = `Bearer ${accessToken}`;
+    }else{
       config.headers['Authorization'] = `Bearer ${accessToken}`;
     }
     return config;

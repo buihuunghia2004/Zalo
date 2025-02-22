@@ -16,6 +16,10 @@ import {textStyle} from '../../../styles/Ui/text';
 import AnimatedEmojis from './AnimatedEmojis';
 import { MessageViewStatus } from '~/features/message/dto/message.enum';
 import { PressableEvent } from 'react-native-gesture-handler/lib/typescript/components/Pressable/PressableProps';
+import { useChatStore } from '~/stores/zustand/chat.store';
+import { _MessageSentReq, _MessageSentRes } from '~/features/message/dto/message.dto.parent';
+import { MemberBase, MessagParente } from '~/features/message/dto/message.dto.nested';
+import { Fonts } from '~/styles/Ui/fonts';
 
 type SourceMessageType = 'time' | 'action' | 'me' | 'people';
 type MessageType =
@@ -35,7 +39,9 @@ interface Message {
   id: string;
   data: string;
   status: MessageViewStatus,
+  parentMessage?: MessagParente,
   source?: boolean;
+  sender?: MemberBase
   type: MessageType;
   time?: string;
   emojis?: string[];
@@ -46,8 +52,7 @@ type Props = Message & {
   isDisplayHeart?: boolean;
   isDisplayAvatar?: boolean;
   isDisplayStatus?: boolean;
-  onLongPress?: ( pageY: number) => void;
-
+  onLongPress?: (pageY: number) => void;
 };
 
 const getUniqueId = () => {
@@ -60,13 +65,15 @@ const ItemMessage: React.FC<Props> = ({
   type,
   time,
   status,
+  sender,
   emojis,
-  isDisplayTime,
+  parentMessage,
   isDisplayHeart,
   isDisplayAvatar,
   isDisplayStatus,
   onLongPress
-}) => {
+}) => {  
+  const {getReplyMessageById, curentMessageRepling}= useChatStore()
   // Logic containerStyle và textstyle
   let containerStyle = {};
   let textStyles = {};
@@ -102,7 +109,7 @@ const ItemMessage: React.FC<Props> = ({
   const emojiTimeout = useRef<ReturnType<typeof setTimeout>>();
   const itemRef = useRef<View>(null);
 
-  useEffect(() => {
+  useEffect(() => {    
     if (emojis && emojis?.length > 0) {
       const slicedEmojis = emojis
         .slice(-3)
@@ -145,11 +152,9 @@ const ItemMessage: React.FC<Props> = ({
   }, []);
 
   const handleLongPress = () => {        
-    if (itemRef.current) {   
-      console.log('2');
-         
+    if (itemRef.current) {            
       itemRef.current.measure((x, y, width, height, pageX, pageY) => {
-        if (onLongPress) {          
+        if (onLongPress) {                          
           onLongPress(pageY); 
         }
       });
@@ -205,6 +210,16 @@ const ItemMessage: React.FC<Props> = ({
             <Image style={styles.avatar} source={Assets.images.demo} />
           )}
           <View style={styles.textContainer}>
+            {parentMessage && 
+            <View style={{flexDirection: 'row', gap: 6}}>
+              <View style={{backgroundColor: colors.secondary_bright,width: 3, height: '100%', borderRadius: 10}}/>
+              <View>
+                <Text style={[textStyle.body_sm, {padding: 0, fontFamily: Fonts.proximaNova
+                  .regular, fontWeight: 'bold'
+                }]}>{getReplyMessageById(parentMessage.id)?.sender?.user.username}</Text>
+                <Text style={[textStyle.body_sm, { color: colors.gray_icon}]}>{parentMessage.content}</Text>
+              </View>
+            </View> }
             {/* Nội dung tin nhắn */}
             {renderMessageByType(type, data)}
             {/* time */}
@@ -304,6 +319,7 @@ const StatusString = {
   'sending':'Đang gửi',
   'sent':'Đã gửi',
   'received':'Đã nhận',
+  'viewed': 'Đã xem'
 }
 
 const styles = StyleSheet.create({
@@ -326,6 +342,7 @@ const styles = StyleSheet.create({
   messageText: {
     ...textStyle.body_md,
     textAlign: 'left',
+    paddingVertical: 4
   },
   countText: {
     color: colors.white,
@@ -339,7 +356,7 @@ const styles = StyleSheet.create({
   },
   timeContainer: {
     backgroundColor: colors.gray,
-    height: 20,
+    height: 14,
     justifyContent: 'center',
     alignSelf: 'center',
   },
@@ -362,7 +379,7 @@ const styles = StyleSheet.create({
   },
 
   meContainer: {
-    backgroundColor: colors.primary_light,
+    backgroundColor: colors.secondary_transparent,
     justifyContent: 'center',
     alignSelf: 'flex-end',
     paddingVertical: 8,
@@ -422,6 +439,7 @@ const styles = StyleSheet.create({
   status: {
     ...textStyle.description_seen,
     padding: 2,
+    marginBottom: 14,
     paddingHorizontal: 6,
     borderRadius: 40,
     textAlign: 'center',

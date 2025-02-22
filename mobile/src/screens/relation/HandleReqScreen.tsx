@@ -13,12 +13,17 @@ import RequestItem from './components/RequestItem';
 import {viewStyle} from '~/styles/Ui/views';
 import {Fonts} from '~/styles/Ui/fonts';
 import {useRelationStore} from '~/stores/zustand/relation.store';
-import { InviterTypeEnum } from '~/features/user/dto/user.enum';
+import {InviterTypeEnum} from '~/features/user/dto/user.enum';
 
 const HandleReqScreen = () => {
   const mainNav = useNavigation<MainNavProp>();
 
-  const {relations_Pending, fetchRelations, updateStatusRelation} = useRelationStore();
+  const {
+    relations_Pending,
+    fetchRelations,
+    updateStatusRelation,
+    clear_relations_Changing,
+  } = useRelationStore();
   const [sent, setSent] = useState<Relation[]>([]);
   const [received, setReceived] = useState<Relation[]>([]);
   const [activeTab, setActiveTab] = useState(0);
@@ -33,8 +38,12 @@ const HandleReqScreen = () => {
 
   useEffect(() => {
     if (relations_Pending.length > 0) {
-      const sentData = relations_Pending.filter((item: Relation) => item.inviter === InviterTypeEnum.SELF);
-      const receivedData = relations_Pending.filter((item: Relation) => item.inviter !== InviterTypeEnum.SELF);
+      const sentData = relations_Pending.filter(
+        (item: Relation) => item.inviter === InviterTypeEnum.SELF,
+      );
+      const receivedData = relations_Pending.filter(
+        (item: Relation) => item.inviter !== InviterTypeEnum.SELF,
+      );
 
       setSent(sentData);
       setReceived(receivedData);
@@ -55,6 +64,7 @@ const HandleReqScreen = () => {
     }).start();
   };
   const handleGoBack = () => {
+    clear_relations_Changing();
     mainNav.goBack();
   };
   const handleSetOptionItem = (id: string, newStatus: RelationStatus) => {

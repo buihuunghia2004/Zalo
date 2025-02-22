@@ -18,7 +18,7 @@ const loadMoreMessage= async (dto: CursorPaginatedReq<string>): Promise<CursorPa
 
 const SentMessage = async (dto: _MessageSentReq): Promise<_MessageSentRes> => {
   try {
-    return await axiosInstance.post('messages', dto);;
+    return await axiosInstance.post(`messages/${dto.roomId}/text`, dto);;
   } catch (error: any) {
     console.error('Error while searching user:', error);
     throw error;

@@ -1,7 +1,7 @@
 import {UserBase} from '~/features/user/dto/user.dto.nested';
 import { RoomTypeEnum } from './room.enum';
-import { MemberBase } from '~/features/message/dto/message.dto.nested';
 import { _MessageSentRes } from '~/features/message/dto/message.dto.parent';
+import { UserEntity } from '~/features/user/userEntity';
 
 export interface Room {
   id: string;
@@ -9,15 +9,17 @@ export interface Room {
   roomAvatarUrls: string[];
   roomName: string;
   type: RoomTypeEnum;
-  members?: MemberDto[];
+  members?: MemberResDto[];
   lastMsg: LastMsg
   memberCount: number
   quantityUnReadMessages?: number
 }
-export interface MemberDto {
+export interface MemberResDto {
   id: string;
+  msgRTime: Date;
+  msgVTime: Date;
   role: string;
-  user: UserBase;
+  user: UserEntity;
 }
 
 export interface LastMsg {
@@ -25,6 +27,6 @@ export interface LastMsg {
   type: string;
   senderId: string;
   isSelfSent: boolean
-  sender: MemberBase
-  createAt: Date;
+  sender: MemberResDto
+  createdAt: Date;
 }

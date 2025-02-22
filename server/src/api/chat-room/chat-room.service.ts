@@ -71,7 +71,7 @@ export class ChatRoomService {
       createdBy: SYSTEM_USER_ID,
       updatedBy: SYSTEM_USER_ID
     })
-    const newRoom = await this.roomRepository.save(room)
+    const newRoom = await this.roomRepository.save({...room, createdBy: userId1, updatedBy: userId1})
 
     // Thêm member vào room
     const member1 = new MemberEntity({

@@ -20,13 +20,11 @@ const UModal: React.FC<UModalProps> = ({ visible, onClose, content }) => {
       animationType="fade"
       transparent={true}
       visible={visible}
-      onRequestClose={onClose} // Đóng modal khi nhấn Back trên Android
+      onRequestClose={onClose} 
     >
-      {/* Bắt sự kiện nhấn vào nền để đóng modal */}
       <Pressable style={styles.overlay} onPress={onClose}>
-        {/* Chặn sự kiện nhấn vào nội dung bị lan ra ngoài */}
         <View style={styles.modalContainer}>
-          <Pressable onPress={() => {}} style={styles.content}>
+          <Pressable >
             {content}
           </Pressable>
         </View>
@@ -37,8 +35,6 @@ const UModal: React.FC<UModalProps> = ({ visible, onClose, content }) => {
 
 const styles = StyleSheet.create({
   overlay: {
-    position: 'absolute',
-    zIndex: 10,
     width: WINDOW_WIDTH,
     height: WINDOW_HEIGHT,
     backgroundColor: "rgba(0, 0, 0, 0.7)",
@@ -47,9 +43,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.transparent,
     borderRadius: 10,
-  },
-  content: {
-    flex: 1,
   },
 });
 

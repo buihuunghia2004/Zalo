@@ -26,7 +26,6 @@ const ContactsTabNavigation = () => {
 
       const handleScroll = (y: number) => {
         let newPosition: any;
-    console.log(y);
     
         if (y === 0) {
           newPosition = 45;

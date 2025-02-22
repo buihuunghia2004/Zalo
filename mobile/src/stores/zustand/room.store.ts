@@ -5,12 +5,15 @@ import { RoomService } from "~/features/room/roomService";
 
 interface RoomStore {
   rooms: Room[];
+  unReadMessagesRooms: any;
   fetchRooms: () => void;
+  setUnReadMessagesRooms: (item: any) => void;
   receiveNewMessage: (message: _MessageSentRes) => void;
 }
 
 export const useRoomStore = create<RoomStore>((set) => ({
   rooms: [],
+  unReadMessagesRooms: {},
   
   fetchRooms: async () => {
     const data = await RoomService.getAllRoom();
@@ -26,6 +29,8 @@ export const useRoomStore = create<RoomStore>((set) => ({
     set({ rooms: sortedRooms });
   },
 
+  setUnReadMessagesRooms: (item) => set({ unReadMessagesRooms: item }),
+
   receiveNewMessage: (message) =>
     set((state) => {
       if (!message.roomId) return { rooms: state.rooms }; 
@@ -33,14 +38,14 @@ export const useRoomStore = create<RoomStore>((set) => ({
       const otherRooms = state.rooms.filter((room) => room.id !== message.roomId);
       const updatedRoom = state.rooms.find((room) => room.id === message.roomId);
 
-      if (!updatedRoom) return { rooms: state.rooms }; // Trả về `rooms` thay vì `{}` để tránh lỗi Zustand
+      if (!updatedRoom) return { rooms: state.rooms }; 
 
       return {
         rooms: [
           {
             ...updatedRoom,
             lastMsg: message,
-            quantityUnReadMessages: (updatedRoom.quantityUnReadMessages ?? 0) + 1, // Dùng `??` thay vì `||`
+            quantityUnReadMessages: (updatedRoom.quantityUnReadMessages ?? 0) + 1, 
           },
           ...otherRooms,
         ],

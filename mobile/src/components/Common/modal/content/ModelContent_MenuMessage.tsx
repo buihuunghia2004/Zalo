@@ -7,38 +7,101 @@ import {
   ImageSourcePropType,
   Animated,
   PanResponder,
+  Pressable,
 } from 'react-native';
 import React, {useRef, useState} from 'react';
 import {colors} from '~/styles/Ui/colors';
 import {Assets} from '~/styles/Ui/assets';
 import {textStyle} from '~/styles/Ui/text';
 import RNHapticFeedback from 'react-native-haptic-feedback';
-import { WINDOW_HEIGHT } from '~/utils/Ui/dimensions';
-import { logout } from '~/features/auth/authSlice';
+import {WINDOW_HEIGHT} from '~/utils/Ui/dimensions';
+import {DisplayMessage} from '~/screens/chat/ChatScreen';
+import {formatToHoursMinutes} from '~/utils/Convert/timeConvert';
+import { _MessageSentReq, _MessageSentRes } from '~/features/message/dto/message.dto.parent';
 
 interface MenuItem {
-  id: string;
+  key: KeyItemMenu;
   title: string;
   icon: ImageSourcePropType;
 }
 type Props = {
-  pageY: number
+  pageY: number;
+  message?: _MessageSentRes | null;
+  onItemPress: (key: KeyItemMenu) => void;
 };
+export enum KeyItemMenu {
+  REPLY = 'reply',
+  FORWARD = 'forward',
+  SAVE_CLOUD = 'save_cloud',
+  RECALL = 'recall',
+  COPY = 'copy',
+  PIN = 'pin',
+  REMINDER = 'reminder',
+  MULTI_SELECT = 'multi_select',
+  QUICK_MESSAGE = 'quick_message',
+  TEXT_READER = 'text_reader',
+  DETAILS = 'details',
+  DELETE = 'delete',
+}
 
-const ModalContent_MenuMessage:React.FC<Props> = ({pageY}) => {
+const ModalContent_MenuMessage: React.FC<Props> = ({
+  pageY,
+  message,
+  onItemPress,
+}) => {
   const menuItems: MenuItem[] = [
-    {id: '1', title: 'Trả lời', icon: Assets.icons.reply_message},
-    {id: '2', title: 'Chuyển tiếp', icon: Assets.icons.reply_message},
-    {id: '3', title: 'Lưu Cloud', icon: Assets.icons.reply_message},
-    {id: '4', title: 'Thu hồi', icon: Assets.icons.reply_message},
-    {id: '5', title: 'Sao chép', icon: Assets.icons.reply_message},
-    {id: '6', title: 'Ghim', icon: Assets.icons.reply_message},
-    {id: '7', title: 'Nhắc hẹn', icon: Assets.icons.reply_message},
-    {id: '8', title: 'Chọn nhiều', icon: Assets.icons.reply_message},
-    {id: '9', title: 'Tạo tin nhắn nhanh', icon: Assets.icons.reply_message},
-    {id: '10', title: 'Đọc văn bản', icon: Assets.icons.reply_message},
-    {id: '11', title: 'Chi tiết', icon: Assets.icons.reply_message},
-    {id: '12', title: 'Xóa', icon: Assets.icons.reply_message},
+    {
+      key: KeyItemMenu.REPLY,
+      title: 'Trả lời',
+      icon: Assets.icons.reply_message,
+    },
+    {
+      key: KeyItemMenu.FORWARD,
+      title: 'Chuyển tiếp',
+      icon: Assets.icons.reply_message,
+    },
+    {
+      key: KeyItemMenu.SAVE_CLOUD,
+      title: 'Lưu Cloud',
+      icon: Assets.icons.reply_message,
+    },
+    {
+      key: KeyItemMenu.RECALL,
+      title: 'Thu hồi',
+      icon: Assets.icons.reply_message,
+    },
+    {
+      key: KeyItemMenu.COPY,
+      title: 'Sao chép',
+      icon: Assets.icons.reply_message,
+    },
+    {key: KeyItemMenu.PIN, title: 'Ghim', icon: Assets.icons.reply_message},
+    {
+      key: KeyItemMenu.REMINDER,
+      title: 'Nhắc hẹn',
+      icon: Assets.icons.reply_message,
+    },
+    {
+      key: KeyItemMenu.MULTI_SELECT,
+      title: 'Chọn nhiều',
+      icon: Assets.icons.reply_message,
+    },
+    {
+      key: KeyItemMenu.QUICK_MESSAGE,
+      title: 'Tạo tin nhắn nhanh',
+      icon: Assets.icons.reply_message,
+    },
+    {
+      key: KeyItemMenu.TEXT_READER,
+      title: 'Đọc văn bản',
+      icon: Assets.icons.reply_message,
+    },
+    {
+      key: KeyItemMenu.DETAILS,
+      title: 'Chi tiết',
+      icon: Assets.icons.reply_message,
+    },
+    {key: KeyItemMenu.DELETE, title: 'Xóa', icon: Assets.icons.reply_message},
   ];
 
   // Danh sách emoji
@@ -49,11 +112,11 @@ const ModalContent_MenuMessage:React.FC<Props> = ({pageY}) => {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   // Xử lý khi long press
-  const handleLongPress = (index: number) => {    
+  const handleLongPress = (index: number) => {
     RNHapticFeedback.trigger('impactMedium');
     Animated.timing(scales[index], {
       toValue: 1.8,
-      duration: 200,
+      duration: 120,
       useNativeDriver: true,
     }).start();
     setSelectedIndex(index);
@@ -67,7 +130,7 @@ const ModalContent_MenuMessage:React.FC<Props> = ({pageY}) => {
       scales.forEach((scale, i) => {
         Animated.timing(scale, {
           toValue: i === index ? 1.8 : 1,
-          duration: 200,
+          duration: 120,
           useNativeDriver: true,
         }).start();
       });
@@ -80,7 +143,7 @@ const ModalContent_MenuMessage:React.FC<Props> = ({pageY}) => {
     scales.forEach(scale => {
       Animated.timing(scale, {
         toValue: 1,
-        duration: 200,
+        duration: 120,
         useNativeDriver: true,
       }).start();
     });
@@ -106,13 +169,56 @@ const ModalContent_MenuMessage:React.FC<Props> = ({pageY}) => {
     }),
   ).current;
 
-  return (
-    <View style={styles.container}>
-       <View style={styles.modalContainer}>
-        <Text>aaaaa</Text>
-      </View>
+  const [contentHeight, setContentHeight] = useState(0);
+  const menuHeight = (WINDOW_HEIGHT * 48) / 100;
+  const itemHeight = 60;
+  const tabBarHeight = 50;
+  const positionTop =
+    contentHeight > pageY
+      ? tabBarHeight
+      : WINDOW_HEIGHT > pageY + itemHeight + menuHeight
+      ? pageY
+      : WINDOW_HEIGHT - menuHeight - contentHeight;
 
-      <View style={styles.bottomContainer}>
+  return (
+    <View style={[styles.container, {top: positionTop}]}>
+      <View
+          onLayout={event => {
+            const {height} = event.nativeEvent.layout;
+            setContentHeight(height);
+          }}
+          style={{
+            gap: 10,
+            minHeight: 60,
+            flexDirection: 'row',
+            justifyContent: message?.isSelfSent ? 'flex-end' : 'flex-start',
+          }}>
+          {!message?.isSelfSent && (
+            <Image
+              style={styles.avatar}
+              source={{uri: message?.sender?.user.avatarUrl}}
+            />
+          )}
+          <View
+            style={{
+              padding: 10,
+              borderRadius: 10,
+              paddingHorizontal: 8,
+              marginBottom: 8,
+              backgroundColor: message?.isSelfSent
+                ? colors.primary_light
+                : colors.white,
+            }}>
+            <Text style={[styles.message]}>{message?.content}</Text>
+            <Text
+              style={[textStyle.body_xs, {maxWidth: '80%', minWidth: '18%'}]}>
+              {message?.createdAt
+                ? formatToHoursMinutes(message.createdAt.toString())
+                : 'N/A'}
+            </Text>
+          </View>
+        </View>
+
         {/* Dãy emoji với animation */}
         <View style={styles.emojiContainer} {...panResponder.panHandlers}>
           {emojis.map((emoji, index) => (
@@ -132,8 +238,6 @@ const ModalContent_MenuMessage:React.FC<Props> = ({pageY}) => {
                   ],
                 },
               ]}
-              onPress={()=>console.log('99')
-              }
               onLongPress={() => handleLongPress(index)}>
               {emoji}
             </Animated.Text>
@@ -145,19 +249,20 @@ const ModalContent_MenuMessage:React.FC<Props> = ({pageY}) => {
           <FlatList
             data={menuItems}
             renderItem={({item}) => (
-              <View style={styles.item}>
+              <Pressable
+                onPress={() => onItemPress?.(item.key)}
+                style={styles.item}>
                 <Image source={item.icon} style={styles.icon} />
                 <Text style={[textStyle.body_sm, {textAlign: 'center'}]}>
                   {item.title}
                 </Text>
-              </View>
+              </Pressable>
             )}
-            keyExtractor={item => item.id}
+            keyExtractor={item => item.key}
             numColumns={4}
             contentContainerStyle={styles.grid}
           />
         </View>
-      </View>
     </View>
   );
 };
@@ -166,22 +271,17 @@ export default ModalContent_MenuMessage;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.transparent, 
-    flex: 1
+    flex:1,
+    marginHorizontal: 10,
+    backgroundColor: colors.transparent,
   },
-  modalContainer: {
-    flex: 1,
-    padding: 10,
-    gap: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  message: {
+    ...textStyle.body_lg,
   },
   bottomContainer: {
-    height: '55%',
-    padding: 10,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    flex: 1,
     gap: 10,
+    paddingHorizontal: 10,
   },
   emojiContainer: {
     maxHeight: 60,
@@ -201,8 +301,10 @@ const styles = StyleSheet.create({
   },
   menuContainer: {
     width: '100%',
+    height: 260,
     backgroundColor: colors.white,
     borderRadius: 20,
+    marginTop: 10
   },
   grid: {
     padding: 10,
@@ -216,5 +318,10 @@ const styles = StyleSheet.create({
   icon: {
     width: 26,
     height: 26,
+  },
+  avatar: {
+    width: 30,
+    height: 30,
+    borderRadius: 40,
   },
 });

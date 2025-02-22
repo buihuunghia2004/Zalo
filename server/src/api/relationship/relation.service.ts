@@ -81,7 +81,7 @@ export class RelationService {
     if (
       dto.action === RelationAction.DECLINE ||  //Từ chối kết bạn
       dto.action === RelationAction.REVOKE      //Thu hồi lời mời
-    ) {
+    ) {      
       await this.relationRepository.remove(relation)
       relation.status = RelationStatus.NOTTHING
     }else{
@@ -103,7 +103,7 @@ export class RelationService {
       )
     }
 
-    return plainToInstance(RelationResDto, relation)
+    return plainToInstance(RelationResDto, {...relation, createdBy: SYSTEM_USER_ID, updatedBy: SYSTEM_USER_ID})
   }
 
   async getAllRelations(currentUserId: Uuid, status: RelationStatus) : Promise<any[]>{        
