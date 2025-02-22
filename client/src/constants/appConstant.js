@@ -5,5 +5,7 @@ export const AppConstant = {
 
 export const ActionHandleAddFriend = {
   ACCEPT: 'accept',
-  REJECT: 'reject',
+  REVOKE: 'revoke',
+  DECLINE: 'decline',
+  BLOCK: 'block'
 }

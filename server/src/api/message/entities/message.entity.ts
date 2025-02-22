@@ -64,9 +64,9 @@ export class MessageEntity extends AbstractEntity{
     referencedColumnName:'id',
     foreignKeyConstraintName:'FK_replymessage_message'
   })
-  parentMessage: MessageEntity;
+  replyMessage: MessageEntity;
 
-  @OneToMany(() => MessageEntity, (message) => message.parentMessage)
+  @OneToMany(() => MessageEntity, (message) => message.replyMessage)
   replies: MessageEntity[];
 
   // @OneToOne(()=>MessageEntity, )

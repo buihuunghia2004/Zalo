@@ -6,17 +6,21 @@ import { Provider } from 'react-redux'
 import { PersistGate } from 'redux-persist/integration/react'
 import store, { persistor } from './redux/store.js'
 import { SocketProvider } from './socket/SocketProvider.jsx'
+import ErrorBoundary from './Routes/error-boundary.jsx'
 
 createRoot(document.getElementById('root')).render(
   // <StrictMode>
-  <BrowserRouter>
-    <Provider store={store}>
-      <SocketProvider namespace={''}>
-        <PersistGate loading={<p>Loading...</p>} persistor={persistor}>
-          <App />
-        </PersistGate>
-      </SocketProvider>
-    </Provider>
-  </BrowserRouter>
+  <ErrorBoundary>
+    {/* <BrowserRouter> */}
+      <Provider store={store}>
+        <SocketProvider namespace={'message'}>
+          <PersistGate loading={<p>Loading...</p>} persistor={persistor}>
+            <App />
+          </PersistGate>
+        </SocketProvider>
+      </Provider>
+  {/* </BrowserRouter> */}
+  </ErrorBoundary>
+  
   // {/* </StrictMode> */}
 )

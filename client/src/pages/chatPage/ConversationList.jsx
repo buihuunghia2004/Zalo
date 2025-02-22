@@ -1,64 +1,82 @@
 import { useEffect, useState } from 'react'
 import SquareIcon from '../../components/icon/squareIcon'
-import { AddFriendModal } from '../../components/modal/AddFriendModal'
 import { Assets } from '../../assets'
 import { useDispatch, useSelector } from 'react-redux'
 import Utils from '../../utils/utils'
-import { AddGroupModal } from '../../components/modal/AddGroupModal'
 import GroupAvatar from '../../components/GroupAvatar'
-import { setCurrentRoom } from '../../redux/slices/currentRoomSlice'
+import { addNewMgs, setCurrentRoom } from '../../redux/slices/currentRoomSlice'
 import useSocketEvent from '../../hooks/useSocket'
-import { loadMoreMsgWhenConnect, setViewAllMsg } from '../../redux/slices/roomSlice'
+import {
+  getAllRooms,
+  loadMoreMsgWhenConnect,
+  setViewAllMsg,
+  updateLastMsgForRoom,
+} from '../../redux/slices/roomSlice'
+import { SearchComponent } from '../../components/SearchComponent'
+import { Link } from 'react-router-dom'
 
-export default function ConversationList({ rooms }) {
+export default function ConversationList() {
   const dispatch = useDispatch()
-  const [isAFModalOpen, setIsAFModelOpen] = useState(false)
-  const [isAGModalOpen, setIsAGModalOpen] = useState(false)
-  const currentRoomId = useSelector(state => state.currentRoom.id)
+  const rooms = useSelector((state) => state.rooms.data)
+  const meId = useSelector((state) => state.user.id)
+  const roomId = useSelector((state) => state.currentRoom.roomId)
+  const items = ['Tất cả', 'Chưa đọc']
+  const [isSelected, setIsSelected] = useState(items[0])
 
-  useSocketEvent('load_more_msgs_when_connect', (data) => {
-    console.log('after connect', data)
-    dispatch(loadMoreMsgWhenConnect(data))
+
+  useSocketEvent('new_message', (data) => {
+    console.log('tin nhắn mới', data)
+    if (data.sender.userId !== meId && roomId == data.roomId) {
+      dispatch(addNewMgs(data))
+    }
+    if (!roomId || roomId != data.roomId) {            
+      dispatch(updateLastMsgForRoom({roomId:data.roomId,lastMsg:data}))
+    }
   })
+  // const onItemClick = (item) => {
+  //   dispatch(setCurrentRoom(item))
+  //   dispatch(setViewAllMsg({ roomId: item.id }))
+  // }
 
-  const onItemClick = (item) => {
-    dispatch(setCurrentRoom(item))
-    dispatch(setViewAllMsg({roomId: item.id}))
-  }
+  useEffect(() => {    
+    dispatch(getAllRooms())
+  }, [])
 
   return (
     <div className="flex w-[22rem] flex-col">
       {/* header */}
-      <div className="mb-0.5 flex h-28 flex-col justify-between px-4 pt-4">
-        <div className="flex flex-row">
-          <Search />
-          <SquareIcon
-            onClick={() => setIsAFModelOpen(true)}
-            src={Assets.icons.addFriend}
-            className={'mx-1'}
-          />
-          <SquareIcon
-            onClick={() => setIsAGModalOpen(true)}
-            src={Assets.icons.addGroup}
-          />
-          <AddFriendModal isOpen={isAFModalOpen} setIsOpen={setIsAFModelOpen} />
-          <AddGroupModal isOpen={isAGModalOpen} setIsOpen={setIsAGModalOpen} />
+      <SearchComponent />
+      <div className="flexflex-col px-4">
+        <div className="flex gap-3">
+          {items.map((item, index) => (
+            <div
+              key={index.toString()}
+              className=""
+              onClick={() => setIsSelected(item)}
+            >
+              <p
+                className={`text-sm font-semibold hover:text-blue-500 ${isSelected === item ? 'text-blue-500' : 'text-slate-400'}`}
+              >
+                {item}
+              </p>
+              {isSelected === item && <div className="h-1 bg-blue-500" />}
+            </div>
+          ))}
         </div>
-        <SelectedTab />
       </div>
-      <div className='w-full h-0.5 bg-slate-400 my-1'/>
+      <div className="my-1 h-0.5 w-full bg-slate-400" />
       {/* content */}
-      <div className="flex-grow w-[22rem] bg-slate-50">
+      <div className="w-[22rem] flex-grow bg-slate-50">
         {rooms.map((item, index) => (
           <ConversationItem
             key={index.toString()}
-            isFocus = {item.id == currentRoomId}
+            isFocus={item?.id == roomId}
             data={item}
             lastMsg={item?.lastMsg}
             messLasted={item?.lastMsg?.createdAt}
             msgReceived={item.receivedMsgs}
             isSelfSent={item?.lastMsg?.isSelfSent}
-            onClick={() => onItemClick(item)}
+            // onClick={() => onItemClick(item)}
             unViewMsgCount={item?.unViewMsgCount}
           />
         ))}
@@ -72,14 +90,14 @@ const Search = () => {
   return (
     <div
       className={`${
-        isFocus && 'outline outline-1 outline-sky-400 '
-      } flex w-full flex-row rounded-lg px-1 bg-slate-200`}
+        isFocus && 'outline outline-1 outline-sky-400'
+      } flex w-full flex-row rounded-lg bg-slate-200 px-1`}
     >
       <SquareIcon src={Assets.icons.search} />
       <input
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
-        className="search-input w-full focus:outline-none bg-slate-200"
+        className="search-input w-full bg-slate-200 focus:outline-none"
         placeholder="Tìm kiếm"
       />
     </div>
@@ -90,20 +108,20 @@ const SelectedTab = () => {
   const [isSelected, setIsSelected] = useState(items[0])
   return (
     <div className="flexflex-col">
-      <div className='flex gap-3'>
+      <div className="flex gap-3">
         {items.map((item, index) => (
-        <div
-          key={index.toString()}
-          className=""
-          onClick={() => setIsSelected(item)}
-        >
-          <p
-            className={`text-sm font-semibold hover:text-blue-500 ${isSelected === item ? 'text-blue-500' : 'text-slate-400'}`}
+          <div
+            key={index.toString()}
+            className=""
+            onClick={() => setIsSelected(item)}
           >
-            {item}
-          </p>
-          {isSelected === item && <div className="h-1 bg-blue-500" />}
-        </div>
+            <p
+              className={`text-sm font-semibold hover:text-blue-500 ${isSelected === item ? 'text-blue-500' : 'text-slate-400'}`}
+            >
+              {item}
+            </p>
+            {isSelected === item && <div className="h-1 bg-blue-500" />}
+          </div>
         ))}
       </div>
     </div>
@@ -117,7 +135,7 @@ const ConversationItem = ({
   messLasted,
   msgReceived,
   onClick,
-  unViewMsgCount
+  unViewMsgCount,
 }) => {
   const [isHover, setIsHover] = useState(false)
   const [timeDifference, setTimeDifference] = useState('')
@@ -136,11 +154,12 @@ const ConversationItem = ({
   }, [messLasted])
 
   return (
-    <div
-      className={`flex h-20 w-full flex-row items-center p-2 pr-4 hover:bg-slate-200 ${isFocus && 'bg-blue-300'}`}
+    <Link
+      to={`/messages/${data.id}?type=room`}
+      className={`flex h-20 w-full flex-row items-center p-2 pr-4 hover:bg-slate-200 ${isFocus && 'bg-blue-200'}`}
       onMouseEnter={() => setIsHover(true)}
       onMouseLeave={() => setIsHover(false)}
-      onClick={onClick}
+      // onClick={onClick}
     >
       {data.roomAvatarUrl ? (
         <img
@@ -149,34 +168,36 @@ const ConversationItem = ({
           alt="Placeholder"
         />
       ) : (
-        <div className='relative z-0'>
-          <GroupAvatar
-            roomAvatarUrls={data.roomAvatarUrls}
-          />
+        <div className="relative z-0">
+          <GroupAvatar roomAvatarUrls={data.roomAvatarUrls} />
         </div>
       )}
 
       <div className="w-full">
         <div className="mx-2 flex w-full flex-row gap-1 py-1">
-          <p className="w-full text-base whitespace-nowrap overflow-hidden">{data.roomName}</p>
+          <p className="w-full overflow-hidden whitespace-nowrap text-base">
+            {data.roomName}
+          </p>
           {isHover ? (
-            <div className='w-16'>
+            <div className="w-16">
               <SquareIcon className={'size-6'} src={Assets.icons.more} />
             </div>
           ) : (
-            <p className="text-xs text-slate-500 font-semibold w-28 text-right">{timeDifference}</p>
+            <p className="w-28 text-right text-xs font-semibold text-slate-500">
+              {timeDifference}
+            </p>
           )}
         </div>
         <div className="mx-2 flex w-full flex-row gap-1 py-1">
-          <span className="max-w-60 flex-1 text-sm text-slate-400 overflow-hidden text-ellipsis whitespace-nowrap">
+          <span className="max-w-60 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-sm text-slate-400">
             {(isSelfSent ? 'Bạn: ' : '') +
               (lastMsg?.type == 'text' ? lastMsg?.content : 'Hình ảnh')}
           </span>
-          {
-            (unViewMsgCount || (unViewMsgCount > 0)) && <p className="size-5 rounded-full bg-red-600 text-center text-sm text-white">
-            {unViewMsgCount}
-          </p>
-          }
+          {(unViewMsgCount || unViewMsgCount > 0) && (
+            <p className="size-5 rounded-full bg-red-600 text-center text-sm text-white">
+              {unViewMsgCount}
+            </p>
+          )}
           {/* {msgReceived &&
             Array.isArray(msgReceived) &&
             msgReceived.length > 0 && (
@@ -188,6 +209,6 @@ const ConversationItem = ({
             )} */}
         </div>
       </div>
-    </div>
+    </Link>
   )
 }

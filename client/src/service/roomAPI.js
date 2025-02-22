@@ -24,17 +24,24 @@ const getRoomIdByUserIdAPI = async (partnerId) => {
   }
 }
 
-// const getRoomByIdAPI = async (id) => {
-//   try {
-//     return await AxiosInstant.get(`rooms/${id}`)
-//   } catch (error) {
+const getRoomByIdAPI = async ({roomId}) => {
+  try {
+    return await AxiosInstant.get(`rooms/${roomId}`)
+  } catch (error) {
     
-//   }
-// }
+  }
+}
 
 const createNewGroupdAPI = async (data) => {
   try {
     return await AxiosInstant.post(`rooms/groups`,data)
+  } catch (error) {
+    
+  }
+}
+const getRoomByPartnerIddAPI = async ({partnerId}) => {
+  try {
+    return await AxiosInstant.post(`rooms/partner${partnerId}`)
   } catch (error) {
     
   }
@@ -58,7 +65,8 @@ const handleRequestAddFriendAPI = async (data) => {
 
 const roomAPI = {
   getAllRoomAPI,
-  // getRoomByIdAPI,
+  getRoomByIdAPI,
+  getRoomByPartnerIddAPI,
   getRoomIdByUserIdAPI,
   getAllGroupAPI,
   createNewGroupdAPI

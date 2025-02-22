@@ -86,9 +86,14 @@ export class RelationService {
       relation.status = RelationStatus.NOTTHING
     }else{
       relation.status = RelationStatus.FRIEND     //Đồng ý kết bạn
-      await this.relationRepository.save({...relation, createdBy: SYSTEM_USER_ID, updatedBy: SYSTEM_USER_ID})
-      await this.chatRoomService.createPersonalRoom(relation.requesterId, myId);
+      await this.relationRepository.save(relation)
 
+      //check chat room exists, if not, create one
+      const chatRoom = await this.chatRoomService.getPersonalRoomFromUsers(relation.requesterId, myId);
+      if (!chatRoom){
+        await this.chatRoomService.createPersonalRoom(relation.requesterId, myId);
+      }
+      
       //gửi thống báo đến cho người gửi yêu cầu
       this.eventEmitter.emit(
         EventEmitterKey.ACCEPT_RELATION_REQ,

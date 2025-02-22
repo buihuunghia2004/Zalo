@@ -1,5 +1,5 @@
-const uriIcons = 'public/icons/'
-const uriImages = 'public/images/'
+const uriIcons = '/icons/'
+const uriImages = '/images/'
 export const Assets = {
   icons: {
     chatActive: uriIcons + 'chat-active.png',

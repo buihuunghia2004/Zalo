@@ -15,7 +15,7 @@ import { MessageEntity } from '../message/entities/message.entity';
 import { CreateGroupReqDto } from './dto/create-group.req.dto';
 import { SYSTEM_USER_ID } from '@/constants/app.constant';
 import assert from 'assert';
-import { create } from 'domain';
+const fs = require('fs');
 
 @Injectable()
 export class ChatRoomService {
@@ -63,11 +63,13 @@ export class ChatRoomService {
     return plainToInstance(RoomResDto,newRoom);
   }
 
-  async createPersonalRoom (userId1: Uuid, userId2: Uuid): Promise<RoomResDto> {
+  async createPersonalRoom (userId1: Uuid, userId2: Uuid): Promise<RoomResDto> {    
     // Tạo một room mới
     const room = new ChatRoomEntity({
       type: RoomType.PERSONAL,
       memberLimit: 2,
+      createdBy: SYSTEM_USER_ID,
+      updatedBy: SYSTEM_USER_ID
     })
     const newRoom = await this.roomRepository.save({...room, createdBy: userId1, updatedBy: userId1})
 
@@ -100,33 +102,41 @@ export class ChatRoomService {
       .select('msg.id')
       .where('msg.roomId = r.id')
       .orderBy('msg.createdAt', 'DESC')
-      .limit(1)
+      .limit(99)
       .getQuery();
 
     const query = this.roomRepository
       .createQueryBuilder('r')
       .select([
         'r.id','r.type','r.groupName','r.groupAvatar',
-        'm2.id',
+        'm2.id','m2.msgVTime',
         'u.id','u.username','u.avatarUrl',
-        'msg.content','msg.type','msg.createdAt','msg.senderId'
+        'msg.id','msg.content','msg.type','msg.createdAt','msg.senderId','msg.sender','msg.roomId','msg.replyMessageId',
+        'user.username',
+        'sender.id','sender.user',
       ])
       .leftJoin('r.members', 'm', 'm.userId = :userId', { userId: meId })
       .leftJoin('r.members', 'm2')
       .leftJoin('r.messages', 'msg', `msg.id IN (${msgSubQuery})`)
+      .leftJoin('msg.sender','sender')
+      .leftJoin('sender.user','user')
       .leftJoin('m2.user','u')
+      .where('m.userId = :meId',{meId})
 
     let [rooms, metaDto] = await paginate<ChatRoomEntity>(query, reqDto, {
       skipCount: true,
       takeAll: true,
     });    
 
+    fs.writeFileSync('rooms.json', JSON.stringify(rooms, null, 2));
+    
+
     const data = rooms.map((room) => {
       const isGroup = room.type == RoomType.GROUP
       const memberMe = room.members.filter(m => m.user.id == meId)[0]
       const memberPartner = room.members.filter(m => m.user.id != meId)[0]
       const roomAvatarUrl = isGroup 
-        ? (room.groupAvatar || room.members.slice(0, 5).map(m => m.user.id)) 
+        ? (room.groupAvatar || room.members.slice(0, 5).map(m => m.user.id).join(',')) 
         : memberPartner.user.avatarUrl
       const roomName = isGroup 
         ? (room.groupName || room.members.slice(0, 5).map(m => m.user.username).join(', ')) 
@@ -136,9 +146,13 @@ export class ChatRoomService {
         id: room.id,
         roomName,
         type: room.type,
-        lastMsg: {...room.messages[0], isSelfSent: memberMe.id == room.messages[0]?.senderId  },
+        lastMsg: {
+          ...room.messages[0],
+          isSelfSent: memberMe.id == room.messages[0]?.senderId,
+          unReadMsgCount: room.messages.filter(m => memberMe.msgVTime < m.createdAt).length,
+        },
+        roomAvatarUrl,
         ...(isGroup && {memberCount: room.members.length}),
-        ...(isGroup ? {roomAvatarUrls: roomAvatarUrl} : {roomAvatarUrl})
       }
     })    
 
@@ -188,7 +202,7 @@ export class ChatRoomService {
     const room = await this.roomRepository
       .createQueryBuilder('r')
       .select([
-        'r.id',
+        'r.id','r.type',
         'u.id','u.avatarUrl','u.username'
       ])
       .leftJoinAndSelect('r.members','m')
@@ -196,32 +210,81 @@ export class ChatRoomService {
       .where('r.id = :roomId',{roomId})
       .getOne()
 
-    const memberId = room.members.find(m => m.user.id == meId).id
+
+    const isGroup = room.type == RoomType.GROUP
+    const memberMe = room.members.filter(m => m.user.id == meId)[0]
+    const memberPartner = room.members.filter(m => m.user.id != meId)[0]
+    const roomAvatarUrl = isGroup 
+      ? (room.groupAvatar || room.members.slice(0, 5).map(m => m.user.id).join(',')) 
+      : memberPartner.user.avatarUrl
+    const roomName = isGroup 
+      ? (room.groupName || room.members.slice(0, 5).map(m => m.user.username).join(', ')) 
+      : memberPartner.user.username
+
+    return plainToInstance(RoomResDto, {
+      id: room.id,
+      roomName,
+      type: room.type,
+      memberId: memberMe.id,
+      members:room.members,
+      roomAvatarUrl,
+      ...(isGroup && {memberCount: room.members.length}),
+    })
+
+    // const memberId = room.members.find(m => m.user.id == meId).id
+    // const isGroup = room.type == RoomType.GROUP
       
-    const result = {
-      ...room,
-      memberId
-    }
-    return plainToInstance(RoomResDto, result)
+    // const result = {
+    //   ...room,
+    //   roomAvatarUrl: room.groupAvatar || room.members.slice(0, 5).map(m => m.user.avatarUrl).join(', '),
+    //   memberId
+    // }
+    // return plainToInstance(RoomResDto, result)
   }
 
   async findOneByPartnerId(meId: Uuid, partnerId: Uuid): Promise<any>{
-    const room = await this.memberRepository
-      .createQueryBuilder('m')
-      .innerJoinAndSelect('m.room', 'r')
-      .select([
-        'm.roomId AS roomId',
-      ])
-      .where('m.userId IN (:...userIds)', { userIds: [meId, partnerId] })
-      .andWhere('r.type = :type', { type: RoomType.PERSONAL })
-      .groupBy('m.roomId') 
-      .having('COUNT(DISTINCT m.userId) = :count', { count: 2 })
-      .getRawOne();
+    // const room = await this.memberRepository
+    //   .createQueryBuilder('m')
+    //   .innerJoinAndSelect('m.room', 'r')
+    //   .select([
+    //     'm.roomId AS roomId',
+    //   ])
+    //   .where('m.userId IN (:...userIds)', { userIds: [meId, partnerId] })
+    //   .andWhere('r.type = :type', { type: RoomType.PERSONAL })
+    //   .groupBy('m.roomId') 
+    //   .having('COUNT(DISTINCT m.userId) = :count', { count: 2 })
+    //   .getRawOne();
+
+    // if (!room) {
+    //   throw new NotFoundException('Not found room')
+    // }
+
+    const room = await this.getPersonalRoomFromUsers(meId, partnerId)
 
     if (!room) {
       throw new NotFoundException('Not found room')
     }
-    return {roomId: room.roomid}
+
+    console.log('rrr',room.members[0]);
+    
+
+    const partner = room.members.find(m => m.user.id == partnerId)
+    const me = room.members.find(m => m.user.id == meId)
+
+    console.log('parId',partnerId);
+    
+    console.log('par',partner);
+    console.log('me',me);
+    
+    const result = {
+      ...room,
+      memberId: me.id,
+      members: room.members,
+      roomAvatarUrl: partner.user.avatarUrl,
+      roomName: partner.user.username
+    }
+    
+    return plainToInstance(RoomResDto, result)
   }
 
   update(id: number, updateChatRoomDto: UpdateChatRoomDto) {
@@ -304,4 +367,18 @@ export class ChatRoomService {
     return name
   }
 
+  getPersonalRoomFromUsers = async (userId1: Uuid, userId2: Uuid) => {
+    const room = await this.roomRepository
+      .createQueryBuilder('r')
+      .leftJoinAndSelect('r.members','m', 'm.userId IN (:...userIds)', { userIds: [userId1, userId2] })
+      .leftJoinAndSelect('m.user','u')
+      .where('r.type = :type', { type: RoomType.PERSONAL })
+      .getOne()    
+      
+    if (room && room.members.length == 2) {
+      return room
+    }  
+
+    return null
+  }
 }

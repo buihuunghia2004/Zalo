@@ -43,7 +43,7 @@ export class RoomResDto {
 
   @ClassFieldOptional(()=> MessageResDto)
   @Expose()
-  lastMsg: WrapperType<MessageResDto>;
+  lastMsg?: WrapperType<MessageResDto>;
 
   @ClassFieldOptional(()=> MemberResDto)
   @Expose()

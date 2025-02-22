@@ -7,21 +7,31 @@ import useSocketEvent from '../../hooks/useSocket'
 import { useSocket } from '../../socket/SocketProvider'
 import Utils from '../../utils/utils'
 import {
+  addNewMgs,
   getRoomById,
+  getRoomByPartnerId,
   loadMessagesFrom,
   loadMoreMessages,
+  resetRoom,
   sendTextMsg,
   setMsgReply,
-  setReceiver,
 } from '../../redux/slices/currentRoomSlice'
+import { useLocation, useParams } from 'react-router-dom'
+import { emitEvent } from '../../socket/socket'
+import { useCallback } from 'react'
+import { setViewAllMsg, updateLastMsgForRoom } from '../../redux/slices/roomSlice'
 
 const ConversationContent = () => {
   const dispatch = useDispatch()
-  const { emit } = useSocket()
-  const roomName = useSelector((state) => state.currentRoom.roomName)
-  const roomAvatarUrl = useSelector((state) => state.currentRoom.roomAvatarUrl)
+  const location = useLocation()
+
+  const queryParams = new URLSearchParams(location.search)
+  const type = queryParams.get('type')
+  const { id } = useParams()
+
+  const [isLoading, setIsLoading] = useState(true)
+  // const [roomId, setRoomId] = useState(null)
   const roomId = useSelector((state) => state.currentRoom.roomId)
-  // const members = useSelector((state) => state.currentRoom.members)
   // let membersObj = {}
   // members.forEach((mem) => {
   //   membersObj[mem.id] = mem
@@ -33,13 +43,13 @@ const ConversationContent = () => {
   //     // setpartnerWriting(data)
   //   })
   // }
-  useSocketEvent('load_more_msgs_when_connect', (data) => {
-    console.log('after connect', data)
-  })
-  useSocketEvent('received_msg', (data) => {
-    console.log('received_msg', data)
-    dispatch(setReceiver(data))
-  })
+  // useSocketEvent('load_more_msgs_when_connect', (data) => {
+  //   console.log('after connect', data)
+  // })
+  // useSocketEvent('received_msg', (data) => {
+  //   console.log('received_msg', data)
+  //   dispatch(setReceiver(data))
+  // })
   // const SendMessage = async ({ content, files, type, roomId }) => {
   //   try {
   //     let newMessage
@@ -105,17 +115,6 @@ const ConversationContent = () => {
   // }
 
   //load message
-  useEffect(() => {
-    if (roomId) {
-      dispatch(getRoomById({ roomId }))
-      dispatch(loadMoreMessages({ roomId }))
-      emit('join-roomm', { roomId })
-    }
-
-    return () => {
-      emit('leave-room', { roomId: roomId })
-    }
-  }, [roomId])
 
   // useEffect(() => {
   //   if (room?.type == RoomTypeEnum.GROUP) {
@@ -126,104 +125,161 @@ const ConversationContent = () => {
   //   }
   // }, [])
 
+  //-------------------------------------------------
   useEffect(() => {
-    const div = document.getElementById('scrollableDiv')
-    if (div)
-      console.log(
-        'scrollHeight:',
-        div.scrollHeight,
-        'clientHeight:',
-        div.clientHeight
-      )
-  }, [])
+    //rời phòng chat và dọn dẹp dữ liệu cũ
+    dispatch(resetRoom())
+    emitEvent('message','leave-room', { roomId: roomId })
+    if (type != 'room') {
+      dispatch(getRoomByPartnerId({ partnerId: id }))
+    } else {
+      dispatch(getRoomById({ roomId: id }))
+    }
+  }, [location])
+
+  useEffect(() => {
+    if (roomId) {
+      emitEvent('message','join-room', { roomId: roomId })
+      setIsLoading(false)      
+    }
+  }, [roomId])
 
   return (
-    <div className="flex w-full flex-row">
-      <div className="flex w-full flex-col">
-        {/* header */}
-        <div className="flex h-20 flex-row items-center p-4">
-          <div className="flex w-full flex-row items-center">
-            <img
-              className="size-12 rounded-full"
-              src={roomAvatarUrl}
-              alt="Placeholder"
-            />
-            <div className="mx-3 flex w-full flex-col justify-between py-1">
-              <p className="text-lg font-bold">{roomName}</p>
-              <p className="text-sm text-slate-400">Truy cập 1 giờ trước</p>
-            </div>
+    <div className="flex flex-1 flex-row">
+      {isLoading ? (
+        <p>Loading.....</p>
+      ) : (
+        <>
+          <div className="flex w-full flex-col">
+            <Header />
+            <div className="h-0.5 w-full bg-slate-400" />
+            <Content roomId={roomId} />
+            <Input roomId={roomId} />
           </div>
-          <SquareIcon src={Assets.icons.call} />
-          <SquareIcon src={Assets.icons.videoCall} />
-          <SquareIcon src={Assets.icons.addGroup} />
-        </div>
-        <div className="h-0.5 w-full bg-slate-400" />
-        {/* nội dung hội thoại */}
-        <MsgContent roomId={roomId} />
-        {/* nhập tin nhắn */}
-        <MsgInput roomId={roomId} />
-      </div>
-      <div className="h-full w-0.5 bg-slate-400" />
-      {/* {room && <ConversationInfo room={room} />} */}
+          <div className="h-full w-0.5 bg-slate-400" />
+          {/* {room && <ConversationInfo room={room} />} */}
+        </>
+      )}
     </div>
   )
 }
 
-const MsgContent = ({ roomId }) => {
-  const dispatch = useDispatch()
+const Header = () => {
+  const roomName = useSelector((state) => state.currentRoom.roomName)
+  const roomAvatarUrl = useSelector((state) => state.currentRoom.roomAvatarUrl)
+  return (
+    <div className="flex h-20 flex-row items-center p-4">
+      <div className="flex w-full flex-row items-center">
+        <img
+          className="size-12 rounded-full"
+          src={roomAvatarUrl}
+          alt="Placeholder"
+        />
+        <div className="mx-3 flex w-full flex-col justify-between py-1">
+          <p className="text-lg font-bold">{roomName}</p>
+          <p className="text-sm text-slate-400">Truy cập 1 giờ trước</p>
+        </div>
+      </div>
+      <SquareIcon src={Assets.icons.call} />
+      <SquareIcon src={Assets.icons.videoCall} />
+      <SquareIcon src={Assets.icons.addGroup} />
+    </div>
+  )
+}
+
+const Content = ({ roomId }) => {
+  const dispatch = useDispatch()  
   const messages = useSelector((state) => state.currentRoom.messages)
   const pagination = useSelector((state) => state.currentRoom.pagination)
   const members = useSelector((state) => state.currentRoom.members)
   const memberId = useSelector((state) => state.currentRoom.memberId)
-  const itemRefs = useRef([]); 
+  const itemRefs = useRef([])
   const [msgScroll, setMsgScroll] = useState(false)
+
+  console.log('Conntent rẻ-render')
 
   let membersObj = {}
   members.forEach((mem) => {
     membersObj[mem.id] = mem
   })
 
+  console.log('membersObj', membersObj)
+
   useSocketEvent('writing_message', (data) => {
     setpartnerWriting(data)
   })
 
-  const onReplyItemClick = ({ messageId }) => {
-    const index = messages.findIndex(m => m.id == messageId)
-    
+  
+
+  // useCallback(
+  //   () => {
+  //     first
+  //   },
+  //   [second],
+  // )
+  
+
+  const onReplyItemClick = useCallback(({ messageId }) => {
+    const index = messages.findIndex((m) => m.id == messageId)
+
     //nếu index ko có thì load và scroll
     if (index == -1) {
       dispatch(loadMessagesFrom({ roomId, messageId }))
       setMsgScroll(messageId)
-    }else if ((index + 7) < messages.length) {
-      itemRefs.current[index]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else if (index + 7 < messages.length) {
+      itemRefs.current[index]?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      })
     }
-  }
+  })
 
   const loadOlderMessages = () => {
     if (pagination.afterCursor) {
-      dispatch(loadMoreMessages({ roomId, afterCursor: pagination.afterCursor }))
+      dispatch(
+        loadMoreMessages({ roomId, afterCursor: pagination.afterCursor })
+      )
     }
-  };
+  }
 
   const loadNewerMessages = () => {
     if (pagination.beforeCursor) {
-      dispatch(loadMoreMessages({ roomId, beforeCursor: pagination.beforeCursor }))
+      dispatch(
+        loadMoreMessages({ roomId, beforeCursor: pagination.beforeCursor })
+      )
     }
-  };
+  }
   const handleScroll = (e) => {
     if (e.target.scrollTop == 0) loadNewerMessages()
-  };
+  }
 
   useEffect(() => {
     if (msgScroll) {
-      const index = messages.findIndex(m => m.id == msgScroll)
+      const index = messages.findIndex((m) => m.id == msgScroll)
       if (index !== -1) {
-        itemRefs.current[index]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        itemRefs.current[index]?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        })
       }
     }
     setMsgScroll(null)
   }, [messages])
-  
+
+  useEffect(() => {
+    if (roomId) {
+      dispatch(loadMoreMessages({ roomId }))
+      dispatch(setViewAllMsg({ roomId }))
+    }
+
+    
+  }, [roomId])
+
+  useEffect(() => {
+    return () => {
+      dispatch(resetRoom())
+    }
+  },[])
 
   return (
     <>
@@ -246,24 +302,29 @@ const MsgContent = ({ roomId }) => {
             const senderId = item.sender.id
             const isLastMsgEachMember =
               senderId != messages[index - 1]?.sender.id
+            const isFirstMsgEachMember =
+              senderId != messages[index + 1]?.sender.id
             const isSelfSent = senderId == memberId
             return (
               <div key={item.id} ref={(el) => (itemRefs.current[index] = el)}>
                 <MessageItem
-                  data={item}
+                  id={item.id}
+                  content={item.content}
+                  type={item.type}
+                  sender={item.sender}
+                  createdAt={item.createdAt}
                   isShowTime={index == 0 || isLastMsgEachMember}
-                  isShowAvatar={isLastMsgEachMember && !isSelfSent}
-                  isShowStatus={senderId == memberId && index == 0}
+                  isShowAvatar={isFirstMsgEachMember && !isSelfSent}
+                  // isShowStatus={senderId == memberId && index == 0}
                   isSelfSent={isSelfSent}
-                  status={members.some(
-                    (m) =>
-                      new Date(m?.msgRTime).getTime() >=
-                        new Date(item.createdAt).getTime() && m.id != memberId
-                  )}
+                  // status={members.some(
+                  //   (m) =>
+                  //     new Date(m?.msgRTime).getTime() >=
+                  //       new Date(item.createdAt).getTime() && m.id != memberId
+                  // )}
                   onReplyItemClick={onReplyItemClick}
-                  avatarUrl={membersObj[senderId].user.avatarUrl}
-                  // isLeader={senderId == leader?.id}
-                  // setMsgRep={setMsgRep}
+                  avatarUrl={membersObj[senderId]?.user?.avatarUrl}
+                  // // isLeader={senderId == leader?.id}
                   msgRep={item.parentMessage}
                 />
               </div>
@@ -293,13 +354,12 @@ const WritingCompoent = ({ memberId }) => {
   )
 }
 
-const MsgInput = ({ roomId }) => {
+const Input = ({ roomId }) => {
   const dispatch = useDispatch()
   const msgReply = useSelector((state) => state.currentRoom.msgReply)
+  const membersObj = useSelector((state) => state.currentRoom.membersObj)
 
   const [textContent, setTextContent] = useState('')
-  const [msgRep, setMsgRep] = useState(null)
-  const [isWriting, setIsWriting] = useState(false)
 
   const handleFileChange = async (event) => {
     // SendMessage({ files: event.target.files })
@@ -309,8 +369,16 @@ const MsgInput = ({ roomId }) => {
     dispatch(setMsgReply(null))
   }
 
-  const sendTextMessage = async ({ roomId, data }) => {
-    dispatch(sendTextMsg({ roomId, data }))
+  const sendTextMessage = async () => {
+    dispatch(
+      sendTextMsg({
+        roomId,
+        data: {
+          content: textContent,
+          ...(msgReply && { replyMessageId: msgReply.replyMessageId }),
+        },
+      })
+    )
     setTextContent('')
     cancelReply(null)
   }
@@ -358,7 +426,7 @@ const MsgInput = ({ roomId }) => {
             <div className="flex flex-row gap-1">
               <p className="text-gray-zalo-dark">{`Trả lời`}</p>
               <p className="font-bold text-gray-zalo-darker">
-                {msgReply.sender.user.username}
+                {membersObj[msgReply.sender.id].user.ussername}
               </p>
             </div>
             <p className="text-gray-zalo-dark">{msgReply.content}</p>
@@ -379,15 +447,9 @@ const MsgInput = ({ roomId }) => {
           maxLength={100}
           value={Utils.convertMsgContent(textContent)}
           onChange={(e) => setTextContent(e.target.value)}
-          // onFocus={() => setIsInputFocus(true)}
-          // onBlur={() => setIsInputFocus(false)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
-              const data = {
-                content: textContent,
-                ...(msgReply && { replyMessageId: msgReply.id }),
-              }
-              sendTextMessage({ roomId, data })
+              sendTextMessage()
             }
           }}
         />
@@ -396,11 +458,7 @@ const MsgInput = ({ roomId }) => {
           src={textContent.length > 0 ? Assets.icons.send : Assets.icons.like}
           onClick={() => {
             if (textContent.length > 0) {
-              const data = {
-                content: textContent,
-                ...(msgReply && { replyMessageId: msgReply.id }),
-              }
-              sendTextMessage({ roomId, data })
+              sendTextMessage()
             }
           }}
         />
@@ -411,26 +469,40 @@ const MsgInput = ({ roomId }) => {
 
 const MessageItem = memo(
   ({
-    data,
-    isLeader,
+    id,
+    content,
+    type,
+    createdAt,
+    isSelfSent,
+    sender,
+    // data,
+    // isLeader,
     msgRep,
     isShowTime,
     isShowAvatar,
     avatarUrl,
-    setMsgRep,
-    status,
-    isSelfSent,
-    isShowStatus,
+    // setMsgRep,
+    // status,
+
+    // isShowStatus,
     onReplyItemClick,
   }) => {
     const dispatch = useDispatch()
-    const { content, type, sender, createdAt } = data
+    // const { content, type, createdAt } = data
 
     const [isHovered, setIsHovered] = useState(false) // Trạng thái hover
     const ref = useRef(null)
 
+    console.log('load l ại')
+
     const setMessageReply = () => {
-      dispatch(setMsgReply(data))
+      dispatch(
+        setMsgReply({
+          replyMessageId: id,
+          content: content,
+          sender: sender,
+        })
+      )
     }
 
     useEffect(() => {
@@ -461,13 +533,13 @@ const MessageItem = memo(
                   src={avatarUrl}
                   alt="Placeholder"
                 />
-                {isLeader && (
+                {/* {isLeader && (
                   <img
                     className="absolute left-5 top-7 size-4"
                     src={Assets.icons.roomLeaderKey}
                     alt="Placeholder"
                   />
-                )}
+                )} */}
               </div>
             )}
           </div>
@@ -519,7 +591,7 @@ const MessageItem = memo(
           {isHovered && (
             <div
               className="mx-2 flex flex-row items-end gap-2"
-              onClick={() => setMsgRep(data)}
+              // onClick={() => setMsgRep(data)}
             >
               <IconOptionMsg
                 onClick={setMessageReply}
@@ -537,13 +609,13 @@ const MessageItem = memo(
             </div>
           )}
         </div>
-        <div className={`flex ${isSelfSent && 'flex-row-reverse'}`}>
+        {/* <div className={`flex ${isSelfSent && 'flex-row-reverse'}`}>
           {isShowStatus && (
             <p className={`rounded-md bg-dark-5 p-1 text-xs text-white`}>
               {status ? 'Đã nhận' : 'Đã gửi'}
             </p>
           )}
-        </div>
+        </div> */}
       </div>
     )
   }

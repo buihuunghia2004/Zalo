@@ -48,7 +48,13 @@ const roomSlice = createSlice({
        * roomName
        * type
        * memberCount
-       * lastMsg
+       * lastMsg:{
+       *  content: 8,
+          type,
+          senderId,
+          isSelfSent,
+          createdAt
+       * }
        * unViewMsgCount
        * 
       /  */
@@ -88,7 +94,7 @@ const roomSlice = createSlice({
             unViewMsgCount: room.unViewMsgCount ? (room.unViewMsgCount + 1) : 1
           } 
           : room
-      });
+      })
     },
     loadMoreMsgWhenConnect: (state, action) => {
       const data = action.payload
@@ -121,7 +127,7 @@ const roomSlice = createSlice({
       state.pending = false
     }),
     builder.addCase(sendMessage.pending, (state, action) => {      
-      state.rooms = action.payload.data
+      // state.rooms = action.payload.data
     }),
     builder.addCase(sendMessage.fulfilled, (state, action) => {
       state.rooms = action.payload.data
