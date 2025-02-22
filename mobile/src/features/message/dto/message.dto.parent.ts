@@ -11,7 +11,7 @@ export interface _MessageSentReq {
 export interface _MessageSentRes
   extends Pick<
     messageEntity,
-    'id' | 'content' | 'type' | 'parentMessage'
+    'id' | 'content' | 'type' | 'replyMessage'
   > {
   sender?: MemberBase;
   roomId?: string;

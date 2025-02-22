@@ -8,7 +8,7 @@ export interface messageEntity {
     content: string;
     subContent?: string;
     type: MessageContentEnum;
-    parentMessage?: MessagParente;
+    replyMessage?: MessagParente;
     status: MessageViewStatus;
 };
 

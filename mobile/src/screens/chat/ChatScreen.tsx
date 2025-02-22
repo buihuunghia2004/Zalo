@@ -235,7 +235,7 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
           <ItemMessage
             key={item.id}
             id={item.id}
-            parentMessage={item.parentMessage}
+            replyMessage={item.replyMessage}
             onLongPress={pageY => handleLongItemPress(pageY, item)}
             data={item.content}
             source={item.isSelfSent}

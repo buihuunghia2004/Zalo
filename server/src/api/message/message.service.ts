@@ -183,7 +183,7 @@ export class MessageService {
     const newMessage = await this.messageRepository.save(newMessageData)
     const newMsg = await this.messageRepository.findOne({
       where:{id: newMessage.id},
-      relations:['parentMessage','sender']
+      relations:['replyMessage','sender']
     })
     const {
       onlineMembers,
@@ -222,7 +222,7 @@ export class MessageService {
         'message.content',
         'message.createdAt',
       ])
-      .leftJoin('message.parentMessage','replyMsg')
+      .leftJoin('message.replyMessage','replyMsg')
       .addSelect([
         'replyMsg.id',
         'replyMsg.type',
@@ -283,7 +283,7 @@ export class MessageService {
         'message.content',
         'message.createdAt',
       ])
-      .leftJoin('message.parentMessage','replyMsg')
+      .leftJoin('message.replyMessage','replyMsg')
       .addSelect([
         'replyMsg.id',
         'replyMsg.type',

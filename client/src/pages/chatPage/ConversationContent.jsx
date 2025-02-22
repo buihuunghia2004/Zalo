@@ -325,7 +325,7 @@ const Content = ({ roomId }) => {
                   onReplyItemClick={onReplyItemClick}
                   avatarUrl={membersObj[senderId]?.user?.avatarUrl}
                   // // isLeader={senderId == leader?.id}
-                  msgRep={item.parentMessage}
+                  msgRep={item.replyMessage}
                 />
               </div>
             )

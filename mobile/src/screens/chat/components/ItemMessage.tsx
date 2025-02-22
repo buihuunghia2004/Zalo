@@ -39,7 +39,7 @@ interface Message {
   id: string;
   data: string;
   status: MessageViewStatus,
-  parentMessage?: MessagParente,
+  replyMessage?: MessagParente,
   source?: boolean;
   sender?: MemberBase
   type: MessageType;
@@ -67,7 +67,7 @@ const ItemMessage: React.FC<Props> = ({
   status,
   sender,
   emojis,
-  parentMessage,
+  replyMessage,
   isDisplayHeart,
   isDisplayAvatar,
   isDisplayStatus,
@@ -210,14 +210,14 @@ const ItemMessage: React.FC<Props> = ({
             <Image style={styles.avatar} source={Assets.images.demo} />
           )}
           <View style={styles.textContainer}>
-            {parentMessage && 
+            {replyMessage && 
             <View style={{flexDirection: 'row', gap: 6}}>
               <View style={{backgroundColor: colors.secondary_bright,width: 3, height: '100%', borderRadius: 10}}/>
               <View>
                 <Text style={[textStyle.body_sm, {padding: 0, fontFamily: Fonts.proximaNova
                   .regular, fontWeight: 'bold'
-                }]}>{getReplyMessageById(parentMessage.id)?.sender?.user.username}</Text>
-                <Text style={[textStyle.body_sm, { color: colors.gray_icon}]}>{parentMessage.content}</Text>
+                }]}>{getReplyMessageById(replyMessage.id)?.sender?.user.username}</Text>
+                <Text style={[textStyle.body_sm, { color: colors.gray_icon}]}>{replyMessage.content}</Text>
               </View>
             </View> }
             {/* Nội dung tin nhắn */}

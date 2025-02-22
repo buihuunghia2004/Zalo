@@ -111,7 +111,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   },
   sendMessage: async (
     text: string,
-    parentMessage?: MessagParente,
+    replyMessage?: MessagParente,
     userId?: string,
     roomId?: string,
   ) => {
@@ -121,7 +121,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     const tempMessage: any = {
       id: msgIdTemp,
       content: text,
-      parentMessage: parentMessage,
+      replyMessage: replyMessage,
       isSelfSent: true,
       type: MessageContentType.TEXT,
       createdAt: new Date(),
@@ -138,7 +138,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     const newMessage: _MessageSentReq = {
       content: text,
       contentType: MessageContentType.TEXT,
-      ...(parentMessage && {parentMessageId: parentMessage?.id}),
+      ...(replyMessage && {replyMessageId: replyMessage?.id}),
       ...(userId && {receiverId: userId}),
       ...(roomId && {roomId}),
     };
