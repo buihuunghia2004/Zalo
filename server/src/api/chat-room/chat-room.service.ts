@@ -15,6 +15,7 @@ import { MessageEntity } from '../message/entities/message.entity';
 import { CreateGroupReqDto } from './dto/create-group.req.dto';
 import { SYSTEM_USER_ID } from '@/constants/app.constant';
 import assert from 'assert';
+const fs = require('fs');
 
 @Injectable()
 export class ChatRoomService {
@@ -62,11 +63,13 @@ export class ChatRoomService {
     return plainToInstance(RoomResDto,newRoom);
   }
 
-  async createPersonalRoom (userId1: Uuid, userId2: Uuid): Promise<RoomResDto> {
+  async createPersonalRoom (userId1: Uuid, userId2: Uuid): Promise<RoomResDto> {    
     // Tạo một room mới
     const room = new ChatRoomEntity({
       type: RoomType.PERSONAL,
       memberLimit: 2,
+      createdBy: SYSTEM_USER_ID,
+      updatedBy: SYSTEM_USER_ID
     })
     const newRoom = await this.roomRepository.save(room)
 
@@ -74,12 +77,16 @@ export class ChatRoomService {
     const member1 = new MemberEntity({
       userId: userId1,
       roomId: newRoom.id,
-      role: MemberRole.MEMBER
+      role: MemberRole.MEMBER,
+      createdBy: SYSTEM_USER_ID,
+      updatedBy: SYSTEM_USER_ID
     })
     const member2 = new MemberEntity({
       userId: userId2,
       roomId: newRoom.id,
-      role: MemberRole.MEMBER
+      role: MemberRole.MEMBER,
+      createdBy: SYSTEM_USER_ID,
+      updatedBy: SYSTEM_USER_ID
     })
     await this.memberRepository.save([member1, member2])
 
@@ -95,27 +102,34 @@ export class ChatRoomService {
       .select('msg.id')
       .where('msg.roomId = r.id')
       .orderBy('msg.createdAt', 'DESC')
-      .limit(1)
+      .limit(99)
       .getQuery();
 
     const query = this.roomRepository
       .createQueryBuilder('r')
       .select([
         'r.id','r.type','r.groupName','r.groupAvatar',
-        'm2.id',
+        'm2.id','m2.msgVTime',
         'u.id','u.username','u.avatarUrl',
-        'msg.content','msg.type','msg.createdAt','msg.senderId','msg.sender'
+        'msg.id','msg.content','msg.type','msg.createdAt','msg.senderId','msg.sender','msg.roomId','msg.replyMessageId',
+        'user.username',
+        'sender.id','sender.user',
       ])
       .leftJoin('r.members', 'm', 'm.userId = :userId', { userId: meId })
       .leftJoin('r.members', 'm2')
-      .leftJoinAndSelect('r.messages', 'msg', `msg.id IN (${msgSubQuery})`)
-      .leftJoinAndSelect('msg.sender','sender')
+      .leftJoin('r.messages', 'msg', `msg.id IN (${msgSubQuery})`)
+      .leftJoin('msg.sender','sender')
+      .leftJoin('sender.user','user')
       .leftJoin('m2.user','u')
+      .where('m.userId = :meId',{meId})
 
     let [rooms, metaDto] = await paginate<ChatRoomEntity>(query, reqDto, {
       skipCount: true,
       takeAll: true,
     });    
+
+    fs.writeFileSync('rooms.json', JSON.stringify(rooms, null, 2));
+    
 
     const data = rooms.map((room) => {
       const isGroup = room.type == RoomType.GROUP
@@ -132,7 +146,11 @@ export class ChatRoomService {
         id: room.id,
         roomName,
         type: room.type,
-        lastMsg: {...room.messages[0], isSelfSent: memberMe.id == room.messages[0]?.senderId  },
+        lastMsg: {
+          ...room.messages[0],
+          isSelfSent: memberMe.id == room.messages[0]?.senderId,
+          unReadMsgCount: room.messages.filter(m => memberMe.msgVTime < m.createdAt).length,
+        },
         roomAvatarUrl,
         ...(isGroup && {memberCount: room.members.length}),
       }
@@ -241,20 +259,23 @@ export class ChatRoomService {
     //   throw new NotFoundException('Not found room')
     // }
 
-    const room = await this.roomRepository
-      .createQueryBuilder('r')
-      .leftJoinAndSelect('r.members','m', 'm.userId IN (:...userIds)', { userIds: [meId, partnerId] })
-      .leftJoinAndSelect('m.user','u')
-      .where('r.type = :type', { type: RoomType.PERSONAL })
-      .getOne()
+    const room = await this.getPersonalRoomFromUsers(meId, partnerId)
 
     if (!room) {
       throw new NotFoundException('Not found room')
     }
 
+    console.log('rrr',room.members[0]);
+    
+
     const partner = room.members.find(m => m.user.id == partnerId)
     const me = room.members.find(m => m.user.id == meId)
 
+    console.log('parId',partnerId);
+    
+    console.log('par',partner);
+    console.log('me',me);
+    
     const result = {
       ...room,
       memberId: me.id,
@@ -346,4 +367,18 @@ export class ChatRoomService {
     return name
   }
 
+  getPersonalRoomFromUsers = async (userId1: Uuid, userId2: Uuid) => {
+    const room = await this.roomRepository
+      .createQueryBuilder('r')
+      .leftJoinAndSelect('r.members','m', 'm.userId IN (:...userIds)', { userIds: [userId1, userId2] })
+      .leftJoinAndSelect('m.user','u')
+      .where('r.type = :type', { type: RoomType.PERSONAL })
+      .getOne()    
+      
+    if (room && room.members.length == 2) {
+      return room
+    }  
+
+    return null
+  }
 }

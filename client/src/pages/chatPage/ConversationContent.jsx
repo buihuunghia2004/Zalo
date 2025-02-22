@@ -7,6 +7,7 @@ import useSocketEvent from '../../hooks/useSocket'
 import { useSocket } from '../../socket/SocketProvider'
 import Utils from '../../utils/utils'
 import {
+  addNewMgs,
   getRoomById,
   getRoomByPartnerId,
   loadMessagesFrom,
@@ -16,6 +17,9 @@ import {
   setMsgReply,
 } from '../../redux/slices/currentRoomSlice'
 import { useLocation, useParams } from 'react-router-dom'
+import { emitEvent } from '../../socket/socket'
+import { useCallback } from 'react'
+import { setViewAllMsg, updateLastMsgForRoom } from '../../redux/slices/roomSlice'
 
 const ConversationContent = () => {
   const dispatch = useDispatch()
@@ -28,8 +32,6 @@ const ConversationContent = () => {
   const [isLoading, setIsLoading] = useState(true)
   // const [roomId, setRoomId] = useState(null)
   const roomId = useSelector((state) => state.currentRoom.roomId)
-  const roomName = useSelector((state) => state.currentRoom.roomName)
-  const roomAvatarUrl = useSelector((state) => state.currentRoom.roomAvatarUrl)
   // let membersObj = {}
   // members.forEach((mem) => {
   //   membersObj[mem.id] = mem
@@ -125,16 +127,20 @@ const ConversationContent = () => {
 
   //-------------------------------------------------
   useEffect(() => {
+    //rời phòng chat và dọn dẹp dữ liệu cũ
+    dispatch(resetRoom())
+    emitEvent('message','leave-room', { roomId: roomId })
     if (type != 'room') {
       dispatch(getRoomByPartnerId({ partnerId: id }))
     } else {
       dispatch(getRoomById({ roomId: id }))
     }
-  }, [])
+  }, [location])
 
   useEffect(() => {
     if (roomId) {
-      setIsLoading(false)
+      emitEvent('message','join-room', { roomId: roomId })
+      setIsLoading(false)      
     }
   }, [roomId])
 
@@ -145,7 +151,7 @@ const ConversationContent = () => {
       ) : (
         <>
           <div className="flex w-full flex-col">
-            <Header roomAvatarUrl={roomAvatarUrl} roomName={roomName} />
+            <Header />
             <div className="h-0.5 w-full bg-slate-400" />
             <Content roomId={roomId} />
             <Input roomId={roomId} />
@@ -158,7 +164,9 @@ const ConversationContent = () => {
   )
 }
 
-const Header = ({ roomAvatarUrl, roomName }) => {
+const Header = () => {
+  const roomName = useSelector((state) => state.currentRoom.roomName)
+  const roomAvatarUrl = useSelector((state) => state.currentRoom.roomAvatarUrl)
   return (
     <div className="flex h-20 flex-row items-center p-4">
       <div className="flex w-full flex-row items-center">
@@ -180,8 +188,7 @@ const Header = ({ roomAvatarUrl, roomName }) => {
 }
 
 const Content = ({ roomId }) => {
-  const dispatch = useDispatch()
-  const { emit } = useSocket()
+  const dispatch = useDispatch()  
   const messages = useSelector((state) => state.currentRoom.messages)
   const pagination = useSelector((state) => state.currentRoom.pagination)
   const members = useSelector((state) => state.currentRoom.members)
@@ -189,19 +196,30 @@ const Content = ({ roomId }) => {
   const itemRefs = useRef([])
   const [msgScroll, setMsgScroll] = useState(false)
 
-  console.log('Conntent rẻ-render');
-  
+  console.log('Conntent rẻ-render')
 
   let membersObj = {}
   members.forEach((mem) => {
     membersObj[mem.id] = mem
   })
 
+  console.log('membersObj', membersObj)
+
   useSocketEvent('writing_message', (data) => {
     setpartnerWriting(data)
   })
 
-  const onReplyItemClick = ({ messageId }) => {
+  
+
+  // useCallback(
+  //   () => {
+  //     first
+  //   },
+  //   [second],
+  // )
+  
+
+  const onReplyItemClick = useCallback(({ messageId }) => {
     const index = messages.findIndex((m) => m.id == messageId)
 
     //nếu index ko có thì load và scroll
@@ -214,7 +232,7 @@ const Content = ({ roomId }) => {
         block: 'center',
       })
     }
-  }
+  })
 
   const loadOlderMessages = () => {
     if (pagination.afterCursor) {
@@ -251,14 +269,17 @@ const Content = ({ roomId }) => {
   useEffect(() => {
     if (roomId) {
       dispatch(loadMoreMessages({ roomId }))
-      emit('join-roomm', { roomId })
+      dispatch(setViewAllMsg({ roomId }))
     }
 
+    
+  }, [roomId])
+
+  useEffect(() => {
     return () => {
       dispatch(resetRoom())
-      emit('leave-room', { roomId: roomId })
     }
-  }, [])
+  },[])
 
   return (
     <>
@@ -281,6 +302,8 @@ const Content = ({ roomId }) => {
             const senderId = item.sender.id
             const isLastMsgEachMember =
               senderId != messages[index - 1]?.sender.id
+            const isFirstMsgEachMember =
+              senderId != messages[index + 1]?.sender.id
             const isSelfSent = senderId == memberId
             return (
               <div key={item.id} ref={(el) => (itemRefs.current[index] = el)}>
@@ -291,7 +314,7 @@ const Content = ({ roomId }) => {
                   sender={item.sender}
                   createdAt={item.createdAt}
                   isShowTime={index == 0 || isLastMsgEachMember}
-                  isShowAvatar={isLastMsgEachMember && !isSelfSent}
+                  isShowAvatar={isFirstMsgEachMember && !isSelfSent}
                   // isShowStatus={senderId == memberId && index == 0}
                   isSelfSent={isSelfSent}
                   // status={members.some(
@@ -300,7 +323,7 @@ const Content = ({ roomId }) => {
                   //       new Date(item.createdAt).getTime() && m.id != memberId
                   // )}
                   onReplyItemClick={onReplyItemClick}
-                  avatarUrl={membersObj[senderId].user.avatarUrl}
+                  avatarUrl={membersObj[senderId]?.user?.avatarUrl}
                   // // isLeader={senderId == leader?.id}
                   msgRep={item.parentMessage}
                 />
@@ -350,7 +373,10 @@ const Input = ({ roomId }) => {
     dispatch(
       sendTextMsg({
         roomId,
-        data: { content: textContent,...(msgReply && { replyMessageId: msgReply.replyMessageId }) },
+        data: {
+          content: textContent,
+          ...(msgReply && { replyMessageId: msgReply.replyMessageId }),
+        },
       })
     )
     setTextContent('')
@@ -457,7 +483,7 @@ const MessageItem = memo(
     avatarUrl,
     // setMsgRep,
     // status,
-    
+
     // isShowStatus,
     onReplyItemClick,
   }) => {
@@ -467,8 +493,8 @@ const MessageItem = memo(
     const [isHovered, setIsHovered] = useState(false) // Trạng thái hover
     const ref = useRef(null)
 
-    console.log('load l ại');
-    
+    console.log('load l ại')
+
     const setMessageReply = () => {
       dispatch(
         setMsgReply({
@@ -497,7 +523,7 @@ const MessageItem = memo(
     }, [])
 
     return (
-      <div ref={ref}  className={`flex flex-col`}>
+      <div ref={ref} className={`flex flex-col`}>
         <div className={`my-2 flex ${isSelfSent && 'flex-row-reverse'}`}>
           <div className="w-10">
             {isShowAvatar && (

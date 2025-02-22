@@ -7,7 +7,7 @@ import { loadMoreMsgWhenConnect, updateLastMsgForRoom } from './redux/slices/roo
 export default function App() {
   const dispatch = useDispatch()
   const meId = useSelector((state) => state.user.id)
-  const currentRoomId = useSelector(state => state.currentRoom.roomId)
+  // const currentRoomId = useSelector(state => state.currentRoom.roomId)
 
   useSocketEvent('received_relation_req', (data) => {
     console.log('Đã nhận được lời mời kết bạn', data)
@@ -21,17 +21,15 @@ export default function App() {
     dispatch(loadMoreMsgWhenConnect(data))
   })
 
-  useSocketEvent('new_message', (data) => {
-    console.log('tin nhắn mới', data)
-    if (data.sender.userId !== meId) {
-      dispatch(addNewMgs(data))
-    }
-    if (currentRoomId !=data.roomId) {
-      console.log('fff');
-      
-      dispatch(updateLastMsgForRoom({roomId:data.roomId,lastMsg:data}))
-    }
-  })
+  // useSocketEvent('new_message', (data) => {
+  //   console.log('tin nhắn mới', data)
+  //   if (data.sender.userId !== meId) {
+  //     dispatch(addNewMgs(data))
+  //   }
+  //   if (currentRoomId !=data.roomId) {      
+  //     dispatch(updateLastMsgForRoom({roomId:data.roomId,lastMsg:data}))
+  //   }
+  // })
   
   return (
     <AppRoutes/>

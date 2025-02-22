@@ -4,12 +4,13 @@ import { Assets } from '../../assets'
 import { useDispatch, useSelector } from 'react-redux'
 import Utils from '../../utils/utils'
 import GroupAvatar from '../../components/GroupAvatar'
-import { setCurrentRoom } from '../../redux/slices/currentRoomSlice'
+import { addNewMgs, setCurrentRoom } from '../../redux/slices/currentRoomSlice'
 import useSocketEvent from '../../hooks/useSocket'
 import {
   getAllRooms,
   loadMoreMsgWhenConnect,
   setViewAllMsg,
+  updateLastMsgForRoom,
 } from '../../redux/slices/roomSlice'
 import { SearchComponent } from '../../components/SearchComponent'
 import { Link } from 'react-router-dom'
@@ -17,11 +18,21 @@ import { Link } from 'react-router-dom'
 export default function ConversationList() {
   const dispatch = useDispatch()
   const rooms = useSelector((state) => state.rooms.data)
-  const currentRoomId = useSelector((state) => state.currentRoom.id)
+  const meId = useSelector((state) => state.user.id)
+  const roomId = useSelector((state) => state.currentRoom.roomId)
   const items = ['Tất cả', 'Chưa đọc']
   const [isSelected, setIsSelected] = useState(items[0])
 
 
+  useSocketEvent('new_message', (data) => {
+    console.log('tin nhắn mới', data)
+    if (data.sender.userId !== meId && roomId == data.roomId) {
+      dispatch(addNewMgs(data))
+    }
+    if (!roomId || roomId != data.roomId) {            
+      dispatch(updateLastMsgForRoom({roomId:data.roomId,lastMsg:data}))
+    }
+  })
   // const onItemClick = (item) => {
   //   dispatch(setCurrentRoom(item))
   //   dispatch(setViewAllMsg({ roomId: item.id }))
@@ -59,7 +70,7 @@ export default function ConversationList() {
         {rooms.map((item, index) => (
           <ConversationItem
             key={index.toString()}
-            isFocus={item.id == currentRoomId}
+            isFocus={item?.id == roomId}
             data={item}
             lastMsg={item?.lastMsg}
             messLasted={item?.lastMsg?.createdAt}
@@ -145,7 +156,7 @@ const ConversationItem = ({
   return (
     <Link
       to={`/messages/${data.id}?type=room`}
-      className={`flex h-20 w-full flex-row items-center p-2 pr-4 hover:bg-slate-200 ${isFocus && 'bg-blue-300'}`}
+      className={`flex h-20 w-full flex-row items-center p-2 pr-4 hover:bg-slate-200 ${isFocus && 'bg-blue-200'}`}
       onMouseEnter={() => setIsHover(true)}
       onMouseLeave={() => setIsHover(false)}
       // onClick={onClick}

@@ -87,8 +87,13 @@ export class RelationService {
     }else{
       relation.status = RelationStatus.FRIEND     //Đồng ý kết bạn
       await this.relationRepository.save(relation)
-      await this.chatRoomService.createPersonalRoom(relation.requesterId, myId);
 
+      //check chat room exists, if not, create one
+      const chatRoom = await this.chatRoomService.getPersonalRoomFromUsers(relation.requesterId, myId);
+      if (!chatRoom){
+        await this.chatRoomService.createPersonalRoom(relation.requesterId, myId);
+      }
+      
       //gửi thống báo đến cho người gửi yêu cầu
       this.eventEmitter.emit(
         EventEmitterKey.ACCEPT_RELATION_REQ,

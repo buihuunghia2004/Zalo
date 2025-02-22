@@ -126,12 +126,14 @@ const currentRoomSlice = createSlice({
       state.msgReply = action.payload
     },
     resetRoom: (state, action) => {
-      return initialState
+      state.pagination = {}
+      state.roomId = ''
     }
   },
   extraReducers: (builder) => {
     builder.addCase(loadMoreMessages.pending, (state, action) => {
       state.isLoading = true
+      state.messages = []
     })
     .addCase(loadMoreMessages.fulfilled, (state, action) => {
       const {data, pagination, load} = action.payload

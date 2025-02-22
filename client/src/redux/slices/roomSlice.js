@@ -86,25 +86,15 @@ const roomSlice = createSlice({
     },
     updateLastMsgForRoom: (state, action) => {
       const {roomId, lastMsg} = action.payload
-      const roomsClone = state.data
-      const roomIndexHasLastMsgChanged = roomsClone.findIndex(r => r.id == roomId)
-      if (roomIndexHasLastMsgChanged != -1) {
-        roomsClone.slice(roomIndexHasLastMsgChanged, 1, {
-          ...roomsClone[roomIndexHasLastMsgChanged],
-          lastMsg,
-          unViewMsgCount: room.unViewMsgCount ? (room.unViewMsgCount + 1) : 1
-        })
-      }
-      state.data = roomsClone
-      // state.data = state.data.map((room) => {
-      //   return room.id == roomId 
-      //     ? {
-      //       ...room,
-      //       lastMsg: lastMsg,
-      //       unViewMsgCount: room.unViewMsgCount ? (room.unViewMsgCount + 1) : 1
-      //     } 
-      //     : room
-      // });
+      state.data = state.data.map((room) => {
+        return room.id == roomId 
+          ? {
+            ...room,
+            lastMsg: lastMsg,
+            unViewMsgCount: room.unViewMsgCount ? (room.unViewMsgCount + 1) : 1
+          } 
+          : room
+      })
     },
     loadMoreMsgWhenConnect: (state, action) => {
       const data = action.payload
@@ -137,7 +127,7 @@ const roomSlice = createSlice({
       state.pending = false
     }),
     builder.addCase(sendMessage.pending, (state, action) => {      
-      state.rooms = action.payload.data
+      // state.rooms = action.payload.data
     }),
     builder.addCase(sendMessage.fulfilled, (state, action) => {
       state.rooms = action.payload.data

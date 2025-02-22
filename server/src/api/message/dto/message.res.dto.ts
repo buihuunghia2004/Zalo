@@ -4,6 +4,7 @@ import {
   BooleanField,
   ClassField,
   DateField,
+  NumberField,
   StringField,
 } from '@/decorators/field.decorators';
 import { Exclude, Expose } from 'class-transformer';
@@ -68,4 +69,8 @@ export class MessageResDto {
   @DateField()
   @Expose()
   createdAt?: Date;
+
+  @NumberField()
+  @Expose()
+  unReadMsgCount?: number;
 }

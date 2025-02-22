@@ -16,7 +16,6 @@ export const SocketProvider = ({ namespace, children }) => {
 
   const socketActions = {
     emit: (event, data) => {
-      console.log('emit',event);
       return emitEvent(namespace, event, data)
     },
     on: (event, callback) => onEvent(namespace, event, callback),

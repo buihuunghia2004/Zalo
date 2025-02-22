@@ -24,7 +24,6 @@ import { CacheKey } from '@/constants/cache.constant';
 import { createCacheKey } from '@/utils/cache.util';
 import { ChatRoomService } from '../chat-room/chat-room.service';
 import { SocketEmitKey } from '@/constants/socket-emit.constanct';
-import { log } from 'console';
 
 export interface UnReceiMsgData {
   count: number,
@@ -55,10 +54,7 @@ export class MessageGateway
     try {
       const accessToken = this.extractTokenFromHeader(client);      
       const {id}: JwtPayloadType =
-      await this.authService.verifyAccessToken(accessToken);
-
-      console.log('id-----',id);
-      
+      await this.authService.verifyAccessToken(accessToken);      
       
       //caching lại userId vừa connect (online) và clientId bằng userId
       await this.cacheManager.set(createCacheKey(CacheKey.MSG_SOCKET_CONNECT, client.id), id);
@@ -66,8 +62,11 @@ export class MessageGateway
  
       //client join tất cả các phòng chat
       const roomIds = await this.chatRoomService.getAllRoomIdsByUserId(id)
-      client.join(SOCKET_ROOM + roomIds)
-
+      
+      roomIds.forEach(id => {
+        client.join(SOCKET_ROOM + id)
+      });
+      
       //xử lý khi client connect
       this.loadMsgWhenConnect(id, client.id)
       console.log(`MSG-SOCKET-CONNECT:: ${client.id}`);
@@ -93,26 +92,19 @@ export class MessageGateway
     // const roomIds = await this.chatRoomService.getAllRoomIdsByUserId(userId) as string[]
   }
 
-  @SubscribeMessage('join-roomm')
+  @SubscribeMessage('join-room')
   async handleJoinRoom(
     @MessageBody() data: { roomId: string},
     @ConnectedSocket() client: Socket,
-  ) {    
-    console.log('địt mẹ');
-    
+  ) {        
     //vào 1 phòng chat
     client.join(CHAT_ROOM + data.roomId);
 
-    const userId: string = await this.cacheManager.get(createCacheKey(CacheKey.MSG_SOCKET_CONNECT, client.id));
-    console.log('dddd',data.roomId);
-    console.log('userId',userId);
-    
+    const userId: string = await this.cacheManager.get(createCacheKey(CacheKey.MSG_SOCKET_CONNECT, client.id));    
     const member = await this.memberRepository.findOne({
       where:{roomId: data.roomId as Uuid, userId: userId as Uuid},
       select:['id']
-    })
-    console.log('memm',member);
-    
+    })    
     await this.cacheManager.set(createCacheKey(CacheKey.JOIN_ROOM, client.id), member.id);
     
     //xóa các tin nhắn chờ sau khi đã đọc
@@ -127,7 +119,7 @@ export class MessageGateway
     console.log(`client ${client.id} has join room ${data.roomId}`);
   }
 
-  @SubscribeMessage('leave-room2')
+  @SubscribeMessage('leave-room')
   async handleOutRoom(
     @MessageBody() data: { roomId: string },
     @ConnectedSocket() client: Socket,
@@ -142,7 +134,7 @@ export class MessageGateway
     await this.memberRepository.update({id: memberId as Uuid},{msgVTime: new Date()})
     
     await this.cacheManager.del(createCacheKey(CacheKey.JOIN_ROOM, client.id)); 
-    //console.log(`client ${client.id} has leave room ${data.roomId}`);
+    console.log(`client ${client.id} has leave room ${data.roomId}`);
   }
 
   @SubscribeMessage('writing-message')
@@ -167,6 +159,8 @@ export class MessageGateway
     try {
       const { onlineMembers, offlineMembers, msgData, roomId, createdAt } = data;          
 
+      console.log('r',roomId);
+      
       //gửi đến các user đang online
       this.server.to(SOCKET_ROOM + roomId).emit(SocketEmitKey.NEW_MESSAGE,msgData)
 
@@ -239,6 +233,8 @@ export class MessageGateway
         })
       })) 
     }
+
+    //cập nhật thời gian nhận tin nhắn cho tất cả member của user này
     await this.memberRepository.update({userId: userId as Uuid},{msgRTime: new Date()})
   }
 
