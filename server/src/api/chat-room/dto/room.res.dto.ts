@@ -5,6 +5,7 @@ import { RoomType } from '@/constants/entity.enum';
 import {
   ClassFieldOptional,
   EnumField,
+  NumberField,
   NumberFieldOptional,
   StringField,
   StringFieldOptional,
@@ -48,4 +49,8 @@ export class RoomResDto {
   @ClassFieldOptional(()=> MemberResDto)
   @Expose()
   members: WrapperType<MemberResDto[]>;
+
+  @NumberFieldOptional()
+  @Expose()
+  unReadMsgCount?: number;
 }

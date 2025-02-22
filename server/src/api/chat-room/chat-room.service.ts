@@ -149,8 +149,8 @@ export class ChatRoomService {
         lastMsg: {
           ...room.messages[0],
           isSelfSent: memberMe.id == room.messages[0]?.senderId,
-          unReadMsgCount: room.messages.filter(m => memberMe.msgVTime < m.createdAt).length,
         },
+        unReadMsgCount: room.messages.filter(m => memberMe.msgVTime < m.createdAt).length,
         roomAvatarUrl,
         ...(isGroup && {memberCount: room.members.length}),
       }

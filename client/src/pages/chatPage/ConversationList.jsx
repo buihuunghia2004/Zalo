@@ -77,7 +77,7 @@ export default function ConversationList() {
             msgReceived={item.receivedMsgs}
             isSelfSent={item?.lastMsg?.isSelfSent}
             // onClick={() => onItemClick(item)}
-            unViewMsgCount={item?.unViewMsgCount}
+            unReadMsgCount={item?.unReadMsgCount}
           />
         ))}
       </div>
@@ -135,7 +135,7 @@ const ConversationItem = ({
   messLasted,
   msgReceived,
   onClick,
-  unViewMsgCount,
+  unReadMsgCount,
 }) => {
   const [isHover, setIsHover] = useState(false)
   const [timeDifference, setTimeDifference] = useState('')
@@ -193,9 +193,9 @@ const ConversationItem = ({
             {(isSelfSent ? 'Bạn: ' : '') +
               (lastMsg?.type == 'text' ? lastMsg?.content : 'Hình ảnh')}
           </span>
-          {(unViewMsgCount || unViewMsgCount > 0) && (
+          {(unReadMsgCount || unReadMsgCount > 0) && (
             <p className="size-5 rounded-full bg-red-600 text-center text-sm text-white">
-              {unViewMsgCount}
+              {unReadMsgCount}
             </p>
           )}
           {/* {msgReceived &&
@@ -203,7 +203,7 @@ const ConversationItem = ({
             msgReceived.length > 0 && (
               <>
                 <p className="size-5 rounded-full bg-red-600 text-center text-sm text-white">
-                  {unViewMsgCount}
+                  {unReadMsgCount}
                 </p>
               </>
             )} */}

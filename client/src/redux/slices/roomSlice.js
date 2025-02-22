@@ -55,7 +55,7 @@ const roomSlice = createSlice({
           isSelfSent,
           createdAt
        * }
-       * unViewMsgCount
+       * unReadMsgCount
        * 
       /  */
     ],
@@ -91,7 +91,7 @@ const roomSlice = createSlice({
           ? {
             ...room,
             lastMsg: lastMsg,
-            unViewMsgCount: room.unViewMsgCount ? (room.unViewMsgCount + 1) : 1
+            unReadMsgCount: room.unReadMsgCount ? (room.unReadMsgCount + 1) : 1
           } 
           : room
       })
@@ -104,7 +104,7 @@ const roomSlice = createSlice({
           return {
             ...m,
             lastMsg: data[m.id].lastMsg,
-            unViewMsgCount: data[m.id].count
+            unReadMsgCount: data[m.id].count
           }
         }else{
           return m
@@ -114,7 +114,7 @@ const roomSlice = createSlice({
     setViewAllMsg: (state, action) => {
       const {roomId} = action.payload
       state.data = state.data.map(r => 
-        r.id === roomId ? { ...r, unViewMsgCount: 0 } : r
+        r.id === roomId ? { ...r, unReadMsgCount: 0 } : r
       );
     }
   },
