@@ -5,7 +5,6 @@ import {
   StyleSheet,
   Image,
   Pressable,
-  TouchableOpacity,
   Animated,
 } from 'react-native';
 import {colors} from '../../../styles/Ui/colors';
@@ -13,13 +12,13 @@ import {imagesStyle} from '../../../styles/Ui/image';
 import {Assets} from '../../../styles/Ui/assets';
 import {iconSize} from '../../../styles/Ui/icons';
 import {textStyle} from '../../../styles/Ui/text';
-import AnimatedEmojis from './AnimatedEmojis';
+import AnimatedEmojis from './bottomSheet/AnimatedEmojis';
 import { MessageViewStatus } from '~/features/message/dto/message.enum';
-import { PressableEvent } from 'react-native-gesture-handler/lib/typescript/components/Pressable/PressableProps';
 import { useChatStore } from '~/stores/zustand/chat.store';
 import { _MessageSentReq, _MessageSentRes } from '~/features/message/dto/message.dto.parent';
-import { MemberBase, MessagParente } from '~/features/message/dto/message.dto.nested';
+import { MessagParente } from '~/features/message/dto/message.dto.nested';
 import { Fonts } from '~/styles/Ui/fonts';
+import { MemberResDto } from '~/features/room/dto/room.dto.nested';
 
 type SourceMessageType = 'time' | 'action' | 'me' | 'people';
 type MessageType =
@@ -41,7 +40,7 @@ interface Message {
   status: MessageViewStatus,
   replyMessage?: MessagParente,
   source?: boolean;
-  sender?: MemberBase
+  sender?: MemberResDto
   type: MessageType;
   time?: string;
   emojis?: string[];
@@ -58,7 +57,7 @@ type Props = Message & {
 const getUniqueId = () => {
   return Math.floor(Math.random() * Date.now()).toString();
 };
-const ItemMessage: React.FC<Props> = ({
+const ItemMessage: React.FC<Props> = React.memo(({
   id,
   data,
   source,
@@ -72,33 +71,10 @@ const ItemMessage: React.FC<Props> = ({
   isDisplayAvatar,
   isDisplayStatus,
   onLongPress
-}) => {  
-  const {getReplyMessageById, curentMessageRepling}= useChatStore()
+}) => {    
   // Logic containerStyle và textstyle
-  let containerStyle = {};
-  let textStyles = {};
-  switch (source) {
-    // case 'time':
-    //   containerStyle = styles.timeContainer;
-    //   textStyles = styles.timeText;
-    //   break;
-    // case 'action':
-    //   containerStyle = styles.actionContainer;
-    //   textStyles = styles.actionText;
-    //   break;
-    case true:
-      containerStyle = styles.meContainer;
-      textStyles = styles.meText;
-
-      break;
-    case false:
-      containerStyle = styles.peopleContainer;
-      textStyles = styles.peopleText;
-
-      break;
-    default:
-      break;
-  }
+  const containerStyle = source ? styles.meContainer : styles.peopleContainer;
+  const textStyles = source ? styles.meText : styles.peopleText;
 
   const [emojisAnimated, setEmojisAnimated] = useState<
     {id: string; emoji: string}[]
@@ -194,7 +170,7 @@ const ItemMessage: React.FC<Props> = ({
         return <Text>Loại tin nhắn không xác định</Text>;
     }
   };
-
+  
   return (
     <Pressable key={id} ref={itemRef} onLongPress={handleLongPress}>
       <View
@@ -216,7 +192,7 @@ const ItemMessage: React.FC<Props> = ({
               <View>
                 <Text style={[textStyle.body_sm, {padding: 0, fontFamily: Fonts.proximaNova
                   .regular, fontWeight: 'bold'
-                }]}>{getReplyMessageById(replyMessage.id)?.sender?.user.username}</Text>
+                }]}>{replyMessage.sender.user.username}</Text>
                 <Text style={[textStyle.body_sm, { color: colors.gray_icon}]}>{replyMessage.content}</Text>
               </View>
             </View> }
@@ -313,7 +289,7 @@ const ItemMessage: React.FC<Props> = ({
       {isDisplayStatus &&  <View style={{ alignSelf: "flex-end" }}><Text style={styles.status}> {`✓ ${StatusString[status]}`}</Text></View>}
     </Pressable>
   );
-};
+});
 
 const StatusString = {
   'sending':'Đang gửi',

@@ -10,7 +10,6 @@ import {
 } from '~/features/message/dto/message.dto.parent';
 import {
   MessageContentType,
-  MessageViewStatus,
 } from '~/features/message/dto/message.enum';
 import {MessageService} from '~/features/message/messageService';
 import {Room} from '~/features/room/dto/room.dto.nested';
@@ -18,28 +17,21 @@ import {RoomService} from '~/features/room/roomService';
 import {UserBase, UserFriend} from '~/features/user/dto/user.dto.nested';
 import {userApi} from '~/features/user/userService';
 import {MessagParente} from '~/features/message/dto/message.dto.nested';
+import { useSelector } from 'react-redux';
+import { appSelector } from '~/features/app/appSlice';
 
 interface ChatStore {
-  curentMessageSelected: _MessageSentRes | undefined;
-  curentMessageRepling: MessagParente | undefined;
   messages: _MessageSentRes[];
-  replyMessages: _MessageSentRes[];
   pagination: PageOptionsDto;
+  curentMessageRepling: MessagParente | null;
   member: UserFriend | UserBase | null;
   room: Room | null;
   loadMoreMessage: (dto: CursorPaginatedReq<string>) => Promise<void>;
   fetchMember: (userId: string) => Promise<void>;
   fetchRoom: (roomId: string) => Promise<void>;
   addMessage: (message: _MessageSentRes) => void;
-  getReplyMessageById: (id: string) => _MessageSentRes | undefined;
-  setCurentMessageSelected: (message: _MessageSentRes) => void;
-  setCurentMessageRepling: (message: MessagParente) => void;
-  sendMessage: (
-    text: string,
-    replyMessage?: MessagParente | _MessageSentRes,
-    userId?: string,
-    roomId?: string,
-  ) => Promise<void>;
+  setCurentMessageRepling: (message: MessagParente  | null) => void;
+  sendMessage: ( content: string) => Promise<void>;
   setMessages: (messages: _MessageSentRes[]) => void;
   clearData: () => void;
   loadingMore: boolean;
@@ -47,10 +39,8 @@ interface ChatStore {
 }
 
 const initialState = {
-  curentMessageSelected: undefined,
-  curentMessageRepling: undefined,
+  curentMessageRepling: null,
   messages: [],
-  replyMessages: [],
   pagination: {},
   member: null,
   room: null,
@@ -60,7 +50,7 @@ const initialState = {
 
 export const useChatStore = create<ChatStore>((set, get) => ({
   ...initialState,
-
+  
   // Fetch danh sách tin nhắn
   loadMoreMessage: async (dto: CursorPaginatedReq<string>) => {
     if (get().loadingMore || !get().hasMore) return;
@@ -106,21 +96,15 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       console.error('Lỗi khi tải thông tin phòng:', error);
     }
   },
-  getReplyMessageById(id: string) {
-    return get().messages.find(message => message.id === id);
-  },
-  sendMessage: async (
-    text: string,
-    replyMessage?: MessagParente,
-    userId?: string,
-    roomId?: string,
-  ) => {
+  sendMessage: async (content: string) => {
+    const {currentPartnerId, currentRoomId} = useSelector(appSelector)
+    const replyMessage = get().curentMessageRepling;
     const msgIdTemp = `temp-${Date.now()}`;
 
     // Tạo tin nhắn tạm thời
     const tempMessage: any = {
       id: msgIdTemp,
-      content: text,
+      content: content,
       replyMessage: replyMessage,
       isSelfSent: true,
       type: MessageContentType.TEXT,
@@ -136,42 +120,36 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
     // Tạo đối tượng tin nhắn cần gửi
     const newMessage: _MessageSentReq = {
-      content: text,
+      content: content,
       contentType: MessageContentType.TEXT,
       ...(replyMessage && {replyMessageId: replyMessage?.id}),
-      ...(userId && {receiverId: userId}),
-      ...(roomId && {roomId}),
+      ...(currentPartnerId && {receiverId: currentPartnerId}),
+      ...(currentRoomId && {roomId: currentRoomId}),
     };
 
     try {
       // Gửi tin nhắn và nhận phản hồi
-      const mesRes = await MessageService.SentMessage(newMessage);
-
+      const mesRes = await MessageService.SentMessage({dto: newMessage, key: msgIdTemp});
       // Cập nhật tin nhắn đã gửi thành công
       set(
         produce(state => {
-          const index = state.messages.findIndex(m => m.id === msgIdTemp);
-          if (index !== -1) {
-            state.messages[index] = {
-              ...mesRes,
-              status: MessageViewStatus.SENT,
-              isSelfSent: true,
-            };
-          }
+          state.messages = state.messages.map(message => {
+            if (mesRes.key === msgIdTemp) {
+              return mesRes.result;
+            }else {
+              return message
+            }
+          })
         }),
       );
     } catch (error) {
       console.error('Lỗi khi gửi tin nhắn:', error);
     }
   },
-
-  setCurentMessageSelected: (message: _MessageSentRes) => {
-    set({curentMessageSelected: message});
+  setCurentMessageRepling: (message: MessagParente | null) => {
+    set({ curentMessageRepling: message ?? null });
   },
 
-  setCurentMessageRepling: (message: MessagParente) => {
-    set({curentMessageRepling: message});
-  },
   // Thêm tin nhắn mới vào danh sách
   addMessage: (message: _MessageSentRes) => {
     set(state => ({messages: [message, ...state.messages]}));
@@ -184,6 +162,10 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
   // Xóa dữ liệu
   clearData: () => {
-    set(() => ({...initialState}));
+    set((state) => ({
+      ...initialState,
+      curentMessageRepling: state.curentMessageRepling,
+    }));
   },
+  
 }));

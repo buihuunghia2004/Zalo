@@ -4,10 +4,13 @@ import { CursorPaginatedReq, CursorPaginatedRes } from '../common/pagination/pag
 
 const loadMoreMessage= async (dto: CursorPaginatedReq<string>): Promise<CursorPaginatedRes<_MessageSentRes>> => {
   try {
-    let query = `roomId=${dto.data}`    
-    if (dto.pagination.afterCursor) {
-      query += `&afterCursor=${dto.pagination.afterCursor}`
-    }            
+    let query = `roomId=${dto.data}`  
+
+    const afterCursor = dto.pagination.afterCursor
+    const beforeCursor = dto.pagination.beforeCursor  
+
+    if (afterCursor) query += `&afterCursor=${afterCursor}`
+    if (beforeCursor) query += `&beforeCursor=${afterCursor}`         
       
     return await axiosInstance.get('/messages?'+query)
   } catch (error) {
@@ -16,14 +19,19 @@ const loadMoreMessage= async (dto: CursorPaginatedReq<string>): Promise<CursorPa
   }
 }
 
-const SentMessage = async (dto: _MessageSentReq): Promise<_MessageSentRes> => {
+import { AxiosResponse } from 'axios';
+
+const SentMessage = async ({ dto, key }: { dto: _MessageSentReq, key: string })
+: Promise<{ result: _MessageSentRes, key: string }> => {
   try {
-    return await axiosInstance.post(`messages/${dto.roomId}/text`, dto);;
+    const res = (await axiosInstance.post(`messages/${dto.roomId}/text`, dto));
+    return { result: res.data, key };
   } catch (error: any) {
-    console.error('Error while searching user:', error);
+    console.error('Error while sending message:', error);
     throw error;
   }
 };
+
 
 export const MessageService = {
   loadMoreMessage,

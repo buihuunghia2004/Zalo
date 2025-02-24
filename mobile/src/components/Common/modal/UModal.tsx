@@ -1,4 +1,8 @@
-import React from "react";
+import React, {
+  useState,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
 import {
   Modal,
   View,
@@ -8,30 +12,43 @@ import {
 import { colors } from "~/styles/Ui/colors";
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from "~/utils/Ui/dimensions";
 
-interface UModalProps {
-  visible: boolean;
-  onClose: () => void;
-  content: React.ReactNode;
+export interface UModalRef {
+  open: (content: React.ReactNode) => void; 
+  close: () => void;
 }
 
-const UModal: React.FC<UModalProps> = ({ visible, onClose, content }) => {
+const UModal = forwardRef<UModalRef>(({},ref) => {  
+  const [visible, setVisible] = useState(false);
+  const [modalContent, setModalContent] = useState<React.ReactNode>(null);
+
+  useImperativeHandle(ref, () => ({
+    open: (content) => {
+      setModalContent(content);
+      setVisible(true);
+    },
+    close: () => setVisible(false),
+  }));
+
+  const handleClose = () => {
+    setVisible(false);
+  };
+
   return (
     <Modal
       animationType="fade"
-      transparent={true}
+      transparent
       visible={visible}
-      onRequestClose={onClose} 
+      onRequestClose={handleClose}
     >
-      <Pressable style={styles.overlay} onPress={onClose}>
+      <Pressable style={styles.overlay} onPress={handleClose}>
         <View style={styles.modalContainer}>
-          <Pressable >
-            {content}
-          </Pressable>
+          <Pressable>{modalContent}</Pressable>
         </View>
       </Pressable>
     </Modal>
   );
-};
+});
+
 
 const styles = StyleSheet.create({
   overlay: {

@@ -40,7 +40,7 @@ const LastMessage: React.FC<Props> = ({ isGroup, unReadCount, lastMessage }) => 
             {lastMessage.content}
         </Text>
       </View>
-      <Text style={textStyle.Notification}>{unReadCount}</Text>
+      {unReadCount !=0 && <Text style={textStyle.Notification}>{unReadCount}</Text>}
     </View>
   )
 }

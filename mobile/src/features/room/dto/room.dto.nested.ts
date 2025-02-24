@@ -12,7 +12,7 @@ export interface Room {
   members?: MemberResDto[];
   lastMsg: LastMsg
   memberCount: number
-  quantityUnReadMessages?: number
+  unReadMsgCount: number
 }
 export interface MemberResDto {
   id: string;

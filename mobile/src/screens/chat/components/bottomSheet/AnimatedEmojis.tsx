@@ -1,6 +1,6 @@
 import { useEffect, useRef, useMemo } from 'react';
 import { Animated, Easing, StyleSheet } from 'react-native';
-import { WINDOW_HEIGHT } from '../../../utils/Ui/dimensions';
+import { WINDOW_HEIGHT } from '../../../../utils/Ui/dimensions';
 
 type AnimationEmojiProps = {
   emoji: string;

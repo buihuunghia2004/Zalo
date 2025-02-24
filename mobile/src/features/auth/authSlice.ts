@@ -6,7 +6,6 @@ import { UserEntity } from '../user/userEntity';
 interface AuthState {
   accessToken: string | null;
   refreshToken: string | null
-  user: UserEntity | null;
   isLoading: boolean;
   error: string | null;
 }
@@ -14,7 +13,6 @@ interface AuthState {
 const initialState: AuthState = {
   accessToken: null,
   refreshToken: null,
-  user: null,
   isLoading: false,
   error: null,
 };
@@ -43,7 +41,6 @@ const authSlice = createSlice({
     logout: (state) => {
       state.accessToken = null; 
       state.refreshToken = null; 
-      state.user = null; 
       state.error = null;
       state.isLoading = false;
     },
@@ -54,15 +51,10 @@ const authSlice = createSlice({
       state.accessToken = action.payload.accessToken;
       state.refreshToken = action.payload.refreshToken;
     },
-    setMe: (
-      state,
-      action: PayloadAction<UserEntity>
-    ) => {      
-      state.user = action.payload      
-    }
+
   },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout, setAuth, setMe } = authSlice.actions;
+export const { loginStart, loginSuccess, loginFailure, logout, setAuth } = authSlice.actions;
 export const authReducer =  authSlice.reducer;
 export const authSelector = (state: { auth: AuthState }) => state.auth;

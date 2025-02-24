@@ -1,46 +1,31 @@
-import React, {useCallback, useRef, useState, useEffect} from 'react';
-import {
-  View,
-  StyleSheet,
-  TextInput,
-  Image,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  Keyboard,
-} from 'react-native';
-import {RouteProp, useNavigation} from '@react-navigation/native';
-import {MainNavProp, MainStackParamList, StackNames} from '../../routers/types';
+import React, {useCallback, useRef, useEffect, useMemo} from 'react';
+import {View,StyleSheet,FlatList,} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {MainNavProp} from '../../routers/types';
 import {colors} from '../../styles/Ui/colors';
-import {Assets} from '../../styles/Ui/assets';
 import ItemMessage from './components/ItemMessage';
 import AppBar from '../../components/Common/AppBar';
-import {iconSize} from '../../styles/Ui/icons';
-import {useTypedRoute} from '~/hooks/userMainRoute';
-import {
-  _MessageSentReq,
-  _MessageSentRes,
-} from '~/features/message/dto/message.dto.parent';
+import {_MessageSentReq,_MessageSentRes,} from '~/features/message/dto/message.dto.parent';
 import {MessageViewStatus} from '~/features/message/dto/message.enum';
 import {formatToHoursMinutes} from '~/utils/Convert/timeConvert';
 import {RoomService} from '~/features/room/roomService';
 import {_GetRoomRes} from '~/features/room/dto/room.dto.parent';
 import {useChatStore} from '~/stores/zustand/chat.store';
-import useSocketEvent from '~/hooks/useSocket ';
-import {useSelector} from 'react-redux';
-import {authSelector} from '~/features/auth/authSlice';
-import {textStyle} from '~/styles/Ui/text';
+import {useDispatch, useSelector} from 'react-redux';
 import {useSocket} from '~/socket/SocketProvider';
-import UModal from '~/components/Common/modal/UModal';
+import UModal, {UModalRef} from '~/components/Common/modal/UModal';
 import ModalContent_MenuMessage, {
   KeyItemMenu,
 } from '~/components/Common/modal/content/ModelContent_MenuMessage';
-import BottomSheetComponent from './components/BottonSheetComponent';
-import {MessagParente} from '~/features/message/dto/message.dto.nested';
+import BottomSheetComponent from './components/bottomSheet/__index';
+import {appSelector} from '~/features/app/appSlice';
+import {useRoomStore} from '~/stores/zustand/room.store';
+import ReplyMessageComponent, {
+  ReplyMessageRef,
+} from './components/bottomSheet/ReplyMessage';
+import StatusChat from './components/bottomSheet/StatusChat';
+import { resetCurrentRoomId } from '~/features/app/appSlice';
 
-type ChatScreenProps = {
-  route: RouteProp<MainStackParamList, 'ChatScreen'>;
-};
 
 export type DisplayMessage = _MessageSentRes & {
   isDisplayTime?: boolean;
@@ -49,69 +34,56 @@ export type DisplayMessage = _MessageSentRes & {
   isDisplayStatus?: boolean;
   messageStatus: MessageViewStatus;
 };
-const ChatScreen: React.FC<ChatScreenProps> = () => {
+const ChatScreen: React.FC = () => {
   const mainNav = useNavigation<MainNavProp>();
-  const route = useTypedRoute<typeof StackNames.ChatScreen>();
-  const {roomId: roomIdPagram, userId} = route.params;
-
-  const [roomId, setRoomId] = useState(roomIdPagram);
   const {
-    curentMessageRepling,
-    curentMessageSelected,
     messages,
     room,
     member,
     pagination,
     fetchMember,
     fetchRoom,
-    setCurentMessageSelected,
+    curentMessageRepling,
     setCurentMessageRepling,
     loadMoreMessage,
-    sendMessage,
     clearData,
   } = useChatStore();
-
-  const {user} = useSelector(authSelector);
+  const dispath = useDispatch()
   const {emit} = useSocket();
+  const {currentRoomId,meData} = useSelector(appSelector);
+  const {currentPartnerId} = useSelector(appSelector);
+  const {resetUnReadCount} = useRoomStore();
 
-  const inputRef = useRef<TextInput>(null);
+  const modalRef = useRef<UModalRef>(null);
+  const replyingRef = useRef<ReplyMessageRef>(null);
+  const messageSelectedRef = useRef<_MessageSentRes >();
+  const currenMessageReplyingRef = useRef<any>(curentMessageRepling);
   const inputText = useRef('');
-  const [pageY, setPageY] = useState(0);
-  const [isPartnerWrite, setIsPartnerWrite] = useState(false);
-  const [visibleMenuRoom, setVisivleMenuRoom] = useState(false);
-  const [replying, setReplying] = useState(false);
-
-  useSocketEvent<_MessageSentRes[]>({
-    event: `received_msg`,
-    callback: newMessages => {},
-  });
 
   // Fetch messages and set myId
-  useEffect(() => {
+  useEffect(() => {    
     const setData = async (): Promise<void> => {
       try {
         let roomIdTemp: any;
-
-        if (roomIdPagram) {
-          roomIdTemp = roomIdPagram;
+        //lây roomId từ roomIdPagram | userId
+        if (currentRoomId) {
+          roomIdTemp = currentRoomId;
         } else {
-          if (userId) {
-            const res = await RoomService.findOneByPartnerId(userId);
+          if (currentPartnerId) {
+            const res = await RoomService.findOneByPartnerId(currentPartnerId);
             roomIdTemp = res.roomId;
           }
         }
-        //emit join-room
-        emit('join-room', {roomId: roomIdTemp, userId: user});
+        //set unReadMessage khi join room
+        resetUnReadCount(roomIdTemp);
 
-        setRoomId(roomIdTemp);
         await Promise.all([
           fetchRoom(roomIdTemp),
           loadMoreMessage({data: roomIdTemp, pagination}),
         ]);
-
       } catch (error: any) {
         if (error.response && error.response.status === 404) {
-          if (userId) fetchMember(userId);
+          if (currentPartnerId) fetchMember(currentPartnerId);
         } else {
           console.error('Lỗi khác:', error);
           throw error;
@@ -119,12 +91,23 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
       }
     };
     setData();
-    
+
     return () => {
       clearData();
-      emit('out-room', {roomId: roomId});
+      dispath(resetCurrentRoomId(null));
+      emit('leave-room', {roomId: currentRoomId});
     };
   }, []);
+
+  useEffect(()=>{
+    const reply = currenMessageReplyingRef.current
+    if (currenMessageReplyingRef.current){      
+      replyingRef.current?.show(
+        reply?.sender?.user.username ?? 'Unknown',
+        reply?.content ?? '',
+      );
+    }
+  },[])
 
   const handleInputChange = useCallback((text: string) => {
     inputText.current = text;
@@ -133,45 +116,52 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
     inputText.current += text;
   }, []);
 
-  const handleSendMessage = async () => {
-    sendMessage(inputText.current, curentMessageRepling, userId, roomId);
-    inputText.current = '';
-    setReplying(false);
-  };
-
   const loadMoreData = () => {
-    loadMoreMessage({data: roomId ?? '', pagination});
+    loadMoreMessage({data: currentRoomId ?? '', pagination});
   };
   const handleLongItemPress = (pageY: number, message: DisplayMessage) => {
-    setCurentMessageSelected(message);
-    setPageY(pageY);
-    setVisivleMenuRoom(true);
+    messageSelectedRef.current = message
+
+    modalRef.current?.open(
+      <ModalContent_MenuMessage
+        pageY={pageY}
+        message={message}
+        onItemPress={handleItemMenuMessage}
+      />
+    );
   };
+
   const handleItemMenuMessage = (key: KeyItemMenu) => {
     if (key == KeyItemMenu.REPLY) {
-      setReplying(true);
-      setCurentMessageRepling(curentMessageSelected as MessagParente);
-      setVisivleMenuRoom(false);
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 200);
+      replyingRef.current?.show(
+        messageSelectedRef.current?.sender?.user.username ?? 'Unknown',
+        messageSelectedRef.current?.content ?? '',
+      );
+      currenMessageReplyingRef.current = messageSelectedRef.current
+      setCurentMessageRepling(currenMessageReplyingRef.current)
+      modalRef.current?.close();
     }
   };
-  const messagesDisplay: DisplayMessage[] = (messages ?? []).map(
-    (message, index, array) => {
+
+  const messagesDisplay = useMemo(() => {
+    if (!messages?.length) return [];
+
+    return messages.map((message, index, array) => {
       let status: MessageViewStatus = MessageViewStatus.SENT;
 
-      room?.members?.forEach(member => {
-        if (member.id !== user) {
+      room?.members?.some(member => {
+        if (member.user.id !== meData?.id) {
+          if (member.msgVTime > message.createdAt) {
+            status = MessageViewStatus.VIEWED;
+            return true; // Thoát vòng lặp sớm
+          }
           if (member.msgRTime > message.createdAt) {
             status = MessageViewStatus.RECEIVED;
           }
-          if (member.msgVTime > message.createdAt) {
-            status = MessageViewStatus.VIEWED;
-            return;
-          }
         }
+        return false;
       });
+
       return {
         ...message,
         isDisplayHeart:
@@ -179,7 +169,7 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
         isDisplayAvatar: !message.isSelfSent && array[index + 1]?.isSelfSent,
         isDisplayStatus: message.isSelfSent && index === 0,
         messageStatus: status,
-        // isDisplayTime:
+         // isDisplayTime:
         //   index === array.length - 1 ||
         //   (message.source !== array[index + 1]?.source &&
         //     message.source !== 'time' &&
@@ -189,21 +179,13 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
         //   message.source === 'people' &&
         //   message.source !== array[index + 1]?.source,
       };
-    },
-  );
+    });
+  }, [messages, room]);
+  
   return (
     <View style={styles.container}>
-      <UModal
-        onClose={() => setVisivleMenuRoom(false)}
-        visible={visibleMenuRoom}
-        content={
-          <ModalContent_MenuMessage
-            pageY={pageY}
-            message={curentMessageSelected}
-            onItemPress={handleItemMenuMessage}
-          />
-        }
-      />
+
+      <UModal ref={modalRef}/>
       {/* AppBar */}
       <AppBar
         title={room?.roomName ?? member?.username}
@@ -229,8 +211,8 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
         data={messagesDisplay}
         onEndReached={() => loadMoreData()}
         onEndReachedThreshold={0.4}
-        keyExtractor={item => item.id}
-        contentContainerStyle={{paddingHorizontal: 10,}}
+        keyExtractor={item => item.id.toString()}
+        contentContainerStyle={{paddingHorizontal: 10}}
         renderItem={({item}) => (
           <ItemMessage
             key={item.id}
@@ -247,61 +229,21 @@ const ChatScreen: React.FC<ChatScreenProps> = () => {
                 ? formatToHoursMinutes(item.createdAt.toString())
                 : 'N/A'
             }
-            isDisplayTime={item.isDisplayTime}
+            isDisplayTime={item.isDisplayHeart}
             isDisplayHeart={item.isDisplayHeart}
             isDisplayAvatar={item.isDisplayAvatar}
             isDisplayStatus={item.isDisplayStatus}
           />
         )}
       />
+      
+      <StatusChat />
 
-      {isPartnerWrite && <Text style={styles.isChating}>Đang soạn tin...</Text>}
+      <ReplyMessageComponent ref={replyingRef} />
 
-      {/* trả lời tin nhắn */}
-      {replying && (
-        <View
-          style={{
-            backgroundColor: 'white',
-            width: '100%',
-            flexDirection: 'row',
-            alignItems: 'center',
-            padding: 10,
-            paddingRight: 20,
-            borderBottomColor: colors.gray_light,
-            borderBottomWidth: 1,
-            marginBottom: 2,
-          }}>
-          <View
-            style={{
-              backgroundColor: colors.secondary,
-              width: 2,
-              height: '100%',
-              borderRadius: 10,
-              marginHorizontal: 10,
-            }}></View>
-          {true && <Image />}
-          <View style={{height: 50, flex: 1}}>
-            <Text style={textStyle.body_sm}>
-              {curentMessageSelected?.sender?.user.username}
-            </Text>
-            <View style={{flexDirection: 'row'}}>
-              {false && <Text> hình ảnh</Text>}
-              <Text style={textStyle.body_md}>{curentMessageSelected?.content}</Text>
-            </View>
-          </View>
-          <TouchableOpacity onPress={() => setReplying(false)}>
-            <Image source={Assets.icons.back_gray} style={iconSize.medium} />
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {/* BottomSheet */}
       <BottomSheetComponent
-        inputRef={inputRef}
-        inputText={inputText.current}
         onTextChange={handleInputChange}
         onEmojiChange={handleEmojiChange}
-        handleSendMessage={handleSendMessage}
       />
     </View>
   );
@@ -311,15 +253,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background_mess,
-  },
-  isChating: {
-    ...textStyle.body_sm,
-    backgroundColor: colors.gray,
-    color: colors.secondary,
-    position: 'absolute',
-    paddingHorizontal: 6,
-    borderTopRightRadius: 4,
-    bottom: 50,
   },
 });
 
