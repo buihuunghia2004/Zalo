@@ -10,6 +10,11 @@ import { Assets } from '../../styles/Ui/assets';
 import { textStyle } from '../../styles/Ui/text';
 import { iconSize } from '../../styles/Ui/icons';
 import useSocketEvent from '~/hooks/useSocket ';
+import { useSelector } from 'react-redux';
+import { appSelector } from '~/features/app/appSlice';
+import { useRoomStore } from '~/stores/zustand/room.store';
+import { useChatStore } from '~/stores/zustand/chat.store';
+import { _MessageSentRes } from '~/features/message/dto/message.dto.parent';
 
 type RouteName = 'HomeTab' | 'ContactsTab' | 'DinaryTab' | 'PersonalTab';
 

@@ -1,46 +1,50 @@
 const formatToHoursMinutes = (timestamp: string): string => {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-  };
-  
-  
-  // Hàm đổi timestamp ra Giờ:Phút Ngày/Tháng/Năm
-  const formatToFullDate = (timestamp: string): string => {
-    const date = new Date(timestamp);
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    return `${hours}:${minutes} ${day}/${month}/${year}`;
-  };
+  const date = new Date(timestamp);
+  return date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
+};
 
+// Hàm đổi timestamp ra Giờ:Phút Ngày/Tháng/Năm
+const formatToFullDate = (timestamp: string): string => {
+  const date = new Date(timestamp);
+  if (isNaN(date.getTime())) return "Thời gian không hợp lệ";
 
-  function calculateElapsedTime(timestamp: string | Date): string {    
-    if (!timestamp) {
-        return "Thời gian không hợp lệ";
-    }
+  const hours = date.getHours().toString().padStart(2, "0");
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const year = date.getFullYear();
 
-    const date = typeof timestamp === "string" ? new Date(timestamp) : timestamp;
+  return `${hours}:${minutes} ${day}/${month}/${year}`;
+};
 
-    if (isNaN(date.getTime())) {
-        return "Thời gian không hợp lệ";
-    }
+// Hàm tính thời gian đã trôi qua từ một timestamp
+const calculateElapsedTime = (timestamp: string | Date): string => {
+  if (!timestamp) return "Thời gian không hợp lệ";
 
-    const currentTime = new Date();
-    const elapsedMilliseconds = currentTime.getTime() - date.getTime();
+  const date = typeof timestamp === "string" ? new Date(timestamp) : timestamp;
+  if (isNaN(date.getTime())) return "Thời gian không hợp lệ";
 
-    const seconds = Math.floor(elapsedMilliseconds / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
+  const now = new Date();
+  const diffInMilliseconds = now.getTime() - date.getTime();
+  const diffInSeconds = Math.floor(diffInMilliseconds / 1000);
+  const diffInMinutes = Math.floor(diffInMilliseconds / (1000 * 60));
+  const diffInHours = Math.floor(diffInMilliseconds / (1000 * 60 * 60));
+  const diffInDays = Math.floor(diffInMilliseconds / (1000 * 60 * 60 * 24));
 
-    if (days > 0) return `${days} ngày`;
-    if (hours > 0) return `${hours} giờ`;
-    if (minutes > 0) return `${minutes} phút`;
-    return `${seconds} giây`;
-}
+  if (diffInSeconds < 60) return `vài giây trước`;
+  if (diffInMinutes < 60) return `${diffInMinutes} phút trước`;
+  if (diffInHours < 24) return `${diffInHours} giờ trước`;
+  if (diffInDays < 7) return `${diffInDays} ngày trước`;
 
-  
-  
-  export { formatToHoursMinutes, formatToFullDate, calculateElapsedTime };
+  return formatToFullDate(date.toISOString());
+};
+
+// Hàm lấy khoảng thời gian từ một timestamp so với hiện tại
+const getTimeDifferenceFromNow = (isoTime: string): string => {
+  const targetTime = new Date(isoTime);
+  if (isNaN(targetTime.getTime())) return "Thời gian không hợp lệ";
+
+  return calculateElapsedTime(targetTime);
+};
+
+export { formatToHoursMinutes, formatToFullDate, getTimeDifferenceFromNow, calculateElapsedTime };

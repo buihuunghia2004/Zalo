@@ -7,7 +7,6 @@ import {colors} from '../../styles/Ui/colors';
 import AppBar from '../../components/Common/AppBar';
 import {WINDOW_WIDTH} from '../../utils/Ui/dimensions';
 import {RelationStatus} from '~/features/relation/dto/relation.dto.enum';
-import {relationApi} from '~/features/relation/relationService';
 import {Relation} from '~/features/relation/dto/relation.dto.nested';
 import RequestItem from './components/RequestItem';
 import {viewStyle} from '~/styles/Ui/views';

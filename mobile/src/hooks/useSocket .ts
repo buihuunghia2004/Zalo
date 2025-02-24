@@ -8,10 +8,10 @@ type UseSocketEventProps<T> = {
 
 const useSocketEvent = <T,>({ event, callback  }: UseSocketEventProps<T>) => {
   const { on, off, isConnected } = useSocket();
-
+  
   useEffect(() => {
     if (!isConnected ) return;
-
+    
     on(event, callback);
 
     return () => {

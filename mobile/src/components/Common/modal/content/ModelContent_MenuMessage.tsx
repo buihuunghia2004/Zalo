@@ -44,6 +44,7 @@ export enum KeyItemMenu {
   DELETE = 'delete',
 }
 
+
 const ModalContent_MenuMessage: React.FC<Props> = ({
   pageY,
   message,
@@ -102,8 +103,8 @@ const ModalContent_MenuMessage: React.FC<Props> = ({
       icon: Assets.icons.reply_message,
     },
     {key: KeyItemMenu.DELETE, title: 'Xóa', icon: Assets.icons.reply_message},
-  ];
-
+  ];  
+  
   // Danh sách emoji
   const emojis = ['❤️', '👍', '😁', '😲', '😭', '😡'];
 

@@ -7,7 +7,8 @@ import {SocketProvider} from '~/socket/SocketProvider';
 import {useEffect, useState} from 'react';
 import {loginGoogleResponse} from '~/features/auth/authDto';
 import {setAuthorizationToken} from '~/configs/axiosInstance';
-import {setAuth, authSelector, setMe} from '~/features/auth/authSlice';
+import {setAuth, authSelector} from '~/features/auth/authSlice';
+import {setMe} from '~/features/app/appSlice';
 import {useAuthDispatch, useAuthSelector} from '~/stores/redux/store';
 import {
   AUTH_ASYNC_STORAGE_KEY,
@@ -16,7 +17,6 @@ import {
 import AuthNavigator from './AuthNavigator';
 import MainNavigator from './main/MainNavigator';
 import {UserEntity} from '~/features/user/userEntity';
-import useSocketEvent from '~/hooks/useSocket ';
 
 const AppRouters = () => {
   

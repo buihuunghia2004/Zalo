@@ -1,4 +1,6 @@
+import { UserBase } from '~/features/user/dto/user.dto.nested';
 import { MessageContentType, MessageViewStatus } from './message.enum';
+import { MemberResDto } from '~/features/room/dto/room.dto.nested';
 
 export interface MessageBase {
   id: string;
@@ -10,6 +12,7 @@ export interface MessageBase {
 export interface MessagParente {
   id: string;
   content: string;
+  sender: MemberResDto
   type: MessageContentType;
   createdAt: Date;
 }

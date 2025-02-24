@@ -7,7 +7,7 @@ interface RoomStore {
   rooms: Room[];
   unReadMessagesRooms: any;
   fetchRooms: () => void;
-  setUnReadMessagesRooms: (item: any) => void;
+  resetUnReadCount: (id: string) => void;
   receiveNewMessage: (message: _MessageSentRes) => void;
 }
 
@@ -28,27 +28,22 @@ export const useRoomStore = create<RoomStore>((set) => ({
 
     set({ rooms: sortedRooms });
   },
-
-  setUnReadMessagesRooms: (item) => set({ unReadMessagesRooms: item }),
-
+  resetUnReadCount:(id) =>  set((state) => {
+    return {
+      rooms: state.rooms.map(room => room.id === id ? {...room, unReadMsgCount: 0} : room),
+    }as Partial<RoomStore>;
+  }),
   receiveNewMessage: (message) =>
     set((state) => {
       if (!message.roomId) return { rooms: state.rooms }; 
       
-      const otherRooms = state.rooms.filter((room) => room.id !== message.roomId);
-      const updatedRoom = state.rooms.find((room) => room.id === message.roomId);
-
-      if (!updatedRoom) return { rooms: state.rooms }; 
-
+      const room = state.rooms.find((room) => room.id === message.roomId);
+      if (!room) return { rooms: state.rooms }; 
+      
       return {
-        rooms: [
-          {
-            ...updatedRoom,
-            lastMsg: message,
-            quantityUnReadMessages: (updatedRoom.quantityUnReadMessages ?? 0) + 1, 
-          },
-          ...otherRooms,
-        ],
-      }as Partial<RoomStore>;
+        rooms: state.rooms.map(
+          (r) => (r.id === message.roomId ? { ...r, unReadMsgCount: r.unReadMsgCount + 1, lastMsg: message } : r)
+        ).sort((a, b) => new Date(b.lastMsg.createdAt).getTime() - new Date(a.lastMsg.createdAt).getTime()),
+      } as Partial<RoomStore>;
     }),
 }));

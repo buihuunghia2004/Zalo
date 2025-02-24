@@ -20,11 +20,11 @@ const sendRequest = async (dto: _SendRequestReq): Promise<_SendRequestRes> => {
   }
 };
 const getRelations = async (status: RelationStatus): Promise<Relation[]> => {
-  try {
+  try {    
     const response = await axiosInstance.get('relations', {
       params: { status: status },
     });
-
+    
     if (!Array.isArray(response)) {
       throw new Error('API returned data in an invalid format.');
     }
