@@ -122,6 +122,7 @@ export class ChatRoomService {
       .leftJoin('sender.user','user')
       .leftJoin('m2.user','u')
       .where('m.userId = :meId',{meId})
+      .orderBy('msg.createdAt', 'DESC')
 
     let [rooms, metaDto] = await paginate<ChatRoomEntity>(query, reqDto, {
       skipCount: true,

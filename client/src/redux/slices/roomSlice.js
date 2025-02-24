@@ -96,6 +96,19 @@ const roomSlice = createSlice({
           : room
       })
     },
+    updateLastMsgForRoomWhenSentMsg: (state, action) => {
+      const {roomId, lastMsg} = action.payload
+      console.log('dô');
+      
+      state.data = state.data.map((room) => {
+        return room.id == roomId 
+          ? {
+            ...room,
+            lastMsg: lastMsg,
+          } 
+          : room
+      })
+    },
     loadMoreMsgWhenConnect: (state, action) => {
       const data = action.payload
       const roomIds = Object.keys(data)
@@ -140,7 +153,8 @@ export const {
   deleteAllReceivedMsg,
   updateLastMsgForRoom,
   loadMoreMsgWhenConnect,
-  setViewAllMsg
+  setViewAllMsg,
+  updateLastMsgForRoomWhenSentMsg
 } = roomSlice.actions;
 
 export default roomSlice.reducer;

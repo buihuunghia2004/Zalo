@@ -11,6 +11,7 @@ import {
   loadMoreMsgWhenConnect,
   setViewAllMsg,
   updateLastMsgForRoom,
+  updateLastMsgForRoomWhenSentMsg,
 } from '../../redux/slices/roomSlice'
 import { SearchComponent } from '../../components/SearchComponent'
 import { Link } from 'react-router-dom'
@@ -22,26 +23,34 @@ export default function ConversationList() {
   const roomId = useSelector((state) => state.currentRoom.roomId)
   const items = ['Tất cả', 'Chưa đọc']
   const [isSelected, setIsSelected] = useState(items[0])
-
+  const [sortedRooms, setSortedRooms] = useState([])
 
   useSocketEvent('new_message', (data) => {
     console.log('tin nhắn mới', data)
-    if (data.sender.userId !== meId && roomId == data.roomId) {
+    if (data.sender.userId !== meId && roomId == data.roomId) {      
       dispatch(addNewMgs(data))
     }
-    if (!roomId || roomId != data.roomId) {            
+    if (data.sender.userId == meId && roomId == data.roomId) {      
+      
+    }
+    if (!roomId || roomId != data.roomId) {                  
       dispatch(updateLastMsgForRoom({roomId:data.roomId,lastMsg:data}))
     }
+    dispatch(updateLastMsgForRoomWhenSentMsg({roomId:data.roomId, lastMsg: data}))
   })
-  // const onItemClick = (item) => {
-  //   dispatch(setCurrentRoom(item))
-  //   dispatch(setViewAllMsg({ roomId: item.id }))
-  // }
 
   useEffect(() => {    
     dispatch(getAllRooms())
   }, [])
 
+  useEffect(() => {
+    let rooms2 = rooms.map((room) => ({ ...room }))
+    rooms2.sort((a, b) => {
+      return new Date(b.lastMsg.createdAt) - new Date(a.lastMsg.createdAt)
+    })
+    setSortedRooms(rooms2)
+  }, [rooms])
+  
   return (
     <div className="flex w-[22rem] flex-col">
       {/* header */}
@@ -67,7 +76,7 @@ export default function ConversationList() {
       <div className="my-1 h-0.5 w-full bg-slate-400" />
       {/* content */}
       <div className="w-[22rem] flex-grow bg-slate-50">
-        {rooms.map((item, index) => (
+        {sortedRooms.map((item, index) => (
           <ConversationItem
             key={index.toString()}
             isFocus={item?.id == roomId}

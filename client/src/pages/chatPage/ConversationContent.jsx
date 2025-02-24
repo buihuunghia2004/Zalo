@@ -15,6 +15,7 @@ import {
   resetRoom,
   sendTextMsg,
   setMsgReply,
+  setReceiver,
 } from '../../redux/slices/currentRoomSlice'
 import { useLocation, useParams } from 'react-router-dom'
 import { emitEvent } from '../../socket/socket'
@@ -38,11 +39,6 @@ const ConversationContent = () => {
   // })
   console.log('re-render-ConversationContent')
 
-  //   if (roomId) {
-  //   useSocketEvent('writing_message', (data) => {
-  //     // setpartnerWriting(data)
-  //   })
-  // }
   // useSocketEvent('load_more_msgs_when_connect', (data) => {
   //   console.log('after connect', data)
   // })
@@ -205,18 +201,17 @@ const Content = ({ roomId }) => {
 
   console.log('membersObj', membersObj)
 
-  useSocketEvent('writing_message', (data) => {
-    setpartnerWriting(data)
+  // useSocketEvent('writing_message', (data) => {
+  //   setpartnerWriting(data)
+  // })
+
+  useSocketEvent('received_msg', (data) => {
+    console.log('received_msg', data);
+    
+    if (roomId == data.roomId) {
+      dispatch(setReceiver({ memberId: data.memberId, receivedAt: data.receivedAt }))
+    }
   })
-
-  
-
-  // useCallback(
-  //   () => {
-  //     first
-  //   },
-  //   [second],
-  // )
   
 
   const onReplyItemClick = useCallback(({ messageId }) => {
@@ -271,8 +266,6 @@ const Content = ({ roomId }) => {
       dispatch(loadMoreMessages({ roomId }))
       dispatch(setViewAllMsg({ roomId }))
     }
-
-    
   }, [roomId])
 
   useEffect(() => {
@@ -317,11 +310,7 @@ const Content = ({ roomId }) => {
                   isShowAvatar={isFirstMsgEachMember && !isSelfSent}
                   // isShowStatus={senderId == memberId && index == 0}
                   isSelfSent={isSelfSent}
-                  // status={members.some(
-                  //   (m) =>
-                  //     new Date(m?.msgRTime).getTime() >=
-                  //       new Date(item.createdAt).getTime() && m.id != memberId
-                  // )}
+                  status={(isSelfSent && index == 0) ? getStatus({members, msgCreatedAt: item.createdAt}) : null}
                   onReplyItemClick={onReplyItemClick}
                   avatarUrl={membersObj[senderId]?.user?.avatarUrl}
                   // // isLeader={senderId == leader?.id}
@@ -338,6 +327,7 @@ const Content = ({ roomId }) => {
 }
 
 const WritingCompoent = ({ memberId }) => {
+  const members = useSelector((state) => state.currentRoom.members)
   const [partnerWriting, setPartnerWriting] = useState({})
   useSocketEvent('writing_message', (data) => {
     setPartnerWriting(data)
@@ -347,7 +337,7 @@ const WritingCompoent = ({ memberId }) => {
     <>
       {partnerWriting?.status && memberId != partnerWriting?.memberId && (
         <div className="flex">
-          <p className="bg-dark-5 px-2">{`Đang soạn tin nhắn`}</p>
+          <p className="px-2">{`${members.find((m) => m.id == partnerWriting.memberId).user.username} đang soạn tin nhắn . . .`}</p>
         </div>
       )}
     </>
@@ -360,6 +350,7 @@ const Input = ({ roomId }) => {
   const membersObj = useSelector((state) => state.currentRoom.membersObj)
 
   const [textContent, setTextContent] = useState('')
+  const [isMeWriting, setIsMeWriting] = useState(false)
 
   const handleFileChange = async (event) => {
     // SendMessage({ files: event.target.files })
@@ -383,21 +374,21 @@ const Input = ({ roomId }) => {
     cancelReply(null)
   }
 
-  // useEffect(() => {
-  //   if (textContent && !isWriting) {
-  //     emit('writing-message', {
-  //       roomId: roomId,
-  //       status: true,
-  //     })
-  //     setIsWriting(true)
-  //   } else if (!textContent && isWriting) {
-  //     emit('writing-message', {
-  //       roomId: roomId,
-  //       status: false,
-  //     })
-  //     setIsWriting(false)
-  //   }
-  // }, [textContent])
+  useEffect(() => {
+    if (textContent && !isMeWriting) {
+      emitEvent('message','writing-message', {
+        roomId,
+        status: true,
+      })
+      setIsMeWriting(true)
+    } else if (!textContent && isMeWriting) {
+      emitEvent('message','writing-message', {
+        roomId,
+        status: false,
+      })
+      setIsMeWriting(false)
+    }
+  }, [textContent])
 
   return (
     <div className={`flex flex-col gap-0.5`}>
@@ -482,7 +473,7 @@ const MessageItem = memo(
     isShowAvatar,
     avatarUrl,
     // setMsgRep,
-    // status,
+    status,
 
     // isShowStatus,
     onReplyItemClick,
@@ -609,13 +600,14 @@ const MessageItem = memo(
             </div>
           )}
         </div>
-        {/* <div className={`flex ${isSelfSent && 'flex-row-reverse'}`}>
-          {isShowStatus && (
-            <p className={`rounded-md bg-dark-5 p-1 text-xs text-white`}>
-              {status ? 'Đã nhận' : 'Đã gửi'}
-            </p>
-          )}
-        </div> */}
+        {
+          status && 
+          <div className={`flex ${isSelfSent && 'flex-row-reverse'}`}>
+              <p className={`rounded-md bg-dark-5 p-1 text-xs text-white`}>
+                {status}
+              </p>
+          </div>
+        }
       </div>
     )
   }
@@ -651,6 +643,11 @@ const IconOptionMsg = ({ url, hoverUrl, onClick }) => {
       alt="Placeholder"
     />
   )
+}
+
+const getStatus = ({members, msgCreatedAt}) => {
+  const status = members.some(m => new Date(m?.msgRTime).getTime() >= new Date(msgCreatedAt).getTime())
+  return status ? 'Đã nhận' : 'Đã gửi'
 }
 
 export default ConversationContent

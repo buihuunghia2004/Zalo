@@ -7,7 +7,7 @@ export const loadMoreMessages = createAsyncThunk(
   'rooms/load-more-messages',
   async ( {roomId, afterCursor, beforeCursor}, {rejectWithValue}) => {    
     try {
-      let q = `${messageUrl}?roomId=${roomId}`
+      let q = `${messageUrl}?roomId=${roomId}&limit=20`
       if (afterCursor) q += `&afterCursor=${afterCursor}`
       if (beforeCursor) q += `&beforeCursor=${beforeCursor}`      
       const result =  await AxiosInstant.get(q)
@@ -52,9 +52,7 @@ export const getRoomByPartnerId = createAsyncThunk(
 )
 export const sendTextMsg = createAsyncThunk(
   'rooms/send-text-msg',
-  async ( {roomId, data}, {rejectWithValue}) => {
-    console.log('daaaaaa',data);
-    
+  async ( {roomId, data}, {rejectWithValue}) => {    
     try {
       const q = `${messageUrl}/${roomId}/text`
       return await AxiosInstant.post(q,data)
@@ -107,16 +105,9 @@ const currentRoomSlice = createSlice({
     loadMoreMessage: () => {
     },
     setReceiver: (state, action) => {
-      const { memerId, receivedAt } = action.payload
+      const { memberId, receivedAt } = action.payload
       state.members = state.members.map(m => {
-        if (m.id == memerId) {          
-          return {
-            ...m,
-            msgRTime: receivedAt
-          }
-        } else {
-          return m
-        }
+        return m.id == memberId ? {...m, msgRTime: receivedAt} : m
       })
     },
     addNewMgs: (state, action) => {
@@ -202,7 +193,7 @@ const currentRoomSlice = createSlice({
           ...m,
           ...(receivedMemberIds.includes(m.id) && {msgRTime: action.payload.createdAt})
         }
-      })      
+      })
     })
   }
 });

@@ -146,10 +146,10 @@ export class MessageGateway
     const isWriting = await this.cacheManager.get('writing-msg:'+data.roomId)
     if (data.status && !isWriting) {
       await this.cacheManager.set('writing-msg:'+data.roomId,memberId)
-      this.server.to(SOCKET_ROOM + data.roomId).emit(SocketEmitKey.WRITING_MESSAGE, {memberId, status: data.status})
+      this.server.to(CHAT_ROOM + data.roomId).emit(SocketEmitKey.WRITING_MESSAGE, {memberId, status: data.status})
     }else if(!data.status && isWriting){
       await this.cacheManager.del('writing-msg:'+data.roomId)
-      this.server.to(SOCKET_ROOM + data.roomId).emit(SocketEmitKey.WRITING_MESSAGE, {memberId, status: data.status})
+      this.server.to(CHAT_ROOM + data.roomId).emit(SocketEmitKey.WRITING_MESSAGE, {memberId, status: data.status})
     }
     console.log(`member ${memberId} is writing message in room ${data.roomId}`);
   }
@@ -228,7 +228,7 @@ export class MessageGateway
         
         this.server.to(CHAT_ROOM + id).emit(SocketEmitKey.RECEIVED_MSG,{
           roomId: id,
-          memerId: member.id,
+          memberId: member.id,
           receivedAt: new Date()
         })
       })) 

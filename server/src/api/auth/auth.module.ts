@@ -11,7 +11,6 @@ import { GoogleStrategy } from './strategy/google.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { AuthProviderEntity } from '../user/entities/auth-provider.entity';
 import { RoleEntity } from '../user/entities/role.entity';
-import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
