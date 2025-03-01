@@ -1,1256 +1,1513 @@
 [
   {
-    "id": "d0525790-6b80-4a7b-ad1c-28be134dafef",
+    "id": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
     "type": "personal",
     "groupName": null,
     "groupAvatar": null,
     "memberLimit": 99,
     "members": [
       {
-        "id": "8df41b6b-2fcb-47a3-b1ae-fcb3cc298933",
-        "msgVTime": "2025-02-22T16:44:09.746Z",
+        "id": "ec24f8b4-b171-4a29-8ccf-d5d2ffca0013",
+        "msgVTime": "2025-02-28T02:08:19.132Z",
         "user": {
-          "id": "1aabc996-f5d2-4459-8162-e6295b361db5",
-          "username": "dev nghia",
-          "avatarUrl": "https://lh3.googleusercontent.com/a/ACg8ocKFCiX5CXYUpatSQSRGfjdGn1UMxyd3CvqAzQeWnvuEYNfpNg=s96-c"
+          "id": "4313c0f7-53e4-4f04-ad67-0d1eeaf53e37",
+          "username": "Bùi Hữu Nhân",
+          "avatarUrl": "https://lh3.googleusercontent.com/a/ACg8ocLB8gJ4EOCfnfzXk4snI22_GpubXhb2hgZic7RPiZO95KP2dw=s96-c"
         }
       },
       {
-        "id": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-        "msgVTime": "2025-02-22T16:46:59.014Z",
+        "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "msgVTime": "2025-03-01T11:49:03.591Z",
         "user": {
-          "id": "22c4af5a-c686-4ad6-b6fe-bc717ff91d92",
-          "username": "Bùi Hữu Nghĩa",
-          "avatarUrl": "https://lh3.googleusercontent.com/a/ACg8ocK18Xk_PBX-lC8mjGLlnafuOa82YshdL0V0AN85dXB-CG93Nw=s96-c"
+          "id": "dedf0c6a-c1eb-4b1a-a09d-72c70a41983e",
+          "username": "Bui Bui",
+          "avatarUrl": "https://lh3.googleusercontent.com/a/ACg8ocLYoMVo2Z_ZvoL_LjNsB7QfqQ34fVou-cgl3dZP8qeNksmlFg=s96-c"
         }
       }
     ],
     "messages": [
       {
-        "createdAt": "2025-02-22T16:47:01.134Z",
-        "id": "b76197c8-ada1-4648-8f95-5e73ac717109",
-        "senderId": "8df41b6b-2fcb-47a3-b1ae-fcb3cc298933",
-        "roomId": "d0525790-6b80-4a7b-ad1c-28be134dafef",
-        "content": "s",
+        "createdAt": "2025-02-27T03:25:43.256Z",
+        "id": "0d420ff7-2c85-42fe-8d49-9acba0b05a82",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "I",
         "type": "text",
         "replyMessageId": null,
         "sender": {
-          "id": "8df41b6b-2fcb-47a3-b1ae-fcb3cc298933",
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
           "user": {
-            "username": "dev nghia"
+            "username": "Bui Bui"
           }
         }
       },
       {
-        "createdAt": "2025-02-22T16:45:46.618Z",
-        "id": "2ac3d947-f112-4049-8e82-e2a684b7c78f",
-        "senderId": "8df41b6b-2fcb-47a3-b1ae-fcb3cc298933",
-        "roomId": "d0525790-6b80-4a7b-ad1c-28be134dafef",
-        "content": "f",
+        "createdAt": "2025-02-27T03:23:47.676Z",
+        "id": "20e2acaf-8c93-4adf-a2b2-f4178ad7b787",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "J",
         "type": "text",
         "replyMessageId": null,
         "sender": {
-          "id": "8df41b6b-2fcb-47a3-b1ae-fcb3cc298933",
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
           "user": {
-            "username": "dev nghia"
+            "username": "Bui Bui"
           }
         }
       },
       {
-        "createdAt": "2025-02-22T16:44:19.903Z",
-        "id": "6eb3fbb7-4128-4530-9a70-7c53e3317faa",
-        "senderId": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-        "roomId": "d0525790-6b80-4a7b-ad1c-28be134dafef",
-        "content": "f",
+        "createdAt": "2025-02-27T03:23:06.462Z",
+        "id": "f47e6b6d-6fcf-495b-9c51-3f94f80f4279",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "R",
         "type": "text",
         "replyMessageId": null,
         "sender": {
-          "id": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
           "user": {
-            "username": "Bùi Hữu Nghĩa"
+            "username": "Bui Bui"
           }
         }
       },
       {
-        "createdAt": "2025-02-22T16:32:47.774Z",
-        "id": "4b7efd37-5532-4037-963d-fe8db7c465a7",
-        "senderId": "8df41b6b-2fcb-47a3-b1ae-fcb3cc298933",
-        "roomId": "d0525790-6b80-4a7b-ad1c-28be134dafef",
-        "content": "d",
+        "createdAt": "2025-02-27T03:23:01.374Z",
+        "id": "676fae24-30d8-4070-ae53-ca1799f66589",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "V",
         "type": "text",
         "replyMessageId": null,
         "sender": {
-          "id": "8df41b6b-2fcb-47a3-b1ae-fcb3cc298933",
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
           "user": {
-            "username": "dev nghia"
+            "username": "Bui Bui"
           }
         }
       },
       {
-        "createdAt": "2025-02-22T16:00:10.666Z",
-        "id": "ba293961-68b9-487f-82f3-e218c4ae88cc",
-        "senderId": "8df41b6b-2fcb-47a3-b1ae-fcb3cc298933",
-        "roomId": "d0525790-6b80-4a7b-ad1c-28be134dafef",
-        "content": "f",
+        "createdAt": "2025-02-27T01:50:37.186Z",
+        "id": "8a643882-be0c-44be-89e7-6a2ca0419c1f",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "J",
         "type": "text",
         "replyMessageId": null,
         "sender": {
-          "id": "8df41b6b-2fcb-47a3-b1ae-fcb3cc298933",
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
           "user": {
-            "username": "dev nghia"
+            "username": "Bui Bui"
           }
         }
       },
       {
-        "createdAt": "2025-02-22T15:56:50.700Z",
-        "id": "b8480e8c-fc77-4f2a-87a6-ef44f11fa5d8",
-        "senderId": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-        "roomId": "d0525790-6b80-4a7b-ad1c-28be134dafef",
-        "content": "s",
+        "createdAt": "2025-02-27T01:45:54.459Z",
+        "id": "4156ef7e-dd15-4834-9182-06db0b124501",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "77",
         "type": "text",
         "replyMessageId": null,
         "sender": {
-          "id": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
           "user": {
-            "username": "Bùi Hữu Nghĩa"
+            "username": "Bui Bui"
           }
         }
       },
       {
-        "createdAt": "2025-02-22T15:56:46.309Z",
-        "id": "7b7cb020-711e-4bd2-ac6c-1b3863f36ffb",
-        "senderId": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-        "roomId": "d0525790-6b80-4a7b-ad1c-28be134dafef",
-        "content": "c",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T15:37:17.182Z",
-        "id": "b50a19e4-5aad-4002-8014-dc5a6a0401c5",
-        "senderId": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-        "roomId": "d0525790-6b80-4a7b-ad1c-28be134dafef",
-        "content": "f",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T15:33:35.424Z",
-        "id": "87f18e22-39d3-4b55-beb2-ae74e983b718",
-        "senderId": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-        "roomId": "d0525790-6b80-4a7b-ad1c-28be134dafef",
-        "content": "a",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T15:33:00.138Z",
-        "id": "dc53b6b4-46b7-4cc3-b6c4-0433309d9d68",
-        "senderId": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-        "roomId": "d0525790-6b80-4a7b-ad1c-28be134dafef",
-        "content": "a",
-        "type": "text",
-        "replyMessageId": "e525097f-c3a0-406c-b0f2-5552aceb32fb",
-        "sender": {
-          "id": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T15:32:47.026Z",
-        "id": "f3dd0693-58db-4b5e-a540-f1a605603fb5",
-        "senderId": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-        "roomId": "d0525790-6b80-4a7b-ad1c-28be134dafef",
-        "content": "s",
-        "type": "text",
-        "replyMessageId": "6a90aad0-dcf2-43ae-9b25-b823a1323c58",
-        "sender": {
-          "id": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T14:32:13.810Z",
-        "id": "2c0657b5-ff27-42cb-a0bc-0b51ce291f67",
-        "senderId": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-        "roomId": "d0525790-6b80-4a7b-ad1c-28be134dafef",
-        "content": "f",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T14:32:10.001Z",
-        "id": "e9747020-218e-4302-8e3b-c84698da7587",
-        "senderId": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-        "roomId": "d0525790-6b80-4a7b-ad1c-28be134dafef",
-        "content": "f",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T14:12:09.983Z",
-        "id": "91ca7e34-7827-4069-958b-c8da605ab447",
-        "senderId": "8df41b6b-2fcb-47a3-b1ae-fcb3cc298933",
-        "roomId": "d0525790-6b80-4a7b-ad1c-28be134dafef",
-        "content": "1",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "8df41b6b-2fcb-47a3-b1ae-fcb3cc298933",
-          "user": {
-            "username": "dev nghia"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T13:50:16.695Z",
-        "id": "b5dfca66-cc37-43a5-bc90-be3b9f45a71e",
-        "senderId": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-        "roomId": "d0525790-6b80-4a7b-ad1c-28be134dafef",
-        "content": "13",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T13:49:19.485Z",
-        "id": "16b7dd81-3612-4353-8f2c-9b0efc8727ec",
-        "senderId": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-        "roomId": "d0525790-6b80-4a7b-ad1c-28be134dafef",
-        "content": "12",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T13:48:04.740Z",
-        "id": "7b174ee6-0698-4759-b298-1d5188f56b4d",
-        "senderId": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-        "roomId": "d0525790-6b80-4a7b-ad1c-28be134dafef",
-        "content": "11",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T13:47:58.148Z",
-        "id": "7077cf6a-2c72-4071-9145-e394fd90f505",
-        "senderId": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-        "roomId": "d0525790-6b80-4a7b-ad1c-28be134dafef",
-        "content": "10",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T13:45:04.900Z",
-        "id": "e525097f-c3a0-406c-b0f2-5552aceb32fb",
-        "senderId": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-        "roomId": "d0525790-6b80-4a7b-ad1c-28be134dafef",
-        "content": "9",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T13:44:16.733Z",
-        "id": "1213a7df-a9ff-44d9-b0e1-4e7e0de5bb74",
-        "senderId": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-        "roomId": "d0525790-6b80-4a7b-ad1c-28be134dafef",
-        "content": "8",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T13:44:15.804Z",
-        "id": "36ffde3f-a47b-426e-9162-251d4ab075d8",
-        "senderId": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-        "roomId": "d0525790-6b80-4a7b-ad1c-28be134dafef",
-        "content": "7",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T13:44:14.151Z",
-        "id": "e2169f77-bd0c-433b-9648-63886027798f",
-        "senderId": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-        "roomId": "d0525790-6b80-4a7b-ad1c-28be134dafef",
+        "createdAt": "2025-02-27T01:43:31.451Z",
+        "id": "008ef1c3-2c1e-424e-9952-b2884c6a467a",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
         "content": "6",
         "type": "text",
         "replyMessageId": null,
         "sender": {
-          "id": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T13:44:05.726Z",
-        "id": "26a200af-a1db-4ce4-8927-a20bf61866eb",
-        "senderId": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-        "roomId": "d0525790-6b80-4a7b-ad1c-28be134dafef",
-        "content": "5",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T13:23:25.276Z",
-        "id": "6a90aad0-dcf2-43ae-9b25-b823a1323c58",
-        "senderId": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-        "roomId": "d0525790-6b80-4a7b-ad1c-28be134dafef",
-        "content": "4",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T13:23:22.623Z",
-        "id": "fe2d9038-87f4-4646-b132-a7c6d9cad33b",
-        "senderId": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-        "roomId": "d0525790-6b80-4a7b-ad1c-28be134dafef",
-        "content": "3",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T12:39:48.675Z",
-        "id": "52e93553-751d-49b3-83cd-32c8e5615471",
-        "senderId": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-        "roomId": "d0525790-6b80-4a7b-ad1c-28be134dafef",
-        "content": "2",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "275c41da-dfe1-47af-9e2f-2c5abda3bbe8",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      }
-    ]
-  },
-  {
-    "id": "65c7d8d2-32fa-47c3-ba95-38436987bc74",
-    "type": "personal",
-    "groupName": null,
-    "groupAvatar": null,
-    "memberLimit": 99,
-    "members": [
-      {
-        "id": "ab5c3bb4-50f8-4882-928e-4a0bc0235494",
-        "msgVTime": "2025-02-22T16:46:58.888Z",
-        "user": {
-          "id": "22c4af5a-c686-4ad6-b6fe-bc717ff91d92",
-          "username": "Bùi Hữu Nghĩa",
-          "avatarUrl": "https://lh3.googleusercontent.com/a/ACg8ocK18Xk_PBX-lC8mjGLlnafuOa82YshdL0V0AN85dXB-CG93Nw=s96-c"
-        }
-      },
-      {
-        "id": "89b3f7ba-103c-497d-a5c7-46133c868c99",
-        "msgVTime": "2025-02-22T16:44:09.746Z",
-        "user": {
-          "id": "60aa5cb2-11c9-4607-9c72-41dfbed2094e",
-          "username": "Bùi Nghĩa",
-          "avatarUrl": "https://lh3.googleusercontent.com/a/ACg8ocLFPJYAWhuuq7KivYYMukSQuBMoerfPgZOpKiw4Z6YXSVP5Bg=s96-c"
-        }
-      }
-    ],
-    "messages": [
-      {
-        "createdAt": "2025-02-22T16:46:00.016Z",
-        "id": "4542a5a8-a23f-4847-a15d-508a6bb39921",
-        "senderId": "89b3f7ba-103c-497d-a5c7-46133c868c99",
-        "roomId": "65c7d8d2-32fa-47c3-ba95-38436987bc74",
-        "content": "f",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "89b3f7ba-103c-497d-a5c7-46133c868c99",
-          "user": {
-            "username": "Bùi Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T16:45:58.908Z",
-        "id": "0241043a-32a2-4575-aefc-ea33662f1c59",
-        "senderId": "89b3f7ba-103c-497d-a5c7-46133c868c99",
-        "roomId": "65c7d8d2-32fa-47c3-ba95-38436987bc74",
-        "content": "f",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "89b3f7ba-103c-497d-a5c7-46133c868c99",
-          "user": {
-            "username": "Bùi Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T16:44:23.124Z",
-        "id": "233d0055-2d5d-41de-9383-bf2d59fcd22b",
-        "senderId": "ab5c3bb4-50f8-4882-928e-4a0bc0235494",
-        "roomId": "65c7d8d2-32fa-47c3-ba95-38436987bc74",
-        "content": "s",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "ab5c3bb4-50f8-4882-928e-4a0bc0235494",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T16:44:17.141Z",
-        "id": "f6ce17a0-c110-4efe-9488-ebcbd2869816",
-        "senderId": "ab5c3bb4-50f8-4882-928e-4a0bc0235494",
-        "roomId": "65c7d8d2-32fa-47c3-ba95-38436987bc74",
-        "content": "sdf",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "ab5c3bb4-50f8-4882-928e-4a0bc0235494",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T16:44:13.302Z",
-        "id": "f41a3757-df20-4d71-98d7-636b7edede5f",
-        "senderId": "ab5c3bb4-50f8-4882-928e-4a0bc0235494",
-        "roomId": "65c7d8d2-32fa-47c3-ba95-38436987bc74",
-        "content": "a",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "ab5c3bb4-50f8-4882-928e-4a0bc0235494",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T16:32:30.344Z",
-        "id": "5dcd90db-58c7-477f-a054-14a270d779a7",
-        "senderId": "ab5c3bb4-50f8-4882-928e-4a0bc0235494",
-        "roomId": "65c7d8d2-32fa-47c3-ba95-38436987bc74",
-        "content": "f",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "ab5c3bb4-50f8-4882-928e-4a0bc0235494",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T16:06:14.589Z",
-        "id": "10d815ff-3683-4874-bc76-633cfb10f777",
-        "senderId": "ab5c3bb4-50f8-4882-928e-4a0bc0235494",
-        "roomId": "65c7d8d2-32fa-47c3-ba95-38436987bc74",
-        "content": "a",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "ab5c3bb4-50f8-4882-928e-4a0bc0235494",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T15:55:16.392Z",
-        "id": "030f7e3f-3aca-408e-8fdd-6675df73ca88",
-        "senderId": "ab5c3bb4-50f8-4882-928e-4a0bc0235494",
-        "roomId": "65c7d8d2-32fa-47c3-ba95-38436987bc74",
-        "content": "s",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "ab5c3bb4-50f8-4882-928e-4a0bc0235494",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T15:37:32.690Z",
-        "id": "ae604caf-101e-40a5-8c31-08167955f86a",
-        "senderId": "ab5c3bb4-50f8-4882-928e-4a0bc0235494",
-        "roomId": "65c7d8d2-32fa-47c3-ba95-38436987bc74",
-        "content": "l",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "ab5c3bb4-50f8-4882-928e-4a0bc0235494",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T12:58:33.142Z",
-        "id": "8e22cd50-1038-4645-9fc9-71c6d92a3427",
-        "senderId": "89b3f7ba-103c-497d-a5c7-46133c868c99",
-        "roomId": "65c7d8d2-32fa-47c3-ba95-38436987bc74",
-        "content": "f",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "89b3f7ba-103c-497d-a5c7-46133c868c99",
-          "user": {
-            "username": "Bùi Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T12:52:33.380Z",
-        "id": "0dea703a-040a-4bc9-bc6f-5da1682d6bd7",
-        "senderId": "89b3f7ba-103c-497d-a5c7-46133c868c99",
-        "roomId": "65c7d8d2-32fa-47c3-ba95-38436987bc74",
-        "content": "3",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "89b3f7ba-103c-497d-a5c7-46133c868c99",
-          "user": {
-            "username": "Bùi Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T12:41:18.072Z",
-        "id": "1183826f-5a5a-47a6-b77d-ad9e84bc7746",
-        "senderId": "89b3f7ba-103c-497d-a5c7-46133c868c99",
-        "roomId": "65c7d8d2-32fa-47c3-ba95-38436987bc74",
-        "content": "hello",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "89b3f7ba-103c-497d-a5c7-46133c868c99",
-          "user": {
-            "username": "Bùi Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T12:38:55.943Z",
-        "id": "3fca14ea-2cdb-41db-ba0a-2e98cbe7200c",
-        "senderId": "ab5c3bb4-50f8-4882-928e-4a0bc0235494",
-        "roomId": "65c7d8d2-32fa-47c3-ba95-38436987bc74",
-        "content": "2",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "ab5c3bb4-50f8-4882-928e-4a0bc0235494",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      }
-    ]
-  },
-  {
-    "id": "a85cdf29-e742-457f-b647-2847c544a4d9",
-    "type": "personal",
-    "groupName": null,
-    "groupAvatar": null,
-    "memberLimit": 99,
-    "members": [
-      {
-        "id": "24e41525-0d5a-4f52-84a8-e962f0fa9772",
-        "msgVTime": "2025-02-22T16:44:51.842Z",
-        "user": {
-          "id": "61ab070c-de7a-4907-b69f-135f92e00412",
-          "username": "Bui Bui",
-          "avatarUrl": "https://lh3.googleusercontent.com/a/ACg8ocLYoMVo2Z_ZvoL_LjNsB7QfqQ34fVou-cgl3dZP8qeNksmlFg=s96-c"
-        }
-      },
-      {
-        "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "msgVTime": "2025-02-22T16:45:47.976Z",
-        "user": {
-          "id": "22c4af5a-c686-4ad6-b6fe-bc717ff91d92",
-          "username": "Bùi Hữu Nghĩa",
-          "avatarUrl": "https://lh3.googleusercontent.com/a/ACg8ocK18Xk_PBX-lC8mjGLlnafuOa82YshdL0V0AN85dXB-CG93Nw=s96-c"
-        }
-      }
-    ],
-    "messages": [
-      {
-        "createdAt": "2025-02-22T16:45:21.079Z",
-        "id": "72051a16-99f4-4a84-9abd-494a4466f502",
-        "senderId": "24e41525-0d5a-4f52-84a8-e962f0fa9772",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "Vv",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "24e41525-0d5a-4f52-84a8-e962f0fa9772",
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
           "user": {
             "username": "Bui Bui"
           }
         }
       },
       {
-        "createdAt": "2025-02-22T16:43:49.476Z",
-        "id": "e918ab57-a254-4d83-81b4-90ed1886a0ef",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "a",
+        "createdAt": "2025-02-27T01:43:22.782Z",
+        "id": "5d995a34-0b77-4e43-aec9-d87c6e233b10",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "55",
         "type": "text",
         "replyMessageId": null,
         "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T16:24:13.321Z",
-        "id": "f9e20217-d529-402c-8bf1-d6b17a9a5bad",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "l",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T15:59:52.788Z",
-        "id": "5d28a843-2521-4481-b747-bec90d42132c",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "s",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T15:59:51.467Z",
-        "id": "936fd027-5b6f-4f85-bc9f-d6e6ed57bc16",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "f",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T15:59:08.049Z",
-        "id": "7743c98d-6893-4f9d-9a35-ba788f4dc73e",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "f",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T15:58:34.812Z",
-        "id": "1c481e8b-9887-415e-8d87-3a2a22baf567",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "d",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T15:58:32.334Z",
-        "id": "1c3a55c1-0ee6-4894-9ec5-8c634594e370",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "a",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T15:57:47.605Z",
-        "id": "216d4579-a3ee-4765-9663-66e18cb90f1e",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "fff",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T15:57:45.906Z",
-        "id": "94598c72-b3c8-4eb1-86f4-959054af4553",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "fff",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T15:57:23.537Z",
-        "id": "68035b81-9e3e-4052-9833-4baf979b1552",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "a",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T15:57:17.485Z",
-        "id": "07f250ea-932b-4b11-9f1a-c54f079adc5a",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "f",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T15:55:05.436Z",
-        "id": "c71aa5ed-38db-4ec7-b8d9-3ae245c05289",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "f",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T15:54:40.276Z",
-        "id": "611b26af-5388-48c9-8d53-293946019212",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "s",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T15:54:36.249Z",
-        "id": "1d38c52b-8af4-4d99-a729-282322fff1a6",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "f",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T15:10:22.577Z",
-        "id": "5f64e47a-f235-4db5-8830-3a00f50a7b6f",
-        "senderId": "24e41525-0d5a-4f52-84a8-e962f0fa9772",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "Cc",
-        "type": "text",
-        "replyMessageId": "1bb40ebf-fe7b-4af5-a739-a273fe53d2ca",
-        "sender": {
-          "id": "24e41525-0d5a-4f52-84a8-e962f0fa9772",
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
           "user": {
             "username": "Bui Bui"
           }
         }
       },
       {
-        "createdAt": "2025-02-22T15:09:56.247Z",
-        "id": "0af7a847-6e54-4639-a120-c8e39ced2d7e",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "cc",
-        "type": "text",
-        "replyMessageId": "fd6032c9-eefc-4ce6-9740-6414360bb488",
-        "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T15:09:49.048Z",
-        "id": "74836e86-c6a7-4012-93dd-690ba4befc1e",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "f",
-        "type": "text",
-        "replyMessageId": "0800a62c-2a0f-437a-95fc-28080df12138",
-        "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T15:07:23.718Z",
-        "id": "0800a62c-2a0f-437a-95fc-28080df12138",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "fff",
+        "createdAt": "2025-02-27T01:34:25.488Z",
+        "id": "f660a6d4-15ba-4e5b-9418-1dea4f02efbb",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "P",
         "type": "text",
         "replyMessageId": null,
         "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
           "user": {
-            "username": "Bùi Hữu Nghĩa"
+            "username": "Bui Bui"
           }
         }
       },
       {
-        "createdAt": "2025-02-22T15:05:09.494Z",
-        "id": "a4d340e1-c307-4047-a277-fad629c98598",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "tttttt",
+        "createdAt": "2025-02-27T01:34:20.796Z",
+        "id": "f8028af8-3a16-4393-b60d-51d6fc9da72b",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "H",
         "type": "text",
         "replyMessageId": null,
         "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
           "user": {
-            "username": "Bùi Hữu Nghĩa"
+            "username": "Bui Bui"
           }
         }
       },
       {
-        "createdAt": "2025-02-22T14:51:42.727Z",
-        "id": "1bb40ebf-fe7b-4af5-a739-a273fe53d2ca",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "9",
+        "createdAt": "2025-02-27T00:53:35.818Z",
+        "id": "fca6a4ad-41cf-4a31-867a-414b1cb8f93d",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "U",
         "type": "text",
         "replyMessageId": null,
         "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
           "user": {
-            "username": "Bùi Hữu Nghĩa"
+            "username": "Bui Bui"
           }
         }
       },
       {
-        "createdAt": "2025-02-22T14:50:19.189Z",
-        "id": "8313e490-8fb1-4a2f-aa4e-8253ebbcc8c1",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "8",
+        "createdAt": "2025-02-27T00:51:01.890Z",
+        "id": "3834104b-3db6-4aed-9a82-78aafd2ddcab",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "J",
         "type": "text",
         "replyMessageId": null,
         "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
           "user": {
-            "username": "Bùi Hữu Nghĩa"
+            "username": "Bui Bui"
           }
         }
       },
       {
-        "createdAt": "2025-02-22T14:46:28.261Z",
-        "id": "7237cc6c-1ed7-46c5-82bd-a12212d2857b",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
+        "createdAt": "2025-02-26T16:14:54.688Z",
+        "id": "1dcbe423-cec2-4fd3-844c-0ad66f765902",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "F",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T16:08:22.717Z",
+        "id": "33e1980f-65d7-43f1-905b-602fdd6423ac",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "I",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T16:04:19.473Z",
+        "id": "75112e05-f6b7-48bc-830c-2df79a1af066",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "Lll",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T16:03:05.585Z",
+        "id": "d0544a8b-8994-4810-b164-164af9480f68",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "0000",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T16:02:19.901Z",
+        "id": "f3561801-91aa-4e7f-973f-f8f6d3410904",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "2",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T16:01:14.896Z",
+        "id": "149c91e2-29df-435e-90e9-fce812a39a12",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "Hh",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T16:00:31.776Z",
+        "id": "39df5694-4be1-473a-907d-0b714a64ca27",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "R",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T16:00:13.908Z",
+        "id": "9f9c2d78-814e-4cba-b838-843ad2541e40",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "T",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T15:59:50.239Z",
+        "id": "f6bf970e-c52f-4f65-aa0c-8d8a88e69272",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "2",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T15:59:39.620Z",
+        "id": "7c4fc50f-e61e-4be6-9637-2e03be5e8ba3",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "11",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T15:59:02.923Z",
+        "id": "9d9c089d-c6fa-4f1f-b500-270b63aa15f6",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "11",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T15:53:28.063Z",
+        "id": "45faaffa-0cdc-41b1-ad7e-35ed29b76b82",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "0",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T15:53:21.653Z",
+        "id": "7ff000d4-da93-4e10-9d0f-e7f3b30c8f91",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "0",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T15:53:18.395Z",
+        "id": "559f8134-b4dd-4a26-8ca8-d00bf7ce34f3",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "100",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T15:50:47.925Z",
+        "id": "5dc20917-c20b-46af-a160-0a8969181156",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "99",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T15:45:40.992Z",
+        "id": "5e057cd4-b178-4d60-b1a2-14fb24a89c62",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "88",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T15:44:30.950Z",
+        "id": "2917dce0-33c4-41c0-a920-e113ed3ddf3a",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "77",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T15:41:12.238Z",
+        "id": "62672343-9100-446c-8226-bfb19cd0af3a",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "55",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T15:40:27.412Z",
+        "id": "e480952b-aaa0-46cd-b3ee-6dc36a783526",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "78",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T15:39:08.666Z",
+        "id": "d6b52aea-7478-425d-a79d-c85989e39320",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "66",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T15:38:59.028Z",
+        "id": "e35779c0-17b8-418b-9821-c2febdd587d9",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "56",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T15:34:14.644Z",
+        "id": "bba64827-4bf0-451d-b6e3-91f3621d2d88",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "E",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T15:32:13.941Z",
+        "id": "9c06afc6-d7f7-4072-8e3c-5780d540f663",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "6",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T15:30:08.719Z",
+        "id": "363a0bf6-5b14-4983-a95e-45953dbb720f",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "0",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T15:26:34.483Z",
+        "id": "149da943-ae00-4de0-8c7a-d139e565c84f",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "P",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T15:19:36.332Z",
+        "id": "a3c97d85-b2dc-477b-bb63-e411a8c9e8db",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "K",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T15:19:02.157Z",
+        "id": "3b2ba44f-90b0-44bc-a3b4-1bc8acf6b195",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "O",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T15:18:00.220Z",
+        "id": "62cbc8e3-cef0-4e2c-a878-ed7dca0104bd",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "F",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T15:10:06.357Z",
+        "id": "0968e2b2-732a-4b96-9f57-9d6eafe50c30",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "H",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T15:09:41.960Z",
+        "id": "73e13067-d049-470e-bac8-7237e802de33",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "H",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T15:07:17.288Z",
+        "id": "b084d74e-3cac-4480-af9a-bcd82c19b930",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "I",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T15:07:14.440Z",
+        "id": "deb56626-5a68-469e-9e22-ba8b0129fc2a",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "I",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T15:02:43.936Z",
+        "id": "9714bfc9-0e20-4c66-b0aa-38c4b8ee89cb",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "Y",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T15:00:27.707Z",
+        "id": "e05d08f4-9ad0-4257-bd79-1a9938a025a0",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "Rrrrf",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T14:59:00.041Z",
+        "id": "9136c4a7-c6a5-41ee-9214-16459b47a302",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "Et",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T14:43:50.842Z",
+        "id": "648d0b01-5af0-48f0-9346-4bd62ca37e8a",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "V",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T14:42:56.945Z",
+        "id": "bac87fa6-c5b6-41c6-9735-0ac16a0204d3",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "U",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T14:41:26.053Z",
+        "id": "b234fa9e-1dbe-4d81-bc20-14ab5194efb7",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "Ku",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T14:40:38.734Z",
+        "id": "7e7bbf4b-d50d-4803-81f1-007bd78c5f4e",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "Jggf",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T14:39:46.097Z",
+        "id": "e9d44ced-86bb-4832-98a2-09e6aceef460",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "Mju",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T14:38:29.655Z",
+        "id": "7d92f943-e253-46f1-b78b-05dfbf0a2ad6",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "J",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T14:38:04.005Z",
+        "id": "4f77fea2-ca79-4c5b-9012-47dc12d27a0f",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "Nv",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T14:34:53.038Z",
+        "id": "72066307-0836-4e40-992e-eeabf5c7eaf6",
+        "senderId": "ec24f8b4-b171-4a29-8ccf-d5d2ffca0013",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "s",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "ec24f8b4-b171-4a29-8ccf-d5d2ffca0013",
+          "user": {
+            "username": "Bùi Hữu Nhân"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T14:32:49.835Z",
+        "id": "237406e1-583d-42b0-ac18-cbc74bceaebd",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "B",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T14:32:08.842Z",
+        "id": "763e2625-4322-46f4-a6f7-adfcedc6a056",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "Vcx",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T14:30:43.677Z",
+        "id": "e73893ba-b7ca-4566-9513-2d1644320e60",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "H",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T14:28:09.762Z",
+        "id": "9bad363e-cedd-4ed6-a70e-7d876e9b8852",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "Ọh",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T14:26:32.550Z",
+        "id": "edd3e43b-5859-49e8-8da5-39405533450b",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "V",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T14:25:37.462Z",
+        "id": "7ea735bf-9b3d-429f-935f-26fb96e43191",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "Y",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T14:25:33.953Z",
+        "id": "8b7db22a-c293-4292-b343-0e7dcb9d70a2",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "J",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T14:24:56.147Z",
+        "id": "06b34136-92ce-487c-9a7a-1cfe90a8ca1f",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "B",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T14:24:17.390Z",
+        "id": "3d7b737e-d891-4d59-8691-9d5f7d9c8db0",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "Vc",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T14:18:34.789Z",
+        "id": "3a45e16e-2572-4113-93b0-c04faca6c8d0",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "H",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T14:13:34.821Z",
+        "id": "bc90180e-85ac-435b-9151-5fe7d5fceb88",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "H",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T14:13:03.840Z",
+        "id": "bb152034-4064-458e-90fd-7609b3fc6e41",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "H",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T14:12:23.744Z",
+        "id": "62dad61e-e4c6-4327-8adb-72657c5e5608",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "H",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T14:07:30.746Z",
+        "id": "3fc96e8c-bfc6-4743-8729-5cba4cfe3820",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "F",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T14:06:47.016Z",
+        "id": "dd31a621-8b70-499e-83f9-67fcd5481793",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "G",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T14:04:32.087Z",
+        "id": "4c94816c-1829-414a-999b-a044315b364e",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
         "content": "7",
         "type": "text",
         "replyMessageId": null,
         "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T14:46:14.164Z",
-        "id": "7c346e35-ded7-44a5-bee8-68c7e737eb5f",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "7",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T14:37:56.486Z",
-        "id": "3d391fee-9de3-4abd-b0f9-7dcbe7207b54",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "kkk",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T14:36:18.780Z",
-        "id": "51b0637e-80b9-4e68-89fd-5bd8741d135c",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "l",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T14:36:14.818Z",
-        "id": "b0adc8e5-07b4-4398-8494-e7e867f14578",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "j",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T14:35:00.535Z",
-        "id": "fd6032c9-eefc-4ce6-9740-6414360bb488",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "j",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T14:32:40.078Z",
-        "id": "205962d6-f5d8-41d4-94ae-088d6abb0757",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "g",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T14:32:35.662Z",
-        "id": "bdf9eeb0-cebb-4a4d-b9d5-934efa7e045d",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "g",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T14:05:49.237Z",
-        "id": "6901b51a-e4c5-4824-9615-41634c70a132",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "9",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T13:57:27.015Z",
-        "id": "2716e98d-c8c9-4b66-be6d-17bf3a3148b4",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "8",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T13:57:22.668Z",
-        "id": "eac79ca4-34d2-495c-96cf-23d8ac87dff3",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "3",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T13:54:32.316Z",
-        "id": "3c384663-58da-4d0a-a1ca-55d453c7290f",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "5",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T13:28:44.813Z",
-        "id": "febfbb91-f05b-40cd-8091-f0df4b34559c",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "4",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T13:03:48.246Z",
-        "id": "6ba723c2-90bf-4299-9963-e7fa14d0aab5",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "2",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T12:58:44.400Z",
-        "id": "edaf5393-d271-4c75-9289-a81da99c3cd3",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "f",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-          "user": {
-            "username": "Bùi Hữu Nghĩa"
-          }
-        }
-      },
-      {
-        "createdAt": "2025-02-22T12:58:23.533Z",
-        "id": "fa1f6c55-221f-418b-a00d-20542ef35c8d",
-        "senderId": "24e41525-0d5a-4f52-84a8-e962f0fa9772",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "Hillo",
-        "type": "text",
-        "replyMessageId": null,
-        "sender": {
-          "id": "24e41525-0d5a-4f52-84a8-e962f0fa9772",
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
           "user": {
             "username": "Bui Bui"
           }
         }
       },
       {
-        "createdAt": "2025-02-22T12:57:42.284Z",
-        "id": "faedbc79-439c-4401-972b-7722535e45ca",
-        "senderId": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
-        "roomId": "a85cdf29-e742-457f-b647-2847c544a4d9",
-        "content": "2",
+        "createdAt": "2025-02-26T14:03:53.550Z",
+        "id": "f3f21fe5-62cb-4228-b569-c12b3d471a05",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "U",
         "type": "text",
         "replyMessageId": null,
         "sender": {
-          "id": "c8e28758-5fb5-43c1-a5e5-adbd8c9229a5",
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
           "user": {
-            "username": "Bùi Hữu Nghĩa"
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T14:02:16.386Z",
+        "id": "616bf2b3-d922-489d-ace5-82a024c9f822",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "G",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T14:00:44.840Z",
+        "id": "f6c4f4a2-5db4-4097-ac5c-67f6b6e9ff63",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "H",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T13:59:00.897Z",
+        "id": "cc733d44-432e-405f-810c-9eb7b949ec6e",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "U",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T13:58:55.068Z",
+        "id": "98ad47b8-fa87-4a7a-a4f9-c97d3eab9796",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "Y",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T13:57:57.864Z",
+        "id": "80012b18-9835-4591-88ec-19ab12556e99",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "G",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T13:57:13.164Z",
+        "id": "a7ff2c71-b05d-4d3b-a25d-a691bf4ebdbe",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "Gg",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T13:54:58.462Z",
+        "id": "ab6cc2f1-ff69-4242-a56c-0e82d0dcb5b2",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "V",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T13:54:49.103Z",
+        "id": "31bf68c9-9c11-4ba3-b0fc-1948ecb6d285",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "H",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T13:53:36.169Z",
+        "id": "a1f0dd57-eaa0-4771-a88c-509de287ad2e",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "J",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T13:51:43.905Z",
+        "id": "dd36f748-dcae-49ca-997d-12326b4368cf",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "H",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T13:51:21.447Z",
+        "id": "7b638d0f-3d6c-4a30-98af-479097949d38",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "H",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T13:46:46.735Z",
+        "id": "a690c43b-b5b2-4bd4-8327-66c416b8c14a",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "Mm",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T13:43:24.090Z",
+        "id": "98850b06-f67f-49c0-b4d6-928305a658f5",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "V",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T13:43:08.358Z",
+        "id": "13de46ca-10ca-44dc-a20f-832e8b442d2d",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "C",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T13:42:12.715Z",
+        "id": "a198256b-0b54-4b87-8d89-2aaaf0993c01",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "J",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T13:41:53.264Z",
+        "id": "e45cd139-5c97-485f-a180-aaa494c3cf5a",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "V",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T13:41:31.457Z",
+        "id": "3c3edee2-d2fd-478c-8673-36ec3363fab7",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "Y",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T13:40:10.146Z",
+        "id": "fac49625-bb95-4589-a661-e2ed745b9637",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "V",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T13:37:57.411Z",
+        "id": "b609ccb8-7913-481d-9f62-f1284702e77b",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "B",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T13:34:02.107Z",
+        "id": "6c11f688-d53c-4795-a733-88e01e18ca46",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "B",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T13:33:39.339Z",
+        "id": "96343e32-059c-44f5-a8a5-bc62db918597",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "G",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T13:31:29.183Z",
+        "id": "2876b6d6-1e37-42bf-be34-daa9e98245b7",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "Gi",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T13:30:47.448Z",
+        "id": "b539f45b-bf92-4f7b-86cf-9cdc9ad33919",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "V",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T13:29:36.830Z",
+        "id": "f553d727-3347-49b5-a310-990795a25687",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "Jjj",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T13:27:53.508Z",
+        "id": "d376500e-4e32-4c9b-a4ed-8677f34e229b",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "Nnnn",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T13:26:51.825Z",
+        "id": "10ffcf0e-dbc5-4859-adca-723f099ec0e4",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "Ok",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
+          }
+        }
+      },
+      {
+        "createdAt": "2025-02-26T13:21:59.706Z",
+        "id": "9f2ff8ba-38a5-4832-b757-f75029d466a9",
+        "senderId": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+        "roomId": "102d14eb-1dd2-4aa6-b589-19c3f7935296",
+        "content": "Hi r",
+        "type": "text",
+        "replyMessageId": null,
+        "sender": {
+          "id": "36a6ee8c-f89d-4d38-a149-5bf441bd2caa",
+          "user": {
+            "username": "Bui Bui"
           }
         }
       }

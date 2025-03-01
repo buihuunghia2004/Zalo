@@ -1,4 +1,5 @@
 
-export const AUTH_ASYNC_STORAGE_KEY = 'auth';
-export const ME_ASYNC_STORAGE_KEY = 'me';
-export const ACCESS_TOKEN = 'accessToken';
+const AUTH_ASYNC_STORAGE_KEY = 'auth-key';
+const ME_ASYNC_STORAGE_KEY = 'me-key';
+
+export {AUTH_ASYNC_STORAGE_KEY, ME_ASYNC_STORAGE_KEY};

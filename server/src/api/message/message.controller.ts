@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Query, UseInterceptors, BadRequestException, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Query, UseInterceptors, BadRequestException, UploadedFile, Put } from '@nestjs/common';
 import { MessageService } from './message.service';
 import { ApiTags } from '@nestjs/swagger';
 import { SendMessageReqDto } from './dto/send-message.req.dto';
@@ -46,6 +46,11 @@ export class MessageController {
     @CurrentUser('id') id: Uuid
   ) {
     return this.messageService.sendTextMsg(roomId, dto, id);
+  }
+
+  @Put(':id')
+  revokeMessage(@Param('id') id: Uuid) {
+    return this.messageService.revokeMessage(id)
   }
 
   @Get()

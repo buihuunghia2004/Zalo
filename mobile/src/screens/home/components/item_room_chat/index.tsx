@@ -11,20 +11,24 @@ import LastMessage from './LastMessage';
 import {RoomTypeEnum} from '~/features/room/dto/room.enum';
 import {textStyle} from '~/styles/Ui/text';
 import {getTimeDifferenceFromNow} from '~/utils/Convert/timeConvert';
-import { useSocket } from '~/socket/SocketProvider';
 import { useDispatch } from 'react-redux';
 import { resetCurrentRoomId } from '~/features/app/appSlice';
 import { useNavigation } from '@react-navigation/native';
 import { MainNavProp, StackNames } from '~/routers/types';
+import { useRoomStore } from '~/stores/zustand/room.store';
+import { useSocket } from '~/contexts/SocketContext';
+import { RoomItemView } from '~/database/dto/room.dto';
+import { stringToArray } from '~/utils/Convert/string_arrayConvert';
 
 type Props = {
-  room: Room;
+  room: RoomItemView;
   onLongPress?: (pageY: number) => void;
 };
 
 const ItemChatHome: React.FC<Props> = ({room, onLongPress}) => {  
   const mainNav = useNavigation<MainNavProp>();
   const {emit} = useSocket();
+  const {resetUnReadCount} = useRoomStore();
   const dispath = useDispatch()
 
   //   const descriptionType: Record<DiscriptionType, DescriptionDetail> = {
@@ -79,21 +83,23 @@ const ItemChatHome: React.FC<Props> = ({room, onLongPress}) => {
   //   };
   const [timeDifference, setTimeDifference] = useState('');
   useEffect(() => {
-    if (room.lastMsg?.createdAt) {
+    if (room.lastMsgCreatedAt) {
       // Kiểm tra nếu lastMsg tồn tại
       setTimeDifference(
-        getTimeDifferenceFromNow(room.lastMsg.createdAt.toString()),
+        getTimeDifferenceFromNow(room.lastMsgCreatedAt.toString()),
       );
 
       const intervalId = setInterval(() => {
-        setTimeDifference(
-          getTimeDifferenceFromNow(room.lastMsg!.createdAt.toString()), // room.lastMsg! vì đã kiểm tra trước đó
+        if (room.lastMsgCreatedAt) {
+          setTimeDifference(
+          getTimeDifferenceFromNow(room.lastMsgCreatedAt.toString()),
         );
+        }
       }, 60 * 1000);
 
       return () => clearInterval(intervalId);
     }
-  }, [room.lastMsg?.createdAt]);
+  }, [room.lastMsgCreatedAt]);
 
   const itemRef = useRef<View>(null);
   const handleLongPress = () => {
@@ -107,7 +113,8 @@ const ItemChatHome: React.FC<Props> = ({room, onLongPress}) => {
   };
   const handleOnPress = ()=>{
     dispath(resetCurrentRoomId(room.id));
-    emit('join-room', {roomId: room.id});    
+    emit('join-room', {roomId: room.id});  
+    resetUnReadCount(room.id);  
     mainNav.navigate(StackNames.ChatScreen);
   }
   return (
@@ -120,13 +127,13 @@ const ItemChatHome: React.FC<Props> = ({room, onLongPress}) => {
         styles.container,
         {backgroundColor: pressed ? 'rgba(0, 0, 0, 0.03)' : 'transparent'},
       ]}>
-      {room.roomAvatarUrl ? (
+      {room.groupAvatar ? (
         <Image
           style={imagesStyle.avatar_50}
-          source={{uri: room.roomAvatarUrl}}
+          source={{uri: room.groupAvatar}}
         />
       ) : (
-        <GroupAvatar roomAvatarUrls={room.roomAvatarUrls} />
+        <GroupAvatar roomAvatarUrls={stringToArray(room.groupAvatar)} />
       )}
 
       <View style={styles.infor}>
@@ -134,24 +141,20 @@ const ItemChatHome: React.FC<Props> = ({room, onLongPress}) => {
           <Text
             style={[
               textStyle.body_md,
-              room.unReadMsgCount > 0 && styles.unReaded,
+              room.unreadCount > 0 && styles.unReaded,
             ]}>
-            {room.roomName}
+            {room.groupName}
           </Text>
           <Text
             style={[
               styles.textTime,
-              room.unReadMsgCount > 0 && styles.unReaded,
+              room.unreadCount > 0 && styles.unReaded,
             ]}>
             {timeDifference}
           </Text>
         </View>
-        {room.lastMsg && <View style={viewStyle.container_row_between}>
-        <LastMessage
-            isGroup={room.type == RoomTypeEnum.GROUP}
-            unReadCount={room.unReadMsgCount}
-            lastMessage={room?.lastMsg}
-          />
+        {room.lastMsgId && <View style={viewStyle.container_row_between}>
+          <LastMessage room={room}/>
         </View>}
       </View>
     </Pressable>

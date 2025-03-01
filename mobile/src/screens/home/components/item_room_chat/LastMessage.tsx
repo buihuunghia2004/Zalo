@@ -1,18 +1,17 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
-import { LastMsg } from '~/features/room/dto/room.dto.nested'
 import { MessageContentType } from '~/features/message/dto/message.enum'
 import { viewStyle } from '~/styles/Ui/views'
 import { textStyle } from '~/styles/Ui/text'
+import { RoomItemView } from '~/database/dto/room.dto'
+import { RoomTypeEnum } from '~/features/room/dto/room.enum'
 
 type Props = {
-  isGroup: boolean
-  unReadCount: number
-  lastMessage: LastMsg
+  room: RoomItemView
 }
 
-const LastMessage: React.FC<Props> = ({ isGroup, unReadCount, lastMessage }) => {  
-  const user = lastMessage.sender.user
+const LastMessage: React.FC<Props> = ({room}) => {  
+  const  isGroup = (room.type == RoomTypeEnum.GROUP)
   const messageTypes: Record<MessageContentType, string> = {
     [MessageContentType.TEXT]: "[Text]",
     [MessageContentType.IMAGE]: "[Image]",
@@ -26,21 +25,21 @@ const LastMessage: React.FC<Props> = ({ isGroup, unReadCount, lastMessage }) => 
       <View style={viewStyle.container_row}>
         {isGroup && (
             <Text style={styles.username}>
-            {user.username + ' : '}
+            {room.lastMsgSenderName + ' : '}
             </Text>
         )}
 
-        {lastMessage.type !== MessageContentType.TEXT && (
-            <Text style={unReadCount == 0 ? styles.typeRead : styles.typeUnread}>
-            {messageTypes[lastMessage.type]}
+        {room.lastMsgType && room.lastMsgType !== MessageContentType.TEXT && (
+            <Text style={room.unreadCount == 0 ? styles.typeRead : styles.typeUnread}>
+            {messageTypes[room.lastMsgType]}
             </Text>
         )}
 
-        <Text style={unReadCount == 0 ? styles.textRead : styles.textUnread}>
-            {lastMessage.content}
+        <Text style={room.unreadCount == 0 ? styles.textRead : styles.textUnread}>
+            {room.lastMsgContent}
         </Text>
       </View>
-      {unReadCount !=0 && <Text style={textStyle.Notification}>{unReadCount}</Text>}
+      {room.unreadCount !=0 && <Text style={textStyle.Notification}>{room.unreadCount}</Text>}
     </View>
   )
 }

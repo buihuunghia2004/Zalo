@@ -9,16 +9,11 @@ import ProfilePersonalScreen from '~/screens/personal/ProfilePersonalScreen';
 import SendAddFriendScreen from '~/screens/relation/SendAddFriendScreen';
 import HandleReqScreen from '~/screens/relation/HandleReqScreen';
 import OptionalFriendScreen from '~/screens/relation/OptionalFriendScreen';
-import useSocketEvent from '~/hooks/useSocket ';
 import {_MessageSentRes} from '~/features/message/dto/message.dto.parent';
-import {useRoomStore} from '~/stores/zustand/room.store';
-import { useSelector } from 'react-redux';
-import { appSelector } from '~/features/app/appSlice';
-import { useChatStore } from '~/stores/zustand/chat.store';
+
 const Stack = createNativeStackNavigator<MainStackParamList>();
 
 const MainNavigator = () => {
-
   return (
     <Stack.Navigator screenOptions={{animation: 'fade'}}>
       <Stack.Screen

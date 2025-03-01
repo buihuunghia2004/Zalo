@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useSocket } from "../socket/SocketProvider";
+import { useSocket } from "~/contexts/SocketContext";
 
 type UseSocketEventProps<T> = {
   event: string;

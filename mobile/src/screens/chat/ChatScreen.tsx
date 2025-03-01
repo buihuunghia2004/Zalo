@@ -6,13 +6,11 @@ import {colors} from '../../styles/Ui/colors';
 import ItemMessage from './components/ItemMessage';
 import AppBar from '../../components/Common/AppBar';
 import {_MessageSentReq,_MessageSentRes,} from '~/features/message/dto/message.dto.parent';
-import {MessageViewStatus} from '~/features/message/dto/message.enum';
-import {formatToHoursMinutes} from '~/utils/Convert/timeConvert';
+import {calculateElapsedTime, formatToHoursMinutes} from '~/utils/Convert/timeConvert';
 import {RoomService} from '~/features/room/roomService';
 import {_GetRoomRes} from '~/features/room/dto/room.dto.parent';
 import {useChatStore} from '~/stores/zustand/chat.store';
 import {useDispatch, useSelector} from 'react-redux';
-import {useSocket} from '~/socket/SocketProvider';
 import UModal, {UModalRef} from '~/components/Common/modal/UModal';
 import ModalContent_MenuMessage, {
   KeyItemMenu,
@@ -25,15 +23,9 @@ import ReplyMessageComponent, {
 } from './components/bottomSheet/ReplyMessage';
 import StatusChat from './components/bottomSheet/StatusChat';
 import { resetCurrentRoomId } from '~/features/app/appSlice';
+import { DisplayMessage, mapMessagesToDisplay } from '~/features/message/mapper/message.mapper';
+import { useSocket } from '~/contexts/SocketContext';
 
-
-export type DisplayMessage = _MessageSentRes & {
-  isDisplayTime?: boolean;
-  isDisplayHeart?: boolean;
-  isDisplayAvatar?: boolean;
-  isDisplayStatus?: boolean;
-  messageStatus: MessageViewStatus;
-};
 const ChatScreen: React.FC = () => {
   const mainNav = useNavigation<MainNavProp>();
   const {
@@ -50,9 +42,8 @@ const ChatScreen: React.FC = () => {
   } = useChatStore();
   const dispath = useDispatch()
   const {emit} = useSocket();
-  const {currentRoomId,meData} = useSelector(appSelector);
+  const {currentRoomId, meData} = useSelector(appSelector);
   const {currentPartnerId} = useSelector(appSelector);
-  const {resetUnReadCount} = useRoomStore();
 
   const modalRef = useRef<UModalRef>(null);
   const replyingRef = useRef<ReplyMessageRef>(null);
@@ -61,7 +52,7 @@ const ChatScreen: React.FC = () => {
   const inputText = useRef('');
 
   // Fetch messages and set myId
-  useEffect(() => {    
+  useEffect(() => {        
     const setData = async (): Promise<void> => {
       try {
         let roomIdTemp: any;
@@ -73,10 +64,7 @@ const ChatScreen: React.FC = () => {
             const res = await RoomService.findOneByPartnerId(currentPartnerId);
             roomIdTemp = res.roomId;
           }
-        }
-        //set unReadMessage khi join room
-        resetUnReadCount(roomIdTemp);
-
+        }                
         await Promise.all([
           fetchRoom(roomIdTemp),
           loadMoreMessage({data: roomIdTemp, pagination}),
@@ -142,46 +130,12 @@ const ChatScreen: React.FC = () => {
       modalRef.current?.close();
     }
   };
-
-  const messagesDisplay = useMemo(() => {
-    if (!messages?.length) return [];
-
-    return messages.map((message, index, array) => {
-      let status: MessageViewStatus = MessageViewStatus.SENT;
-
-      room?.members?.some(member => {
-        if (member.user.id !== meData?.id) {
-          if (member.msgVTime > message.createdAt) {
-            status = MessageViewStatus.VIEWED;
-            return true; // Thoát vòng lặp sớm
-          }
-          if (member.msgRTime > message.createdAt) {
-            status = MessageViewStatus.RECEIVED;
-          }
-        }
-        return false;
-      });
-
-      return {
-        ...message,
-        isDisplayHeart:
-          !message.isSelfSent && (array[index - 1]?.isSelfSent || index === 0),
-        isDisplayAvatar: !message.isSelfSent && array[index + 1]?.isSelfSent,
-        isDisplayStatus: message.isSelfSent && index === 0,
-        messageStatus: status,
-         // isDisplayTime:
-        //   index === array.length - 1 ||
-        //   (message.source !== array[index + 1]?.source &&
-        //     message.source !== 'time' &&
-        //     message.source !== 'action'),
-
-        // isDisplayHeart:
-        //   message.source === 'people' &&
-        //   message.source !== array[index + 1]?.source,
-      };
-    });
-  }, [messages, room]);
   
+  const displayMessages = useMemo(
+    () => mapMessagesToDisplay(messages, room, meData ? meData?.id : '')
+    ,[messages, room, meData]);
+
+    
   return (
     <View style={styles.container}>
 
@@ -208,15 +162,15 @@ const ChatScreen: React.FC = () => {
       />
       <FlatList
         inverted
-        data={messagesDisplay}
+        data={displayMessages}
         onEndReached={() => loadMoreData()}
         onEndReachedThreshold={0.4}
-        keyExtractor={item => item.id.toString()}
+        keyExtractor={(item) => (item?.id )}
         contentContainerStyle={{paddingHorizontal: 10}}
         renderItem={({item}) => (
           <ItemMessage
             key={item.id}
-            id={item.id}
+            id={item?.id ?? ''}
             replyMessage={item.replyMessage}
             onLongPress={pageY => handleLongItemPress(pageY, item)}
             data={item.content}
@@ -224,11 +178,7 @@ const ChatScreen: React.FC = () => {
             type={'text'}
             sender={item.sender}
             status={item.messageStatus}
-            time={
-              item.createdAt
-                ? formatToHoursMinutes(item.createdAt.toString())
-                : 'N/A'
-            }
+            time={formatToHoursMinutes(item.createdAt.toString())}
             isDisplayTime={item.isDisplayHeart}
             isDisplayHeart={item.isDisplayHeart}
             isDisplayAvatar={item.isDisplayAvatar}
