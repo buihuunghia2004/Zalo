@@ -19,18 +19,19 @@ const loadMoreMessage= async (dto: CursorPaginatedReq<string>): Promise<CursorPa
   }
 }
 
-import { AxiosResponse } from 'axios';
-
 const SentMessage = async ({ dto, key }: { dto: _MessageSentReq, key: string })
 : Promise<{ result: _MessageSentRes, key: string }> => {
-  try {
-    const res = (await axiosInstance.post(`messages/${dto.roomId}/text`, dto));
-    return { result: res.data, key };
-  } catch (error: any) {
-    console.error('Error while sending message:', error);
+  try {    
+    const res = await axiosInstance.post(`/messages/${dto.roomId}/text`, dto);
+    const result = res.data ?? res; // 🛠 Nếu `res.data` không có, dùng `res`
+    return { result, key };
+  } catch (error) {
+    console.error('Lỗi khi gửi tin nhắn:', error);
     throw error;
   }
 };
+
+
 
 
 export const MessageService = {

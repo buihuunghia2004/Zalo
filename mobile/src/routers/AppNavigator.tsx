@@ -3,7 +3,7 @@ import AsyncStorage, {
   useAsyncStorage,
 } from '@react-native-async-storage/async-storage';
 import {SplashScreen} from '~/screens/SplashScreen';
-import {SocketProvider} from '~/socket/SocketProvider';
+import {SocketProvider} from '~/contexts/SocketContext';
 import {useEffect, useState} from 'react';
 import {loginGoogleResponse} from '~/features/auth/authDto';
 import {setAuthorizationToken} from '~/configs/axiosInstance';
@@ -17,9 +17,7 @@ import {
 import AuthNavigator from './AuthNavigator';
 import MainNavigator from './main/MainNavigator';
 import {UserEntity} from '~/features/user/userEntity';
-
 const AppRouters = () => {
-  
   const authData = useAuthSelector(authSelector);
   const dispatch = useAuthDispatch();
 
@@ -57,15 +55,15 @@ const AppRouters = () => {
 
   return (
     <>
-      {isShowSplash ? (
-        <SplashScreen />
-      ) : authData?.accessToken ? (
-        <SocketProvider namespace={'message'}>
+        <SocketProvider namespace="message">
+        {isShowSplash ? (
+          <SplashScreen />
+        ) : authData?.accessToken ? (
           <MainNavigator />
-        </SocketProvider>
-      ) : (
-        <AuthNavigator />
-      )}
+        ) : (
+          <AuthNavigator />
+        )}
+      </SocketProvider>
     </>
   );
 };

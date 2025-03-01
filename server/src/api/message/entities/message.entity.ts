@@ -39,8 +39,8 @@ export class MessageEntity extends AbstractEntity{
   @Column({name:'reply_message_id', nullable: true})
   replyMessageId?: Uuid;
 
-  // @Column({type:'enum', enum:MessageViewStatus})
-  // status: MessageViewStatus
+  @Column()
+  revoked: boolean;
 
   @ManyToOne(()=>MemberEntity, (member) => member.messages)
   @JoinColumn({

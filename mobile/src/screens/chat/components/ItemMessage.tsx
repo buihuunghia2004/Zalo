@@ -13,12 +13,12 @@ import {Assets} from '../../../styles/Ui/assets';
 import {iconSize} from '../../../styles/Ui/icons';
 import {textStyle} from '../../../styles/Ui/text';
 import AnimatedEmojis from './bottomSheet/AnimatedEmojis';
-import { MessageViewStatus } from '~/features/message/dto/message.enum';
 import { useChatStore } from '~/stores/zustand/chat.store';
 import { _MessageSentReq, _MessageSentRes } from '~/features/message/dto/message.dto.parent';
 import { MessagParente } from '~/features/message/dto/message.dto.nested';
 import { Fonts } from '~/styles/Ui/fonts';
 import { MemberResDto } from '~/features/room/dto/room.dto.nested';
+import { MessageStatus } from '~/features/message/dto/message.enum';
 
 type SourceMessageType = 'time' | 'action' | 'me' | 'people';
 type MessageType =
@@ -37,7 +37,7 @@ type MessageType =
 interface Message {
   id: string;
   data: string;
-  status: MessageViewStatus,
+  status: MessageStatus,
   replyMessage?: MessagParente,
   source?: boolean;
   sender?: MemberResDto

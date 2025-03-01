@@ -1,4 +1,3 @@
-// utils/localStorage.ts
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const localStorage = {
@@ -24,7 +23,7 @@ const localStorage = {
     try {
       await AsyncStorage.removeItem(key);
     } catch (error) {
-      console.error('Error removing data', error);
+      console.log(error)
     }
   },
 

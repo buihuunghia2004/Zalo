@@ -26,8 +26,8 @@ export const connectSocket = (namespace: string, accesstoken: string): Socket =>
 
 export const disconnectSocket = (namespace: string): void => {
   if (sockets[namespace]) {
-    sockets[namespace].removeAllListeners(); // ✅ Xóa hết sự kiện tránh rò rỉ bộ nhớ
     sockets[namespace].disconnect();
+    sockets[namespace].removeAllListeners(); 
     delete sockets[namespace];    
   }
 };

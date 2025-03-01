@@ -9,16 +9,13 @@ import {useRoomStore} from '~/stores/zustand/room.store';
 import {_MessageSentRes} from '~/features/message/dto/message.dto.parent';
 import UModal, { UModalRef } from '~/components/Common/modal/UModal';
 import ModalContent_Conversation from '~/components/Common/modal/content/ModalContent_Conversation';
+import { useOfflineRooms } from '~/hooks/useOfflineRooms';
 
 const HomeScreen = () => {
   const mainNav = useNavigation<MainNavProp>();
-  const {rooms, fetchRooms} = useRoomStore();
+  const {rooms, setRooms, loading} = useOfflineRooms()
   const modalRef = useRef<UModalRef>(null);
-  
-  useEffect(() => {
-    
-    fetchRooms();
-  }, []);
+
 
   const goToSearchScreen = () => {
     mainNav.navigate(StackNames.SearchScreen);

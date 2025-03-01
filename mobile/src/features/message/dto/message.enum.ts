@@ -6,10 +6,7 @@ export enum MessageContentType {
   FILE = 'file',
 }
 
-export enum MessageViewStatus {
+export enum MessageStatus {
   SENDING = 'sending',
   SENT = 'sent',
-  RECEIVED = 'received',
-  VIEWED = 'viewed',
-  REVOKED = 'revoked',
 }

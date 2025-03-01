@@ -1,6 +1,8 @@
 import { MemberResDto } from '~/features/room/dto/room.dto.nested';
 import {messageEntity} from '../messageEntity';
-import { MessageContentType } from './message.enum';
+import { MessageContentType, MessageStatus } from './message.enum';
+import { Message } from 'yup';
+import { MessagParente } from './message.dto.nested';
 
 export interface _MessageSentReq {
   receiverId?: string;
@@ -11,10 +13,12 @@ export interface _MessageSentReq {
 export interface _MessageSentRes
   extends Pick<
     messageEntity,
-    'id' | 'content' | 'type' | 'replyMessage'
+    'id' | 'content' | 'type' | 'replyMessage'| 'senderId' | 'roomId' | 'revoked'| 'createdAt' 
   > {
+  receivedMemberIds?: string[];
   sender?: MemberResDto;
-  roomId?: string;
+  replyMessageId?: string;
+  replyMessage?: MessagParente;
   isSelfSent?: boolean;
-  createdAt: Date;
+  status?: MessageStatus
 }

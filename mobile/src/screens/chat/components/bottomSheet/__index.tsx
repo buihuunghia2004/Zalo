@@ -15,8 +15,8 @@ import {iconSize} from '~/styles/Ui/icons';
 import EmojiList from './EmojiList';
 import {useSelector} from 'react-redux';
 import {appSelector} from '~/features/app/appSlice';
-import {useSocket} from '~/socket/SocketProvider';
 import {useChatStore} from '~/stores/zustand/chat.store';
+import { useSocket } from '~/contexts/SocketContext';
 
 interface BottomSheetProps {
   onTextChange: (text: string) => void;
@@ -26,24 +26,25 @@ interface BottomSheetProps {
 const BottomSheetComponent: React.FC<BottomSheetProps> = memo(
   ({onTextChange, onEmojiChange}) => {
     const inputRef = useRef<TextInput>(null);
-    const {sendMessage} = useChatStore();
+    const isWritingRef = useRef<boolean>(false)
+    const {sentMessage} = useChatStore();
     const {emit} = useSocket();
-    const {currentRoomId} = useSelector(appSelector);
+    const {currentPartnerId, currentRoomId} = useSelector(appSelector)    
     const [text, setText] = useState('');
     const [keyboard, setKeyboard] = useState(false);
     const [renderEmojis, setRenderEmojis] = useState(false);
-    const [isWriting, setIsWriting] = useState(false);
+  
     const scaleIcons = useRef(new Animated.Value(1)).current;
     const scaleSend = useRef(new Animated.Value(0)).current;
 
     //listen to emit writing
     useEffect(() => {      
-      if (text && !isWriting) {
+      if (text && !isWritingRef.current) {
         emit('writing-message', {roomId: currentRoomId, status: true});
-        setIsWriting(true);
-      } else if (text == '' && isWriting) {
+        isWritingRef.current = true;
+      } else if (text == '' && isWritingRef.current) {
         emit('writing-message', {roomId: currentRoomId, status: false});
-        setIsWriting(false);
+        isWritingRef.current = false;
       }
     }, [text]);
 
@@ -99,7 +100,7 @@ const BottomSheetComponent: React.FC<BottomSheetProps> = memo(
       handleAnimation(newText);
     }, []);
     const handleSendMessage = async () => {
-      sendMessage(text);
+      sentMessage(text, currentPartnerId as string, currentRoomId as string);
       setText('');
     };
 

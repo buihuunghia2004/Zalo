@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 // import { UpdateMessageDto } from './dto/update-message.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../user/entities/user.entity';
@@ -32,6 +32,7 @@ import { createCacheKey } from '@/utils/cache.util';
 import { CacheKey } from '@/constants/cache.constant';
 import { SendTextMsgReqDto } from './dto/send-text-msg.req.dto';
 import { LoadMessagesFromReqDto } from './dto/load-messages-from.req.dto';
+import { TimeUtil } from '@/utils/time.util';
 
 @Injectable()
 export class MessageService {
@@ -184,16 +185,17 @@ export class MessageService {
     console.log('on', onlineMembers);
 
     // Gửi thông báo sự kiện
-
     const msgData = {
       ...newMsg,
+      isSelfSent: true,
       receivedMemberIds: onlineMembers.map((m) => m.id),
     };
+    console.log(msgData);
+    
     this.eventEmitter.emit(EventEmitterKey.NEW_MESSAGE, {
       id: newMsg.id,
       content: data.content,
       type: MessageContentType.TEXT,
-      isSelfSent: member.id == meId,
       roomId,
       onlineMembers,
       offlineMembers,
@@ -202,6 +204,22 @@ export class MessageService {
     });
 
     return plainToInstance(MessageResDto, msgData);
+  }
+
+  async revokeMessage(id: Uuid) {
+    const message = await this.messageRepository.findOne({
+      where: { id }
+    })
+
+    if (!message) {
+      throw new NotFoundException('Message not found');
+    }
+
+    if (TimeUtil.isOlderThanOneDay(message.createdAt)) {
+      throw new ForbiddenException('Message is older than 1 day');
+    }
+
+    message.revoked = true;
   }
 
   async loadMoreMessage(
